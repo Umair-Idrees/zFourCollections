@@ -78,7 +78,7 @@ const HeroHomeSection = () => {
   const slides = [
     {
       id: 1,
-      image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1920&auto=format&fit=crop',
+      image: 'https://www.shutterstock.com/image-photo/rack-stylish-dresses-on-black-600nw-2533341777.jpg',
       heading: 'Apple Shopping Event',
       subtext: 'Shop great deals on MacBook, iPad, iPhone and more',
       buttonText: 'Shop Now',
@@ -86,7 +86,7 @@ const HeroHomeSection = () => {
     },
     {
       id: 2,
-      image: 'https://images.unsplash.com/photo-1661347333292-3848348a9907?q=80&w=1920&auto=format&fit=crop',
+      image: 'https://www.shutterstock.com/image-photo/rack-stylish-dresses-on-black-600nw-2533341777.jpg',
       heading: 'The New Google Pixel 7',
       subtext: 'Experience the most helpful Google phone yet.',
       buttonText: 'Pre-Order Now',
@@ -94,7 +94,7 @@ const HeroHomeSection = () => {
     },
     {
       id: 3,
-      image: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1920&auto=format&fit=crop',
+      image: 'https://www.shutterstock.com/image-photo/rack-stylish-dresses-on-black-600nw-2533341777.jpg',
       heading: 'Discount on Smart Appliances up to 25%',
       subtext: 'Upgrade your home with the latest smart technology.',
       buttonText: 'Shop Now',
@@ -163,7 +163,7 @@ const HeroHomeSection = () => {
           {/* TOP LARGE BANNER */}
           <div className="h-[220px] rounded-2xl overflow-hidden relative group shadow-xl">
             <img
-              src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1200&auto=format&fit=crop"
+              src="https://www.shutterstock.com/image-photo/rack-stylish-dresses-on-black-600nw-2533341777.jpg"
               alt="Aurora Headset"
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               referrerPolicy="no-referrer"
@@ -188,7 +188,7 @@ const HeroHomeSection = () => {
             {/* Banner 1 */}
             <div className="h-[216px] rounded-2xl overflow-hidden relative group shadow-lg">
               <img
-                src="https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?q=80&w=800&auto=format&fit=crop"
+                src="https://www.shutterstock.com/image-photo/rack-stylish-dresses-on-black-600nw-2533341777.jpg"
                 alt="New Dual Sense"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 referrerPolicy="no-referrer"
@@ -207,7 +207,7 @@ const HeroHomeSection = () => {
             {/* Banner 2 */}
             <div className="h-[216px] rounded-2xl overflow-hidden relative group shadow-lg">
               <img
-                src="https://images.unsplash.com/photo-1526170315873-3a98618bb9af?q=80&w=800&auto=format&fit=crop"
+                src="https://www.shutterstock.com/image-photo/rack-stylish-dresses-on-black-600nw-2533341777.jpg"
                 alt="Instant Cameras"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 referrerPolicy="no-referrer"

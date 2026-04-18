@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Heart, ShoppingCart, Eye, Star, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
@@ -291,9 +292,66 @@ const FashionProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
 export const FashionCollection = () => {
   const { products: contextProducts } = useProducts();
 
-  // Map context products to ProductProps format
-  const products: ProductProps[] = contextProducts
-    .filter(p => p.category === 'Fashion' || p.category === 'Trending')
+  // Girls' Fashion Fallback Products
+  const fallbackProducts: ProductProps[] = [
+    {
+      id: 'trend-1',
+      image: 'https://images.unsplash.com/photo-1594633225954-97881cd39bc2?q=80&w=800&auto=format&fit=crop',
+      title: 'Floral Summer Silk Suit',
+      price: 89.00,
+      salePrice: 65.00,
+      sizes: ['XS', 'S', 'M'],
+      colors: [{ name: 'Peach', hex: '#FFDAB9' }, { name: 'White', hex: '#FFFFFF' }],
+      stockBadge: 'Hot',
+      rating: 4.9,
+      reviews: 86,
+      description: 'A breezy, lightweight silk suit with hand-printed floral motifs. Perfect for summer festivities.'
+    },
+    {
+      id: 'trend-2',
+      image: 'https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=800&auto=format&fit=crop',
+      title: 'Embroidered Velvet Kurta',
+      price: 120.00,
+      salePrice: 95.00,
+      sizes: ['S', 'M', 'L'],
+      colors: [{ name: 'Maroon', hex: '#800000' }, { name: 'Black', hex: '#000000' }],
+      stockBadge: 'Trending',
+      rating: 4.8,
+      reviews: 142,
+      description: 'Deep maroon velvet kurta with intricate gold Zari work on the neckline and sleeves.'
+    },
+    {
+      id: 'trend-3',
+      image: 'https://images.unsplash.com/photo-1599032906857-5e88101a8ade?q=80&w=800&auto=format&fit=crop',
+      title: 'Pastel Organza Formal',
+      price: 150.00,
+      salePrice: 129.00,
+      sizes: ['XS', 'S', 'M'],
+      colors: [{ name: 'Mint', hex: '#98FF98' }, { name: 'Lilac', hex: '#E6E6FA' }],
+      stockBadge: 'Limited',
+      rating: 5.0,
+      reviews: 54,
+      description: 'Elegant multi-layered organza dress with delicate pearl embellishments and a soft silk lining.'
+    },
+    {
+      id: 'trend-4',
+      image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?q=80&w=800&auto=format&fit=crop',
+      title: 'Digital Printed Lawn Set',
+      price: 55.00,
+      salePrice: 45.00,
+      sizes: ['S', 'M', 'L', 'XL'],
+      colors: [{ name: 'Sky Blue', hex: '#87CEEB' }, { name: 'Yellow', hex: '#FFFF00' }],
+      stockBadge: 'New',
+      rating: 4.7,
+      reviews: 92,
+      description: 'Premium quality lawn 2-piece set with vibrant digital prints, ideal for everyday casual wear.'
+    }
+  ];
+
+  // Merge context products if they exist, otherwise use fallback
+  const mappedContextProducts: ProductProps[] = contextProducts
+    .filter(p => p.category === 'Fashion' || p.category === 'Trending' || p.category === 'Clothes')
+    .slice(0, 4)
     .map(p => ({
       id: p.id,
       image: p.mainImage,
@@ -305,26 +363,35 @@ export const FashionCollection = () => {
         name: typeof c === 'string' ? c : c.name, 
         hex: typeof c === 'string' ? '#000000' : c.hex 
       })) : [{ name: 'Black', hex: '#000000' }],
-      stockBadge: p.stockStatus === 'In Stock' ? 'New' : 'Out of Stock',
-      rating: 4.5 + Math.random() * 0.5, // Mock rating if not present
-      reviews: Math.floor(Math.random() * 200) + 50, // Mock reviews if not present
+      stockBadge: p.stockStatus === 'In Stock' ? 'Trending' : 'Sold Out',
+      rating: 4.8 + Math.random() * 0.2,
+      reviews: Math.floor(Math.random() * 500) + 120,
       description: p.fullDescription
     }));
 
+  const productsToDisplay = mappedContextProducts.length > 0 ? mappedContextProducts : fallbackProducts;
+
   return (
-    <section className="w-full max-w-[1440px] mx-auto px-4 py-12">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Trending Collection</h2>
-          <p className="text-sm text-gray-500">Discover the latest fashion trends handpicked for you</p>
+    <section className="w-full max-w-[1440px] mx-auto px-4 py-16">
+      <div className="flex flex-col items-center text-center mb-12 gap-6">
+        <div className="max-w-3xl">
+          <h2 className="text-3xl md:text-5xl font-black text-primary uppercase tracking-tighter leading-none mb-4">
+            Trending <span className="text-accent underline decoration-4 underline-offset-8">Highlights</span>
+          </h2>
+          <p className="text-gray-500 font-medium text-base leading-relaxed max-w-xl mx-auto">
+            From intricate gold embroidery on deep maroon velvet to colorful digital printed lawn. Discover this season's most-loved pieces.
+          </p>
         </div>
-        <button className="text-sm font-bold border-b-2 border-black hover:text-gray-600 hover:border-gray-400 transition-all">
-          View All Products
-        </button>
+        <Link 
+          to="/shop"
+          className="px-8 py-3.5 bg-primary text-white font-black text-xs uppercase tracking-[0.2em] rounded-xl hover:bg-accent transition-all shadow-xl shadow-primary/20 active:scale-95 flex items-center gap-2"
+        >
+          View All Trends
+        </Link>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {products.map((product) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+        {productsToDisplay.map((product) => (
           <FashionProductCard key={product.id} product={product} />
         ))}
       </div>

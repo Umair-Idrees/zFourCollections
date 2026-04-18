@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import FashionHeroSection from './components/FashionHeroSection';
+import GirlsCollection from './components/GirlsCollection';
 import { FashionCollection } from './components/FashionProductCard';
 import CategoryGrid from './components/CategoryGrid';
 import ProductSection from './components/ProductSection';
@@ -33,30 +34,24 @@ function HomePage({ addToCart, cart }: { addToCart: (product: any) => void, cart
         {/* Fashion Hero Section */}
         <FashionHeroSection />
 
+        {/* Girls' Specialized Collection */}
+        <GirlsCollection />
+
+
         {/* Trending Collection Section */}
-        <FashionCollection addToCart={addToCart} />
+        <ProductSection 
+          title="Trending Girls' Collection" 
+          subtitle="Discover our most sought-after boutique pieces. Hand-picked trending styles for the modern generation."
+          limit={4}
+          addToCart={addToCart}
+        />
 
         {/* Categories Section */}
         <CategoryGrid onSelectCategory={(cat) => setSelectedCategory(cat)} />
 
-        {/* Featured Products */}
-        <ProductSection 
-          title={selectedCategory ? `${selectedCategory} Products` : "Featured Products"} 
-          subtitle={selectedCategory ? `Browsing products in ${selectedCategory}` : "Check out our most popular and highly-rated items of the week. Handpicked for quality and style."}
-          category={selectedCategory}
-          addToCart={addToCart}
-        />
-
         {/* Special Offer Banner */}
         <SpecialOffer />
 
-        {/* Best Sellers */}
-        <ProductSection 
-          title="Best Sellers" 
-          subtitle="The items our customers love the most. High performance, premium quality, and exceptional value."
-          limit={4}
-          addToCart={addToCart}
-        />
 
         {/* Newsletter Section */}
         <Newsletter />

@@ -1,27 +1,22 @@
 import React from 'react';
-import { Facebook, Instagram, Music2, Youtube, Mail, Phone, MapPin, ChevronRight } from 'lucide-react';
+import { Facebook, Instagram, Music2, Mail, Phone, MapPin, ChevronRight } from 'lucide-react';
+import Logo from './Logo';
 
 export default function Footer() {
   const socialLinks = [
     { Icon: Facebook, href: "https://www.facebook.com/share/1AnztTsb53/?mibextid=wwXIfr" },
     { Icon: Instagram, href: "https://www.instagram.com/zfour_collections?igsh=MTRxZDVpN3I3bDAycQ%3D%3D&utm_source=qr" },
-    { Icon: Music2, href: "https://www.tiktok.com/@zfour.collections?_r=1&_t=ZS-93RlJwUsagS" },
-    { Icon: Youtube, href: "#" }
+    { Icon: Music2, href: "https://www.tiktok.com/@zfour.collections?_r=1&_t=ZS-93RlJwUsagS" }
   ];
 
   return (
     <footer className="bg-white pt-20 pb-10 border-t border-gray-100">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-[1440px] mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand Info */}
           <div>
             <div className="mb-6">
-              <img 
-                src="https://storage.googleapis.com/static-rsc-4/Zfour_collections_logo.png" 
-                alt="zFour Logo" 
-                className="h-24 w-auto object-contain mix-blend-multiply -ml-4"
-                referrerPolicy="no-referrer"
-              />
+              <Logo variant="dark" className="scale-125 origin-left" />
             </div>
             <p className="text-gray-500 mb-8 leading-relaxed">
               Premium ecommerce destination for high-quality electronics, fashion, and lifestyle products. We bring you the best brands and latest trends.
@@ -74,21 +69,20 @@ export default function Footer() {
                   <MapPin size={18} />
                 </div>
                 <p className="text-gray-500 text-sm leading-relaxed">
-                  123 Luxury Avenue, Suite 456<br />
-                  New York, NY 10001, USA
+                  Pakistan
                 </p>
               </li>
               <li className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent flex-shrink-0">
                   <Phone size={18} />
                 </div>
-                <p className="text-gray-500 text-sm font-bold">+1 (234) 567-890</p>
+                <p className="text-gray-500 text-sm font-bold">03008847890</p>
               </li>
               <li className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent flex-shrink-0">
                   <Mail size={18} />
                 </div>
-                <p className="text-gray-500 text-sm font-bold">support@zfour.com</p>
+                <p className="text-gray-500 text-sm font-bold">umairmayo607@gmail.com</p>
               </li>
             </ul>
           </div>

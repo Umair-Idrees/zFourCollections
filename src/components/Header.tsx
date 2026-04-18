@@ -8,6 +8,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useProducts } from '../context/ProductContext';
 import { motion, AnimatePresence } from 'motion/react';
 
+import Logo from './Logo';
+
 interface HeaderProps {
   cart?: any[];
 }
@@ -83,16 +85,11 @@ export default function Header({ cart = [] }: HeaderProps) {
       </div>
 
       {/* Main Header */}
-      <div className="max-w-7xl mx-auto px-4 py-6 flex items-center justify-between gap-8">
+      <div className="max-w-[1440px] mx-auto px-4 py-6 flex items-center justify-between gap-8">
         {/* Logo */}
         <div className="flex-shrink-0">
           <Link to="/">
-            <img 
-              src="https://storage.googleapis.com/static-rsc-4/Zfour_collections_logo.png" 
-              alt="zFour Logo" 
-              className="h-16 w-auto object-contain mix-blend-multiply"
-              referrerPolicy="no-referrer"
-            />
+            <Logo variant="dark" className="scale-110 active:scale-95 transition-transform" />
           </Link>
         </div>
 
@@ -189,9 +186,9 @@ export default function Header({ cart = [] }: HeaderProps) {
           {user ? (
             <Link 
               to="/dashboard"
-              className="hidden sm:flex items-center gap-2 cursor-pointer group relative"
+              className="hidden sm:flex items-center gap-3 cursor-pointer group"
             >
-              <div className="p-0.5 rounded-full border-2 border-accent/20 group-hover:border-accent transition-colors">
+              <div className="p-0.5 rounded-full border-2 border-accent/20 group-hover:border-accent transition-all duration-300">
                 <img 
                   src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName || user.email}`} 
                   alt="User" 
@@ -200,44 +197,48 @@ export default function Header({ cart = [] }: HeaderProps) {
                 />
               </div>
               <div className="hidden xl:block">
-                <p className="text-[10px] text-gray-400 uppercase font-bold leading-none">Welcome</p>
-                <p className="text-sm font-semibold text-primary truncate max-w-[100px]">
+                <p className="text-[10px] text-gray-400 uppercase font-black tracking-[0.15em] leading-none mb-1">Welcome</p>
+                <p className="text-sm font-black text-primary truncate max-w-[100px] leading-none tracking-tight">
                   {user.displayName?.split(' ')[0] || 'User'}
                 </p>
               </div>
             </Link>
           ) : (
             <div 
-              className="hidden sm:flex items-center gap-2 cursor-pointer group"
+              className="hidden sm:flex items-center gap-3 cursor-pointer group"
               onClick={() => setIsLoginOpen(true)}
             >
               <div className="p-2.5 rounded-full bg-gray-50 group-hover:bg-accent/10 transition-colors">
                 <User size={20} className="text-gray-700 group-hover:text-accent" />
               </div>
               <div className="hidden xl:block">
-                <p className="text-[10px] text-gray-400 uppercase font-bold leading-none">Account</p>
-                <p className="text-sm font-semibold text-primary">Login</p>
+                <p className="text-[10px] text-gray-400 uppercase font-black tracking-[0.15em] leading-none mb-1">Account</p>
+                <p className="text-sm font-black text-primary leading-none tracking-tight">Login</p>
               </div>
             </div>
           )}
 
-          <div className="relative cursor-pointer group">
+          <div className="relative group cursor-pointer">
             <div className="p-2.5 rounded-full bg-gray-50 group-hover:bg-accent/10 transition-colors">
               <Heart size={20} className="text-gray-700 group-hover:text-accent" />
             </div>
-            <span className="absolute -top-1 -right-1 bg-accent text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">0</span>
+            <span className="absolute -top-1.5 -right-1.5 bg-accent text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm transition-transform group-hover:scale-110">0</span>
           </div>
 
-          <Link to="/cart" className="relative cursor-pointer group">
-            <div className="p-2.5 rounded-full bg-gray-50 group-hover:bg-accent/10 transition-colors">
-              <ShoppingCart size={20} className="text-gray-700 group-hover:text-accent" />
+          <Link to="/cart" className="flex items-center gap-3 cursor-pointer group">
+            <div className="relative">
+              <div className="p-2.5 rounded-full bg-gray-50 group-hover:bg-accent/10 transition-colors">
+                <ShoppingCart size={20} className="text-gray-700 group-hover:text-accent" />
+              </div>
+              <span className="absolute -top-1.5 -right-1.5 bg-primary text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm transition-transform group-hover:scale-110">
+                {cartCount}
+              </span>
             </div>
-            <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">
-              {cartCount}
-            </span>
-            <div className="hidden xl:block ml-12">
-              <p className="text-[10px] text-gray-400 uppercase font-bold leading-none">Cart</p>
-              <p className="text-sm font-semibold text-primary">${cartTotal.toFixed(2)}</p>
+            <div className="hidden xl:block">
+              <p className="text-[10px] text-gray-400 uppercase font-black tracking-[0.15em] leading-none mb-1">My Cart</p>
+              <p className="text-sm font-black text-primary leading-none tracking-tight">
+                ${cartTotal.toFixed(2)}
+              </p>
             </div>
           </Link>
 
@@ -319,7 +320,7 @@ export default function Header({ cart = [] }: HeaderProps) {
 
       {/* Navigation Bar */}
       <nav className="hidden lg:block border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 flex items-center">
+        <div className="max-w-[1440px] mx-auto px-4 flex items-center">
           {/* Categories Dropdown */}
           <div className="relative group">
             <button className="flex items-center gap-3 bg-accent text-white px-6 py-4 font-bold text-sm tracking-wide uppercase">

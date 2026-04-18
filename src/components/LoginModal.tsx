@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Mail, Lock, Github, Chrome } from 'lucide-react';
 import { signInWithGoogle } from '../firebase';
 
+import Logo from './Logo';
+
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -53,12 +55,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             <div className="p-8 md:p-12">
               <div className="text-center mb-10">
                 <div className="flex justify-center mb-6">
-                  <img 
-                    src="https://storage.googleapis.com/static-rsc-4/Zfour_collections_logo.png" 
-                    alt="zFour Logo" 
-                    className="h-20 w-auto object-contain mix-blend-multiply"
-                    referrerPolicy="no-referrer"
-                  />
+                  <Logo variant="dark" className="scale-150" />
                 </div>
                 <h2 className="text-3xl font-bold text-primary mb-2">Welcome Back</h2>
                 <p className="text-gray-500">Login to your account</p>

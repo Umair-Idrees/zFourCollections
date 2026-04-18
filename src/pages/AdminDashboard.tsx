@@ -58,6 +58,8 @@ import { useOrders } from '../context/OrderContext';
 import { auth, loginWithGoogle, logout, storage, ref, uploadBytes, getDownloadURL } from '../lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
+import Logo from '../components/Logo';
+
 // --- Mock Data ---
 const REVENUE_DATA = [
   { name: 'Jan', revenue: 45000, orders: 120 },
@@ -845,13 +847,8 @@ export default function AdminDashboard({
       <aside className="w-72 bg-white border-r border-gray-100 flex flex-col fixed h-full z-50">
         <div className="p-8 mb-4">
           <Link to="/" className="flex items-center gap-2">
-            <img 
-              src="https://storage.googleapis.com/static-rsc-4/Zfour_collections_logo.png" 
-              alt="zFour Logo" 
-              className="h-16 w-auto object-contain mix-blend-multiply"
-              referrerPolicy="no-referrer"
-            />
-            <span className="text-xl font-bold text-accent -ml-2">Admin</span>
+            <Logo variant="dark" className="scale-110 origin-left" />
+            <span className="text-xl font-bold text-accent -ml-1">Admin</span>
           </Link>
         </div>
 
