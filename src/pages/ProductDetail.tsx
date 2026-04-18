@@ -72,18 +72,18 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ addToCart }) => {
     <div className="pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Breadcrumbs */}
-        <nav className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest mb-12">
-          <Link to="/" className="hover:text-blue-600 transition-colors">Home</Link>
-          <ChevronRight size={14} />
-          <Link to="/shop" className="hover:text-blue-600 transition-colors">Shop</Link>
-          <ChevronRight size={14} />
-          <span className="text-gray-900 truncate max-w-[200px]">{product.name}</span>
+        <nav className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-12">
+          <Link to="/" className="hover:text-primary transition-colors">Home</Link>
+          <ChevronRight size={12} />
+          <Link to="/shop" className="hover:text-primary transition-colors">Shop</Link>
+          <ChevronRight size={12} />
+          <span className="text-primary truncate max-w-[200px]">{product.name}</span>
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           {/* Product Images */}
           <div className="space-y-6">
-            <div className="aspect-square bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm relative group">
+            <div className="aspect-[3/4] bg-linen rounded-[2.5rem] overflow-hidden border border-stone-100 shadow-sm relative group">
               <img 
                 src={selectedImage || 'https://picsum.photos/seed/product/800/800'} 
                 alt={product.name} 
@@ -91,8 +91,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ addToCart }) => {
                 referrerPolicy="no-referrer"
               />
               {discount > 0 && (
-                <span className="absolute top-6 left-6 bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-full uppercase tracking-widest shadow-lg">
-                  Save {discount}%
+                <span className="absolute top-8 left-8 bg-sale text-white text-[10px] font-black px-5 py-2 rounded-full uppercase tracking-widest shadow-xl">
+                  -{discount}% OFF
                 </span>
               )}
             </div>
@@ -105,7 +105,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ addToCart }) => {
                     key={i} 
                     onClick={() => setSelectedImage(img)}
                     className={`aspect-square rounded-2xl overflow-hidden border-2 transition-all ${
-                      selectedImage === img ? 'border-blue-600 shadow-lg' : 'border-transparent hover:border-blue-200'
+                      selectedImage === img ? 'border-primary shadow-xl scale-95' : 'border-transparent hover:border-linen'
                     }`}
                   >
                     <img src={img} alt={`Gallery ${i}`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
@@ -118,76 +118,82 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ addToCart }) => {
           {/* Product Info */}
           <div className="space-y-8">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-xs font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full">
+              <div className="flex items-center gap-2 mb-6">
+                <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] bg-linen px-4 py-1.5 rounded-full border border-stone-100">
                   {product.category}
                 </span>
                 {product.brand && (
-                  <span className="text-xs font-bold text-gray-500 uppercase tracking-widest bg-gray-100 px-3 py-1 rounded-full">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] bg-stone-50 px-4 py-1.5 rounded-full border border-gray-100">
                     {product.brand}
                   </span>
                 )}
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">{product.name}</h1>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1">
+              <h1 className="text-4xl md:text-5xl font-black text-primary mb-6 leading-tight tracking-tight uppercase">{product.name}</h1>
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-1.5">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`w-4 h-4 ${i < 4 ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200'}`} />
+                    <Star key={i} className={`w-4 h-4 ${i < 4 ? 'text-gold fill-gold' : 'text-gray-200'}`} />
                   ))}
+                  <span className="text-xs font-black text-gray-400 ml-2 tracking-tighter">4.0 / 5.0</span>
                 </div>
-                <span className="text-sm font-bold text-gray-400">4.0 (120 Reviews)</span>
-                <span className="text-gray-200">|</span>
-                <span className="text-sm font-bold text-green-600 uppercase tracking-widest">{product.stockStatus || 'In Stock'}</span>
+                <div className="w-px h-4 bg-gray-100"></div>
+                <span className="text-[10px] font-black text-green-600 uppercase tracking-widest flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                  {product.stockStatus || 'In Stock'}
+                </span>
               </div>
             </div>
 
-            <div className="flex items-end gap-4">
-              <span className="text-4xl font-bold text-gray-900">${product.salePrice}</span>
+            <div className="flex items-center gap-4 py-6 border-y border-linen">
+              <span className="text-5xl font-black text-primary tracking-tighter">${product.salePrice}</span>
               {product.regularPrice > product.salePrice && (
-                <span className="text-xl text-gray-400 line-through mb-1">${product.regularPrice}</span>
+                <span className="text-2xl text-gray-300 line-through font-bold decoration-sale/30">${product.regularPrice}</span>
               )}
+              <div className="ml-auto bg-green-50 text-green-600 px-3 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase">
+                Special Price
+              </div>
             </div>
 
-            <p className="text-gray-500 leading-relaxed text-lg">
-              {product.shortDescription || 'Experience the perfect blend of style and performance with the ' + product.name + '. Designed for the modern lifestyle.'}
+            <p className="text-gray-500 leading-relaxed text-lg font-medium">
+              {product.shortDescription || 'An exquisite masterpiece from our couture collection, crafted for those who appreciate the finer details of high-fashion.'}
             </p>
 
             {/* Options */}
-            <div className="space-y-6 pt-6 border-t border-gray-100">
+            <div className="space-y-8 pt-6">
               {product.colors?.length > 0 && (
-                <div className="space-y-3">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Available Colors</label>
-                  <div className="flex gap-3">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Couture Palette</label>
+                  <div className="flex gap-4">
                     {product.colors.map(color => (
-                      <button key={color} className="w-8 h-8 rounded-full border border-gray-200 hover:scale-110 transition-transform" style={{ backgroundColor: color.toLowerCase() }} title={color}></button>
+                      <button key={color} className="w-10 h-10 rounded-full border-2 border-white shadow-md ring-1 ring-gray-100 hover:scale-110 transition-transform p-0.5" style={{ backgroundColor: color.toLowerCase() }} title={color}></button>
                     ))}
                   </div>
                 </div>
               )}
 
               {product.sizes?.length > 0 && (
-                <div className="space-y-3">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Select Size</label>
-                  <div className="flex gap-3">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Select Fit</label>
+                  <div className="flex flex-wrap gap-3">
                     {product.sizes.map(size => (
-                      <button key={size} className="px-5 py-2.5 rounded-xl border border-gray-100 text-sm font-bold text-gray-600 hover:border-blue-600 hover:text-blue-600 transition-all">{size}</button>
+                      <button key={size} className="px-7 py-3 rounded-2xl border border-gray-100 text-[10px] font-black text-primary uppercase tracking-widest hover:border-primary hover:bg-primary hover:text-white transition-all active:scale-95">{size}</button>
                     ))}
                   </div>
                 </div>
               )}
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <div className="flex items-center bg-gray-50 rounded-2xl p-1 w-fit border border-gray-100">
+              <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                <div className="flex items-center bg-linen rounded-2xl p-1.5 w-fit border border-stone-100">
                   <button 
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-3 hover:bg-white rounded-xl transition-colors text-gray-500"
+                    className="p-3.5 hover:bg-white rounded-xl transition-all shadow-sm hover:text-primary text-gray-400"
                   >
                     <Minus size={20} />
                   </button>
-                  <span className="w-12 text-center font-bold text-gray-900">{quantity}</span>
+                  <span className="w-14 text-center font-black text-primary text-lg">{quantity}</span>
                   <button 
                     onClick={() => setQuantity(quantity + 1)}
-                    className="p-3 hover:bg-white rounded-xl transition-colors text-gray-500"
+                    className="p-3.5 hover:bg-white rounded-xl transition-all shadow-sm hover:text-primary text-gray-400"
                   >
                     <Plus size={20} />
                   </button>
@@ -195,31 +201,31 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ addToCart }) => {
                 
                 <button 
                   onClick={() => addToCart(product, quantity)}
-                  className="flex-1 bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 flex items-center justify-center gap-3"
+                  className="flex-1 bg-primary text-white px-10 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] hover:bg-gold transition-all shadow-2xl shadow-primary/20 flex items-center justify-center gap-4 active:scale-95 translate-y-0 hover:-translate-y-1"
                 >
-                  <ShoppingCart size={20} />
+                  <ShoppingCart size={18} />
                   Add to Cart
                 </button>
                 
-                <button className="p-4 bg-white border border-gray-100 rounded-2xl text-gray-400 hover:text-red-500 hover:border-red-100 transition-all shadow-sm">
-                  <Heart size={24} />
+                <button className="p-5 bg-white border border-gray-100 rounded-[2rem] text-gray-400 hover:text-sale hover:border-sale/20 transition-all shadow-sm group">
+                  <Heart size={24} className="group-hover:fill-sale transition-all" />
                 </button>
               </div>
             </div>
 
             {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-4 pt-8">
-              <div className="flex flex-col items-center text-center p-4 bg-gray-50 rounded-3xl border border-gray-100">
-                <Truck size={24} className="text-blue-600 mb-2" />
-                <span className="text-[10px] font-bold text-gray-900 uppercase tracking-wider">Fast Delivery</span>
+            <div className="grid grid-cols-3 gap-4 pt-10">
+              <div className="flex flex-col items-center text-center p-6 bg-linen rounded-[2rem] border border-stone-100 group">
+                <Truck size={24} className="text-primary mb-3 group-hover:scale-110 transition-transform" />
+                <span className="text-[9px] font-black text-primary uppercase tracking-widest">Global Delivery</span>
               </div>
-              <div className="flex flex-col items-center text-center p-4 bg-gray-50 rounded-3xl border border-gray-100">
-                <ShieldCheck size={24} className="text-green-600 mb-2" />
-                <span className="text-[10px] font-bold text-gray-900 uppercase tracking-wider">Secure Warranty</span>
+              <div className="flex flex-col items-center text-center p-6 bg-linen rounded-[2rem] border border-stone-100 group">
+                <ShieldCheck size={24} className="text-primary mb-3 group-hover:scale-110 transition-transform" />
+                <span className="text-[9px] font-black text-primary uppercase tracking-widest">Secure Check</span>
               </div>
-              <div className="flex flex-col items-center text-center p-4 bg-gray-50 rounded-3xl border border-gray-100">
-                <Clock size={24} className="text-purple-600 mb-2" />
-                <span className="text-[10px] font-bold text-gray-900 uppercase tracking-wider">24/7 Support</span>
+              <div className="flex flex-col items-center text-center p-6 bg-linen rounded-[2rem] border border-stone-100 group">
+                <Star size={24} className="text-gold mb-3 group-hover:scale-110 transition-transform" />
+                <span className="text-[9px] font-black text-primary uppercase tracking-widest">Top Quality</span>
               </div>
             </div>
           </div>
@@ -227,13 +233,13 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ addToCart }) => {
 
         {/* Full Description */}
         <div className="mt-24">
-          <div className="flex gap-12 border-b border-gray-100 mb-12">
-            <button className="pb-6 border-b-2 border-blue-600 text-sm font-bold text-gray-900 uppercase tracking-widest">Description</button>
-            <button className="pb-6 border-b-2 border-transparent text-sm font-bold text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-colors">Specifications</button>
-            <button className="pb-6 border-b-2 border-transparent text-sm font-bold text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-colors">Reviews (120)</button>
+          <div className="flex gap-12 border-b border-linen mb-12 overflow-x-auto no-scrollbar">
+            <button className="pb-6 border-b-2 border-primary text-[10px] font-black text-primary uppercase tracking-[0.3em] whitespace-nowrap">Description</button>
+            <button className="pb-6 border-b-2 border-transparent text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] hover:text-primary transition-colors whitespace-nowrap">Specifications</button>
+            <button className="pb-6 border-b-2 border-transparent text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] hover:text-primary transition-colors whitespace-nowrap">Reviews (120)</button>
           </div>
-          <div className="max-w-4xl prose prose-blue">
-            <p className="text-gray-500 leading-relaxed text-lg whitespace-pre-wrap">
+          <div className="max-w-4xl">
+            <p className="text-gray-500 leading-relaxed text-lg font-medium whitespace-pre-wrap">
               {product.fullDescription || 'No detailed description available for this product.'}
             </p>
           </div>

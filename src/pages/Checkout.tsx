@@ -74,8 +74,8 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
   if (cart.length === 0 && !isSuccess) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
-        <Link to="/shop" className="text-blue-600 font-bold hover:underline">Back to Shop</Link>
+        <h2 className="text-3xl font-black text-primary mb-4 uppercase tracking-tight">Your cart is empty</h2>
+        <Link to="/shop" className="bg-primary text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-gold transition-all shadow-xl shadow-primary/10">Back to Shop</Link>
       </div>
     );
   }
@@ -90,16 +90,16 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
         >
           <CheckCircle2 size={48} className="text-green-600" />
         </motion.div>
-        <h2 className="text-4xl font-bold text-gray-900 mb-4">Order Placed Successfully!</h2>
-        <p className="text-gray-500 mb-10 max-w-md mx-auto">Thank you for your purchase. Your order has been received and is being processed. You will receive an email confirmation shortly.</p>
+        <h2 className="text-4xl font-black text-primary mb-4 uppercase tracking-tight">Order Placed Successfully!</h2>
+        <p className="text-gray-500 mb-10 max-w-md mx-auto font-medium">Thank you for your purchase. Your order has been received and is being processed. You will receive an email confirmation shortly.</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link 
             to="/" 
-            className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-200"
+            className="bg-primary text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-gold transition-all shadow-xl shadow-primary/10 active:scale-95"
           >
             Back to Home
           </Link>
-          <button className="bg-white border border-gray-100 text-gray-700 px-8 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-all">
+          <button className="bg-linen border border-stone-100 text-primary px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-white transition-all">
             Track Order
           </button>
         </div>
@@ -109,28 +109,28 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest mb-12">
-        <Link to="/cart" className="hover:text-blue-600 transition-colors">Cart</Link>
-        <ChevronLeft size={14} className="rotate-180" />
-        <span className="text-gray-900">Checkout</span>
+      <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-12">
+        <Link to="/cart" className="hover:text-primary transition-colors">Cart</Link>
+        <ChevronLeft size={12} className="rotate-180" />
+        <span className="text-primary">Checkout</span>
       </div>
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-12">Checkout</h1>
+      <h1 className="text-4xl font-black text-primary mb-12 uppercase tracking-tight">Checkout</h1>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         {/* Shipping Info */}
         <div className="lg:col-span-2 space-y-10">
           <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-8">
             <div className="flex items-center gap-4 border-b border-gray-50 pb-6">
-              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+              <div className="w-10 h-10 bg-linen rounded-xl flex items-center justify-center text-primary">
                 <Truck size={20} />
               </div>
-              <h3 className="text-xl font-bold text-gray-900">Shipping Information</h3>
+              <h3 className="text-xl font-black text-primary uppercase tracking-tight">Shipping Information</h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">First Name</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">First Name</label>
                 <input 
                   type="text" 
                   name="firstName"
@@ -138,11 +138,11 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
                   value={formData.firstName}
                   onChange={handleInputChange}
                   placeholder="John" 
-                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-blue-500/20" 
+                  className="w-full bg-linen border border-transparent rounded-2xl py-4 px-6 focus:outline-none focus:bg-white focus:border-stone-100 focus:ring-4 focus:ring-primary/5 transition-all text-sm" 
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Last Name</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Last Name</label>
                 <input 
                   type="text" 
                   name="lastName"
@@ -150,11 +150,11 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
                   value={formData.lastName}
                   onChange={handleInputChange}
                   placeholder="Doe" 
-                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-blue-500/20" 
+                  className="w-full bg-linen border border-transparent rounded-2xl py-4 px-6 focus:outline-none focus:bg-white focus:border-stone-100 focus:ring-4 focus:ring-primary/5 transition-all text-sm" 
                 />
               </div>
               <div className="md:col-span-2 space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
                 <input 
                   type="email" 
                   name="email"
@@ -162,11 +162,11 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="john@example.com" 
-                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-blue-500/20" 
+                  className="w-full bg-linen border border-transparent rounded-2xl py-4 px-6 focus:outline-none focus:bg-white focus:border-stone-100 focus:ring-4 focus:ring-primary/5 transition-all text-sm" 
                 />
               </div>
               <div className="md:col-span-2 space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Street Address</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Street Address</label>
                 <input 
                   type="text" 
                   name="address"
@@ -174,11 +174,11 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
                   value={formData.address}
                   onChange={handleInputChange}
                   placeholder="123 Main St, Apt 4" 
-                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-blue-500/20" 
+                  className="w-full bg-linen border border-transparent rounded-2xl py-4 px-6 focus:outline-none focus:bg-white focus:border-stone-100 focus:ring-4 focus:ring-primary/5 transition-all text-sm" 
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">City</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">City</label>
                 <input 
                   type="text" 
                   name="city"
@@ -186,11 +186,11 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
                   value={formData.city}
                   onChange={handleInputChange}
                   placeholder="New York" 
-                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-blue-500/20" 
+                  className="w-full bg-linen border border-transparent rounded-2xl py-4 px-6 focus:outline-none focus:bg-white focus:border-stone-100 focus:ring-4 focus:ring-primary/5 transition-all text-sm" 
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Zip Code</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Zip Code</label>
                 <input 
                   type="text" 
                   name="zipCode"
@@ -198,11 +198,11 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
                   value={formData.zipCode}
                   onChange={handleInputChange}
                   placeholder="10001" 
-                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-blue-500/20" 
+                  className="w-full bg-linen border border-transparent rounded-2xl py-4 px-6 focus:outline-none focus:bg-white focus:border-stone-100 focus:ring-4 focus:ring-primary/5 transition-all text-sm" 
                 />
               </div>
               <div className="md:col-span-2 space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
                 <input 
                   type="tel" 
                   name="phone"
@@ -210,7 +210,7 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
                   value={formData.phone}
                   onChange={handleInputChange}
                   placeholder="+1 (234) 567-890" 
-                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-blue-500/20" 
+                  className="w-full bg-linen border border-transparent rounded-2xl py-4 px-6 focus:outline-none focus:bg-white focus:border-stone-100 focus:ring-4 focus:ring-primary/5 transition-all text-sm" 
                 />
               </div>
             </div>
@@ -218,30 +218,30 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
 
           <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-8">
             <div className="flex items-center gap-4 border-b border-gray-50 pb-6">
-              <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600">
+              <div className="w-10 h-10 bg-linen rounded-xl flex items-center justify-center text-primary">
                 <CreditCard size={20} />
               </div>
-              <h3 className="text-xl font-bold text-gray-900">Payment Method</h3>
+              <h3 className="text-xl font-black text-primary uppercase tracking-tight">Payment Method</h3>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <label className={`flex items-center justify-between p-6 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === 'Credit Card' ? 'border-blue-600 bg-blue-50/50' : 'border-gray-100 hover:border-blue-200'}`}>
+              <label className={`flex items-center justify-between p-6 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === 'Credit Card' ? 'border-primary bg-linen' : 'border-gray-100 hover:border-stone-200'}`}>
                 <div className="flex items-center gap-4">
-                  <div className="w-4 h-4 rounded-full border-2 border-blue-600 flex items-center justify-center">
-                    {formData.paymentMethod === 'Credit Card' && <div className="w-2 h-2 bg-blue-600 rounded-full"></div>}
+                  <div className="w-4 h-4 rounded-full border-2 border-primary flex items-center justify-center">
+                    {formData.paymentMethod === 'Credit Card' && <div className="w-2 h-2 bg-primary rounded-full"></div>}
                   </div>
-                  <span className="font-bold text-gray-900">Credit Card</span>
+                  <span className="font-black text-primary text-xs uppercase tracking-widest">Credit Card</span>
                 </div>
                 <CreditCard size={20} className="text-gray-400" />
                 <input type="radio" name="paymentMethod" value="Credit Card" className="hidden" onChange={handleInputChange} checked={formData.paymentMethod === 'Credit Card'} />
               </label>
               
-              <label className={`flex items-center justify-between p-6 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === 'PayPal' ? 'border-blue-600 bg-blue-50/50' : 'border-gray-100 hover:border-blue-200'}`}>
+              <label className={`flex items-center justify-between p-6 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === 'PayPal' ? 'border-primary bg-linen' : 'border-gray-100 hover:border-stone-200'}`}>
                 <div className="flex items-center gap-4">
-                  <div className="w-4 h-4 rounded-full border-2 border-blue-600 flex items-center justify-center">
-                    {formData.paymentMethod === 'PayPal' && <div className="w-2 h-2 bg-blue-600 rounded-full"></div>}
+                  <div className="w-4 h-4 rounded-full border-2 border-primary flex items-center justify-center">
+                    {formData.paymentMethod === 'PayPal' && <div className="w-2 h-2 bg-primary rounded-full"></div>}
                   </div>
-                  <span className="font-bold text-gray-900">PayPal</span>
+                  <span className="font-black text-primary text-xs uppercase tracking-widest">PayPal</span>
                 </div>
                 <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" className="h-4" />
                 <input type="radio" name="paymentMethod" value="PayPal" className="hidden" onChange={handleInputChange} checked={formData.paymentMethod === 'PayPal'} />
@@ -257,38 +257,38 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
             
             <div className="space-y-6 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
               {cart.map((item) => (
-                <div key={item.id} className="flex gap-4">
-                  <div className="w-16 h-16 bg-gray-50 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                <div key={item.id} className="flex gap-4 group">
+                  <div className="w-16 h-16 bg-linen rounded-xl overflow-hidden flex-shrink-0 border border-stone-100">
+                    <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-all" />
                   </div>
-                  <div className="flex-1">
-                    <h4 className="text-sm font-bold text-gray-900 line-clamp-1">{item.name}</h4>
-                    <p className="text-xs text-gray-400 font-bold">Qty: {item.quantity}</p>
-                    <p className="text-sm font-bold text-blue-600 mt-1">${(item.salePrice * item.quantity).toFixed(2)}</p>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-xs font-black text-primary uppercase tracking-tight line-clamp-1">{item.name}</h4>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Qty: {item.quantity}</p>
+                    <p className="text-sm font-black text-primary mt-1">${(item.salePrice * item.quantity).toFixed(2)}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             <div className="space-y-4 pt-6 border-t border-gray-100">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500 font-medium">Subtotal</span>
-                <span className="text-gray-900 font-bold">${subtotal.toFixed(2)}</span>
+              <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
+                <span className="text-gray-400">Subtotal</span>
+                <span className="text-primary">${subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500 font-medium">Shipping</span>
-                <span className="text-gray-900 font-bold">{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
+              <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
+                <span className="text-gray-400">Shipping</span>
+                <span className="text-primary">{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
               </div>
-              <div className="pt-4 flex justify-between items-center">
-                <span className="text-lg font-bold text-gray-900">Total</span>
-                <span className="text-2xl font-bold text-blue-600">${total.toFixed(2)}</span>
+              <div className="pt-4 flex justify-between items-center border-t border-linen">
+                <span className="text-sm font-black text-primary uppercase tracking-widest">Total cost</span>
+                <span className="text-2xl font-black text-primary">${total.toFixed(2)}</span>
               </div>
             </div>
 
             <button 
               type="submit"
               disabled={isProcessing}
-              className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-primary text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-gold transition-all shadow-xl shadow-primary/10 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
             >
               {isProcessing ? (
                 <>
@@ -298,7 +298,7 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
               ) : (
                 <>
                   Complete Purchase
-                  <ArrowRight size={20} />
+                  <ArrowRight size={18} />
                 </>
               )}
             </button>

@@ -14,34 +14,22 @@ export default function CategoryGrid({ onSelectCategory }: CategoryGridProps) {
   const categories = useMemo(() => {
     const displayCategories = [
       { 
-        id: 'unstitched', 
-        name: 'Unstitched', 
+        id: 'fabrics', 
+        name: 'FABRICS (Unstitched)', 
         image: 'https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=800&auto=format&fit=crop',
-        originalName: 'Unstitched'
+        originalName: 'FABRICS (Unstitched)'
       },
       { 
         id: 'ready-to-wear', 
-        name: 'Ready-to-Wear', 
+        name: 'READY-TO-WEAR (Pret)', 
         image: 'https://www.polkadots.pk/cdn/shop/files/Peach_3e6d7b4b-b270-443d-ac1d-f47acbfc0e10.jpg?v=1769846025&width=600',
-        originalName: 'Ready-to-Wear'
+        originalName: 'READY-TO-WEAR (Pret)'
       },
       { 
-        id: 'festive', 
-        name: 'Festive Wear', 
+        id: 'bottoms', 
+        name: 'BOTTOMS & DUPATTAS', 
         image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=800&auto=format&fit=crop',
-        originalName: 'Festive'
-      },
-      { 
-        id: 'western', 
-        name: 'Western Style', 
-        image: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=800&auto=format&fit=crop',
-        originalName: 'Western'
-      },
-      { 
-        id: 'accessories', 
-        name: 'Boutique Extras', 
-        image: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=800&auto=format&fit=crop',
-        originalName: 'Accessories'
+        originalName: 'BOTTOMS & DUPATTAS'
       }
     ];
 

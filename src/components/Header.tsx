@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, User, Heart, ShoppingCart, Menu, ChevronDown, Phone, MapPin, Facebook, Instagram, Music2, LogOut, LayoutDashboard, X } from 'lucide-react';
+import { Search, User, Heart, ShoppingCart, Menu, ChevronDown, ChevronRight, Phone, MapPin, Facebook, Instagram, Music2, LogOut, LayoutDashboard, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 import LoginModal from './LoginModal';
 import { auth, logout } from '../lib/firebase';
@@ -45,6 +45,29 @@ export default function Header({ cart = [] }: HeaderProps) {
       navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
+
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+
+  const fashionCategories = [
+    { 
+      id: 'fabrics', 
+      title: 'FABRICS (Unstitched)', 
+      icon: '🧶',
+      subs: ['Lawn Collection', 'Cotton & Linen', 'Luxury Velvet', 'Chiffon & Silk']
+    },
+    { 
+      id: 'pret', 
+      title: 'READY-TO-WEAR (Pret)', 
+      icon: '👗',
+      subs: ['Daily Wear Kurtis', '2-Piece Co-ord Sets', 'Festive Formals', 'Printed Maxis']
+    },
+    { 
+      id: 'bottoms', 
+      title: 'BOTTOMS & DUPATTAS', 
+      icon: '👖',
+      subs: ['Cigarette Pants', 'Tulip Shalwars', 'Organza Dupattas', 'Embroidered Shawls']
+    }
+  ];
 
   return (
     <header className="w-full bg-white border-b border-gray-100">
@@ -300,15 +323,20 @@ export default function Header({ cart = [] }: HeaderProps) {
               {/* Mobile Categories */}
               <div className="pt-6 border-t border-gray-50">
                 <h3 className="px-4 text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Categories</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {['Electronics', 'Fashion', 'Watches', 'Shoes', 'Accessories', 'Mobile Phones', 'Laptops'].map((cat) => (
+                <div className="grid grid-cols-1 gap-2">
+                  {[
+                    'FABRICS (Unstitched)', 
+                    'READY-TO-WEAR (Pret)', 
+                    'BOTTOMS & DUPATTAS'
+                  ].map((cat) => (
                     <Link
                       key={cat}
                       to={`/shop?category=${encodeURIComponent(cat)}`}
                       onClick={() => setIsMenuOpen(false)}
-                      className="py-3 px-4 text-sm font-medium text-gray-700 bg-gray-50 rounded-xl hover:bg-accent/10 hover:text-accent transition-all"
+                      className="py-3 px-4 text-sm font-bold text-gray-700 bg-gray-50 rounded-xl hover:bg-accent/10 hover:text-accent transition-all flex justify-between items-center"
                     >
                       {cat}
+                      <ChevronRight size={14} />
                     </Link>
                   ))}
                 </div>
@@ -322,26 +350,59 @@ export default function Header({ cart = [] }: HeaderProps) {
       <nav className="hidden lg:block border-t border-gray-100">
         <div className="max-w-[1440px] mx-auto px-4 flex items-center">
           {/* Categories Dropdown */}
-          <div className="relative group">
-            <button className="flex items-center gap-3 bg-accent text-white px-6 py-4 font-bold text-sm tracking-wide uppercase">
+          <div className="relative group/main">
+            <button className="flex items-center gap-3 bg-accent text-white px-6 py-4 font-bold text-sm tracking-wide uppercase transition-all active:bg-primary active:scale-95 duration-200">
               <Menu size={18} />
               Browse Categories
-              <ChevronDown size={16} className="ml-2 group-hover:rotate-180 transition-transform" />
+              <ChevronDown size={16} className="ml-2 group-hover/main:rotate-180 transition-transform" />
             </button>
-            {/* Dropdown Menu - Hidden by default */}
-            <div className="absolute top-full left-0 w-64 bg-white border border-gray-100 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-              <ul className="py-2">
-                {['Electronics', 'Fashion', 'Watches', 'Shoes', 'Accessories', 'Mobile Phones', 'Laptops'].map((cat) => (
-                  <li key={cat}>
-                    <Link 
-                      to={`/shop?category=${encodeURIComponent(cat)}`}
-                      className="px-6 py-3 hover:bg-gray-50 cursor-pointer text-sm font-medium text-gray-700 hover:text-accent transition-colors border-b border-gray-50 last:border-0 block"
+            
+            {/* Dropdown Menu - Narrow Accordion Style */}
+            <div className="absolute top-full left-0 w-72 bg-white border border-gray-100 shadow-[0_20px_40px_rgba(0,0,0,0.1)] opacity-0 invisible group-hover/main:opacity-100 group-hover/main:visible transition-all duration-300 z-50 rounded-b-xl overflow-hidden">
+              <div className="py-2">
+                {fashionCategories.map((category) => (
+                  <div key={category.id} className="border-b border-gray-50 last:border-0">
+                    <button 
+                      onClick={() => setExpandedCategory(expandedCategory === category.id ? null : category.id)}
+                      className={cn(
+                        "w-full flex items-center justify-between px-6 py-4 cursor-pointer text-[11px] font-black tracking-widest uppercase transition-all",
+                        expandedCategory === category.id ? "bg-gray-50 text-accent" : "text-primary hover:bg-gray-50 hover:text-accent"
+                      )}
                     >
-                      {cat}
-                    </Link>
-                  </li>
+                      <span className="flex items-center gap-3">
+                        <span className="text-base">{category.icon}</span>
+                        {category.title}
+                      </span>
+                      <ChevronDown 
+                        size={14} 
+                        className={cn("transition-transform duration-300", expandedCategory === category.id && "rotate-180")} 
+                      />
+                    </button>
+
+                    <AnimatePresence>
+                      {expandedCategory === category.id && (
+                        <motion.ul
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="overflow-hidden bg-white"
+                        >
+                          {category.subs.map((sub) => (
+                            <li key={sub}>
+                              <Link 
+                                to={`/shop?category=${encodeURIComponent(sub)}`}
+                                className="block px-12 py-3 text-xs font-bold text-gray-500 hover:text-accent hover:bg-accent/5 transition-all border-l-2 border-transparent hover:border-accent"
+                              >
+                                {sub}
+                              </Link>
+                            </li>
+                          ))}
+                        </motion.ul>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           </div>
 

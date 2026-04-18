@@ -61,7 +61,7 @@ export default function SpecialOffer() {
               ))}
             </div>
 
-            <button className="bg-accent text-white px-8 py-3.5 rounded-full font-bold text-sm hover:bg-blue-600 transition-all shadow-lg hover:shadow-accent/30 hover:-translate-y-1">
+            <button className="bg-accent text-white px-10 py-4 rounded-full font-black text-xs uppercase tracking-widest hover:bg-gold transition-all shadow-xl hover:shadow-accent/20 hover:-translate-y-1">
               Shop the Sale
             </button>
           </div>

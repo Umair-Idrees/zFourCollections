@@ -6,12 +6,13 @@
   --font-display: "Space Grotesk", sans-serif;
   --font-serif: "Playfair Display", serif;
   
-  --color-primary: #1a1a1a;
-  --color-accent: #3b82f6;
-  --color-sale: #ef4444;
+  --color-primary: #111111;
+  --color-accent: #111111;
+  --color-sale: #d32f2f;
   --color-rose-quartz: #FDE2E4;
   --color-deep-rose: #E29578;
-  --color-gold: #D4AF37;
+  --color-gold: #c5a059;
+  --color-linen: #f8f7f4;
 }
 
 @layer base {

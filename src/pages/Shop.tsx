@@ -4,6 +4,7 @@ import { db, collection, getDocs, onSnapshot, query, orderBy } from '../lib/fire
 import ProductCard from '../components/ProductCard';
 import { Filter, Search, ChevronDown, LayoutGrid, List as ListIcon } from 'lucide-react';
 import { Product } from '../types';
+import { cn } from '../lib/utils';
 
 interface ShopProps {
   addToCart: (product: any) => void;
@@ -79,8 +80,8 @@ const Shop: React.FC<ShopProps> = ({ addToCart }) => {
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`w-full text-left px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                    selectedCategory === cat ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-500 hover:bg-gray-100'
+                  className={`w-full text-left px-4 py-3 rounded-xl text-xs font-black tracking-widest uppercase transition-all ${
+                    selectedCategory === cat ? 'bg-primary text-white shadow-xl shadow-primary/20' : 'text-gray-500 hover:bg-linen hover:text-primary'
                   }`}
                 >
                   {cat}
@@ -90,20 +91,24 @@ const Shop: React.FC<ShopProps> = ({ addToCart }) => {
           </div>
 
           <div>
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Price Range</h3>
+            <h3 className="text-sm font-black text-primary uppercase tracking-[0.2em] mb-4">Price Range</h3>
             <div className="space-y-4">
-              <input type="range" className="w-full accent-blue-600" />
-              <div className="flex justify-between text-xs text-gray-400 font-bold uppercase tracking-widest">
+              <input type="range" className="w-full accent-primary h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer" />
+              <div className="flex justify-between text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                 <span>$0</span>
                 <span>$10,000</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100">
-            <h4 className="font-bold text-blue-900 mb-2">Special Offer</h4>
-            <p className="text-xs text-blue-700 mb-4">Get 20% off on your first order with code: <span className="font-bold">WELCOME20</span></p>
-            <button className="w-full py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-all">
+          <div className="bg-linen p-8 rounded-[2rem] border border-stone-100 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-gold/10 rounded-bl-[3rem] -mr-8 -mt-8 transition-transform group-hover:scale-150 duration-500"></div>
+            <h4 className="font-black text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
+              <span className="w-4 h-0.5 bg-gold"></span>
+              Special Offer
+            </h4>
+            <p className="text-xs text-gray-500 font-medium leading-relaxed mb-6">Get 20% off on your first order with code: <span className="text-gold font-black">WELCOME20</span></p>
+            <button className="w-full py-4 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gold transition-all shadow-lg active:scale-95">
               Copy Code
             </button>
           </div>
@@ -111,28 +116,28 @@ const Shop: React.FC<ShopProps> = ({ addToCart }) => {
 
         {/* Main Content */}
         <main className="flex-1">
-          <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-            <div className="relative w-full sm:w-96">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-6">
+            <div className="relative w-full sm:w-96 group">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-accent transition-colors" size={18} />
               <input 
                 type="text" 
-                placeholder="Search products..." 
+                placeholder="Search collection..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white border border-gray-100 rounded-2xl py-3 pl-12 pr-6 focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-sm" 
+                className="w-full bg-linen border border-transparent rounded-2xl py-4 pl-14 pr-6 focus:outline-none focus:bg-white focus:border-stone-100 focus:ring-4 focus:ring-primary/5 transition-all text-sm" 
               />
             </div>
             
             <div className="flex items-center gap-4 w-full sm:w-auto">
-              <div className="flex items-center bg-white border border-gray-100 rounded-2xl p-1 shadow-sm">
-                <button className="p-2 bg-gray-50 text-blue-600 rounded-xl"><LayoutGrid size={18} /></button>
-                <button className="p-2 text-gray-400 hover:text-blue-600 rounded-xl"><ListIcon size={18} /></button>
+              <div className="flex items-center bg-linen rounded-2xl p-1.5">
+                <button className={cn("p-2.5 rounded-xl transition-all", true ? "bg-white text-primary shadow-sm" : "text-gray-400 hover:text-primary")}><LayoutGrid size={18} /></button>
+                <button className="p-2.5 text-gray-400 hover:text-primary transition-all rounded-xl"><ListIcon size={18} /></button>
               </div>
               
               <select 
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-white border border-gray-100 rounded-2xl px-4 py-3 text-sm font-bold text-gray-600 focus:outline-none shadow-sm flex-1 sm:flex-none"
+                className="bg-linen rounded-2xl px-6 py-4 text-xs font-black uppercase tracking-widest text-primary focus:outline-none shadow-sm flex-1 sm:flex-none cursor-pointer hover:bg-stone-50 transition-colors"
               >
                 <option>Latest</option>
                 <option>Price: Low to High</option>

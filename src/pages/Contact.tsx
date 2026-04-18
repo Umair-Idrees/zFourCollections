@@ -5,9 +5,34 @@ const Contact: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="bg-primary py-20 px-4 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Contact Us</h1>
-        <p className="text-gray-300 max-w-2xl mx-auto">Have questions? We're here to help. Reach out to us through any of the channels below.</p>
+      <div className="bg-neutral-950 py-24 px-4 text-center relative overflow-hidden">
+        {/* Immersive background image with overlay */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1600&auto=format&fit=crop" 
+            alt="Fabric Background" 
+            className="w-full h-full object-cover opacity-[0.05] mix-blend-overlay blur-sm"
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/80 via-transparent to-neutral-950/80"></div>
+        </div>
+
+        {/* Decorative floral pattern */}
+        <div className="absolute top-0 left-0 w-full h-full opacity-[0.05] pointer-events-none text-white">
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="contact-floral" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+                <path d="M50 10 Q60 30 50 50 Q40 30 50 10 M50 50 Q70 60 90 50 Q70 40 50 50 M50 50 Q40 70 50 90 Q60 70 50 50 M50 50 Q30 40 10 50 Q30 60 50 50" fill="none" stroke="currentColor" strokeWidth="1" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#contact-floral)" />
+          </svg>
+        </div>
+
+        <div className="relative z-10">
+          <h1 className="text-4xl md:text-6xl font-serif font-black text-white mb-6 italic tracking-tight uppercase">Contact <span className="text-gold">CareNexon</span></h1>
+          <p className="text-gray-400 max-w-2xl mx-auto font-medium text-lg leading-relaxed">Have questions? We're here to help. Reach out to us through any of our professional boutique channels below.</p>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-16">
@@ -24,7 +49,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Phone</p>
-                    <p className="text-primary font-bold">+1 (234) 567-890</p>
+                    <p className="text-primary font-bold">0339300639</p>
                     <p className="text-sm text-gray-500">Mon-Fri 9am-6pm</p>
                   </div>
                 </div>
@@ -35,7 +60,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Email</p>
-                    <p className="text-primary font-bold">support@zfour.com</p>
+                    <p className="text-primary font-bold">carenexon143@gmail.com</p>
                     <p className="text-sm text-gray-500">Online support 24/7</p>
                   </div>
                 </div>
@@ -46,8 +71,8 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Office</p>
-                    <p className="text-primary font-bold">123 Fashion Street</p>
-                    <p className="text-sm text-gray-500">New York, NY 10001</p>
+                    <p className="text-primary font-bold">CareNexon Punjab Coperative Housing Socienty(PCHS)</p>
+                    <p className="text-sm text-gray-500">Pakistan, Lahore</p>
                   </div>
                 </div>
               </div>
@@ -93,7 +118,7 @@ const Contact: React.FC = () => {
                     <label className="text-sm font-bold text-primary ml-1">Full Name</label>
                     <input 
                       type="text" 
-                      placeholder="John Doe" 
+                      placeholder="CareNexon" 
                       className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
                     />
                   </div>
@@ -101,7 +126,7 @@ const Contact: React.FC = () => {
                     <label className="text-sm font-bold text-primary ml-1">Email Address</label>
                     <input 
                       type="email" 
-                      placeholder="john@example.com" 
+                      placeholder="carenexon143@gmail.com" 
                       className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
                     />
                   </div>
@@ -149,8 +174,8 @@ const Contact: React.FC = () => {
                 <MapPin size={24} />
               </div>
               <div>
-                <p className="font-bold text-primary">zFour HQ</p>
-                <p className="text-xs text-gray-500">123 Fashion Street, NY</p>
+                <p className="font-bold text-primary">CareNexon HQ</p>
+                <p className="text-xs text-gray-500">PCHS, Lahore, Pakistan</p>
               </div>
             </div>
           </div>

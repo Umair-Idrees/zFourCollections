@@ -36,10 +36,24 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useProducts } from '../context/ProductContext';
 import { useOrders, Order } from '../context/OrderContext';
 
-const RECENTLY_VIEWED = [
-  { id: 'rv1', name: 'Smartphone Pro', price: 899, image: 'https://picsum.photos/seed/phone/400/400', rating: 4.5 },
-  { id: 'rv2', name: 'Sports Sneakers', price: 120, image: 'https://picsum.photos/seed/shoes/400/400', rating: 4.0 },
-  { id: 'rv3', name: 'Wireless Earbuds', price: 129, image: 'https://picsum.photos/seed/earbuds/400/400', rating: 4.2 },
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+
+const RECENTLY_VIEWED_PLACEHOLDERS = [
+  { id: 'rv1', name: 'Lawn Collection Set', price: 85, image: 'https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=400', rating: 4.8 },
+  { id: 'rv2', name: 'Ready-to-Wear Kurti', price: 45, image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=400', rating: 4.9 },
+  { id: 'rv3', name: 'Luxury Velvet Suit', price: 120, image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=400', rating: 4.5 },
+  { id: 'rv4', name: 'Printed Silk Maxi', price: 95, image: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=400', rating: 4.7 },
+  { id: 'rv5', name: 'Embroidered Shawl', price: 65, image: 'https://picsum.photos/seed/shawl/400/400', rating: 4.6 },
+  { id: 'rv6', name: 'Cigarette Pants', price: 25, image: 'https://picsum.photos/seed/pants/400/400', rating: 4.4 },
+  { id: 'rv7', name: 'Organza Dupatta', price: 35, image: 'https://picsum.photos/seed/dupatta/400/400', rating: 4.8 },
+  { id: 'rv8', name: 'Festive Formal Set', price: 150, image: 'https://picsum.photos/seed/formal/400/400', rating: 5.0 },
+  { id: 'rv9', name: 'Daily Wear Kurti', price: 38, image: 'https://picsum.photos/seed/kurti/400/400', rating: 4.3 },
+  { id: 'rv10', name: 'Tulip Shalwar', price: 30, image: 'https://picsum.photos/seed/shalwar/400/400', rating: 4.5 },
+  { id: 'rv11', name: 'Lawn Printed Suit', price: 75, image: 'https://picsum.photos/seed/suit1/400/400', rating: 4.7 },
+  { id: 'rv12', name: 'Chiffon Party Wear', price: 110, image: 'https://picsum.photos/seed/suit2/400/400', rating: 4.9 },
 ];
 
 const ORDERS = [
@@ -188,31 +202,65 @@ export default function UserDashboard({ cart = [] }: { cart?: any[] }) {
                     </div>
 
                     {/* Recently Viewed */}
-                    <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
+                    <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm relative overflow-hidden group/rv">
                       <div className="flex items-center justify-between mb-8">
-                        <h3 className="text-xl font-bold text-primary">Recently Viewed</h3>
+                        <h3 className="text-xl font-bold text-primary tracking-tight">Recently Viewed</h3>
                         <div className="flex gap-2">
-                          <button className="p-2 rounded-full border border-gray-100 text-gray-400 hover:text-primary transition-colors"><ChevronRight size={16} className="rotate-180" /></button>
-                          <button className="p-2 rounded-full border border-gray-100 text-gray-400 hover:text-primary transition-colors"><ChevronRight size={16} /></button>
+                          <button className="rv-prev p-2.5 rounded-full border border-gray-100 text-gray-400 hover:text-accent hover:border-accent hover:bg-accent/5 transition-all active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed">
+                            <ChevronRight size={18} className="rotate-180" />
+                          </button>
+                          <button className="rv-next p-2.5 rounded-full border border-gray-100 text-gray-400 hover:text-accent hover:border-accent hover:bg-accent/5 transition-all active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed">
+                            <ChevronRight size={18} />
+                          </button>
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {(products.length > 0 ? products.slice(0, 3) : RECENTLY_VIEWED).map((product) => (
-                          <div key={product.id} className="group cursor-pointer border border-gray-50 rounded-3xl p-4 hover:border-accent/20 transition-all">
-                            <div className="aspect-square rounded-2xl overflow-hidden mb-4 bg-gray-50">
-                              <img src={product.mainImage || (product as any).image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" referrerPolicy="no-referrer" />
-                            </div>
-                            <h4 className="font-bold text-primary group-hover:text-accent transition-colors mb-1 truncate">{product.name}</h4>
-                            <div className="flex items-center justify-between">
-                              <p className="font-bold text-primary">${product.salePrice || (product as any).price}</p>
-                              <div className="flex items-center gap-1">
-                                <Star size={12} className="fill-yellow-400 text-yellow-400" />
-                                <span className="text-xs font-bold text-gray-400">{ (product as any).rating || 4.5 }</span>
+                      
+                      <Swiper
+                        modules={[Navigation]}
+                        navigation={{
+                          prevEl: '.rv-prev',
+                          nextEl: '.rv-next',
+                        }}
+                        spaceBetween={24}
+                        slidesPerView={1}
+                        breakpoints={{
+                          640: { slidesPerView: 2 },
+                          1024: { slidesPerView: 3 },
+                          1280: { slidesPerView: 4 },
+                        }}
+                        className="!overflow-visible"
+                      >
+                        {(products.length > 0 ? [...products, ...RECENTLY_VIEWED_PLACEHOLDERS] : RECENTLY_VIEWED_PLACEHOLDERS).slice(0, 12).map((product) => (
+                          <SwiperSlide key={product.id}>
+                            <Link to={`/product/${product.id}`} className="block group cursor-pointer border border-gray-50 rounded-3xl p-4 hover:border-accent/20 hover:shadow-xl hover:shadow-accent/5 transition-all bg-white h-full">
+                              <div className="aspect-square rounded-2xl overflow-hidden mb-4 bg-gray-50 relative">
+                                <img 
+                                  src={product.mainImage || (product as any).image} 
+                                  alt={product.name} 
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                                  referrerPolicy="no-referrer" 
+                                />
+                                <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="absolute top-3 left-3">
+                                  <span className="bg-white/90 backdrop-blur-md text-[10px] font-black px-2.5 py-1 rounded-full text-accent shadow-sm uppercase tracking-widest">
+                                    Recent
+                                  </span>
+                                </div>
                               </div>
-                            </div>
-                          </div>
+                              <div className="space-y-2">
+                                <h4 className="font-bold text-primary group-hover:text-accent transition-colors truncate">{product.name}</h4>
+                                <div className="flex items-center justify-between">
+                                  <p className="font-black text-primary text-lg">${product.salePrice || (product as any).price}</p>
+                                  <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded-lg">
+                                    <Star size={12} className="fill-yellow-400 text-yellow-400" />
+                                    <span className="text-[10px] font-black text-gray-500 tracking-tighter">{ (product as any).rating || 4.8 }</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </Link>
+                          </SwiperSlide>
                         ))}
-                      </div>
+                      </Swiper>
                     </div>
 
                     {/* Recent Orders Preview */}
@@ -345,7 +393,7 @@ export default function UserDashboard({ cart = [] }: { cart?: any[] }) {
                   <div className="space-y-8">
                     <h1 className="text-3xl font-bold text-primary">Wishlist</h1>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {RECENTLY_VIEWED.map((product) => (
+                      {RECENTLY_VIEWED_PLACEHOLDERS.slice(0, 3).map((product) => (
                         <div key={product.id} className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden group">
                           <div className="aspect-square relative overflow-hidden bg-gray-50">
                             <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
