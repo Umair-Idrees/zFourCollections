@@ -54,6 +54,11 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             </button>
 
             <div className="p-8 md:p-12">
+              <div className="bg-accent/5 border border-accent/10 rounded-2xl p-4 mb-8">
+                <p className="text-[10px] font-bold text-accent uppercase tracking-widest mb-1">Testing Access</p>
+                <p className="text-[11px] text-gray-500 leading-tight">Use the bypass buttons at the bottom to enter the dashboards instantly without a real login.</p>
+              </div>
+              
               <div className="text-center mb-10">
                 <div className="flex justify-center mb-6">
                   <Logo variant="dark" className="scale-150" />

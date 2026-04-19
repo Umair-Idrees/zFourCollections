@@ -14,6 +14,7 @@ import {
   auth
 } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { DUMMY_ORDERS } from '../dummyData';
 
 export interface OrderItem {
   id: string;
@@ -89,7 +90,13 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         id: doc.id,
         ...doc.data()
       })) as Order[];
-      setOrders(ordersData);
+      
+      // If Firestore is empty, use dummy orders for testing
+      if (ordersData.length === 0) {
+        setOrders(DUMMY_ORDERS as Order[]);
+      } else {
+        setOrders(ordersData);
+      }
       setLoading(false);
     }, (error) => {
       // Only log/throw if it's not a permission error for a non-admin user
@@ -123,7 +130,13 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         id: doc.id,
         ...doc.data()
       })) as Order[];
-      setUserOrders(ordersData);
+      
+      // If Firestore is empty, use dummy orders for testing (filtered for current user)
+      if (ordersData.length === 0) {
+        setUserOrders((DUMMY_ORDERS as Order[]).filter(o => o.customerId === userId));
+      } else {
+        setUserOrders(ordersData);
+      }
     }, (error) => {
       // If permission denied, it might be because the user is not the owner or index is missing
       // We handle it gracefully for the user dashboard

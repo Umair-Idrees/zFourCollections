@@ -78,12 +78,11 @@ export default function Header({ cart = [] }: HeaderProps) {
           </Link>
         </div>
         <div className="flex items-center gap-6">
-          {isAdmin && (
-            <Link to="/admin" className="flex items-center gap-1.5 text-accent font-bold hover:underline">
-              <LayoutDashboard size={14} />
-              Admin Dashboard
-            </Link>
-          )}
+          <Link to="/admin" className="flex items-center gap-1.5 text-accent font-bold hover:underline group">
+            <LayoutDashboard size={14} className="group-hover:rotate-12 transition-transform" />
+            <span>Admin Dashboard</span>
+            {!isAdmin && <span className="text-[8px] bg-accent/10 px-1.5 py-0.5 rounded-full uppercase tracking-tighter ml-1">Test Access</span>}
+          </Link>
           <div className="flex items-center gap-3">
             <a href="https://www.facebook.com/share/1AnztTsb53/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer">
               <Facebook size={14} className="cursor-pointer hover:text-accent" />
