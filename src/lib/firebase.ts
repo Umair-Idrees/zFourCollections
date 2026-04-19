@@ -88,9 +88,49 @@ export const loginAsDemoAdmin = () => setSimulatedUser(DEMO_ADMIN);
 export const loginAsDemoUser = () => setSimulatedUser(DEMO_USER);
 
 export const loginWithGoogle = signInWithGoogle; // Alias for backward compatibility
+// Backend Auth Helper
+export const signInWithGoogleBackend = async () => {
+  try {
+    const res = await fetch('/api/auth/google/url');
+    if (!res.ok) throw new Error('Failed to get auth URL');
+    const { url } = await res.json();
+    
+    const width = 600;
+    const height = 700;
+    const left = window.innerWidth / 2 - width / 2;
+    const top = window.innerHeight / 2 - height / 2;
+    
+    window.open(url, 'google_login', `width=${width},height=${height},top=${top},left=${left}`);
+  } catch (error) {
+    console.error("Backend Google Login Error:", error);
+    // Fallback to standard Firebase popup if backend fails
+    return await signInWithGoogle();
+  }
+};
+
+export const superAccessLogin = async (email: string, password: string) => {
+  const res = await fetch('/api/auth/super-access', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  if (res.ok) {
+    const user = await res.json();
+    setSimulatedUser(user);
+    return user;
+  }
+  throw new Error('Invalid super access credentials');
+};
+
 export const logout = async () => {
   clearSimulatedUser();
-  await signOut(auth);
+  try {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    await signOut(auth);
+  } catch (err) {
+    console.error('Logout error:', err);
+  }
+  window.location.href = "/";
 };
 
 // Firestore Error Handler
@@ -148,47 +188,84 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 export { collection, doc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, onSnapshot, query, where, orderBy, limit, serverTimestamp, Timestamp, onAuthStateChanged };
 export { ref, uploadBytes, getDownloadURL };
 
-// Custom Hook to manage Auth State (Unifies Firebase + Simulated)
+// Custom Hook to manage Auth State (Unifies Firebase + Simulated + Backend)
 import { useState, useEffect } from 'react';
+
+export const fetchBackendUser = async () => {
+  try {
+    const res = await fetch('/api/auth/user');
+    if (res.ok) return await res.json();
+  } catch (err) {
+    console.error('Failed to fetch backend user:', err);
+  }
+  return null;
+};
 
 export function useAuth() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Initial check - check simulated user first
-    const simUser = getSimulatedUser();
-    if (simUser) {
-      setUser(simUser);
-    }
-
-    // 2. Listen to Firebase Real Auth
-    const unsubscribeFirebase = onAuthStateChanged(auth, (fbUser) => {
-      if (fbUser) {
-        setUser(fbUser);
-      } else if (!getSimulatedUser()) {
-        setUser(null);
+    const initAuth = async () => {
+      // 1. Check simulated user first
+      const simUser = getSimulatedUser();
+      if (simUser) {
+        setUser(simUser);
+        setLoading(false);
+        return;
       }
-      setLoading(false);
-    });
 
-    // 3. Listen to Simulated Auth changes (storage events)
+      // 2. Check backend session
+      const backendUser = await fetchBackendUser();
+      if (backendUser) {
+        setUser(backendUser);
+        setLoading(false);
+        return;
+      }
+
+      // 3. Fallback to Firebase Real Auth listener
+      const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
+        if (fbUser) {
+          setUser(fbUser);
+        }
+        setLoading(false);
+      });
+      return unsubscribe;
+    };
+
+    initAuth();
+
     const handleStorageChange = () => {
       const updatedSimUser = getSimulatedUser();
       if (updatedSimUser) {
         setUser(updatedSimUser);
-      } else if (!auth.currentUser) {
-        setUser(null);
+      } else {
+        fetchBackendUser().then(bu => setUser(bu));
       }
     };
 
     window.addEventListener('storage', handleStorageChange);
+    
+    // Listen for OAuth success from popup
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
+        const u = event.data.user;
+        if (u) {
+          setSimulatedUser(u);
+          setUser(u);
+        }
+      }
+    };
+    window.addEventListener('message', handleMessage);
 
     return () => {
-      unsubscribeFirebase();
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('message', handleMessage);
     };
   }, []);
 
-  return { user, loading, isAdmin: user && ['umairmayo607@gmail.com', 'carenexon143@gmail.com'].includes(user.email || '') };
+  const adminEmails = ['umairmayo607@gmail.com', 'carenexon143@gmail.com', 'admin@test.com'];
+  const isAdmin = !!(user && adminEmails.includes(user.email || ''));
+
+  return { user, loading, isAdmin };
 }

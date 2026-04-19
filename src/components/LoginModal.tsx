@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Mail, Lock, Github, Chrome } from 'lucide-react';
-import { signInWithGoogle, loginAsDemoUser, loginAsDemoAdmin } from '../lib/firebase';
+import { signInWithGoogle, loginAsDemoUser, loginAsDemoAdmin, setSimulatedUser, signInWithGoogleBackend, superAccessLogin } from '../lib/firebase';
 import { User, ShieldCheck } from 'lucide-react';
 
 import Logo from './Logo';
@@ -13,14 +13,62 @@ interface LoginModalProps {
 
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    // Check for Super Access Bypass
+    if (email === 'admin@test.com') {
+      try {
+        await superAccessLogin(email, password);
+        setIsLoading(false);
+        onClose();
+        return;
+      } catch (err: any) {
+        setError(err.message);
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    // Simulated email login fallback
+    setTimeout(() => {
+      if (!email || !password) {
+        setError("Please enter both email and password.");
+        setIsLoading(false);
+        return;
+      }
+
+      const isAdmin = ['umairmayo607@gmail.com', 'carenexon143@gmail.com'].includes(email.toLowerCase());
+      
+      const simulatedUser = {
+        uid: `sim-${Date.now()}`,
+        email: email,
+        displayName: email.split('@')[0],
+        photoURL: `https://ui-avatars.com/api/?name=${email}&background=random`,
+        role: isAdmin ? 'admin' : 'user'
+      };
+
+      setSimulatedUser(simulatedUser);
+      setIsLoading(false);
+      onClose();
+    }, 800);
+  };
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      await signInWithGoogle();
-      onClose();
-    } catch (error) {
+      // Use the new backend OAuth flow
+      await signInWithGoogleBackend();
+    } catch (error: any) {
       console.error("Login failed", error);
+      setError("Google sign-in failed. Please use demo buttons or email/pass.");
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +115,12 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 <p className="text-gray-500">Login to your account</p>
               </div>
 
-              <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+              <form className="space-y-5" onSubmit={handleEmailLogin}>
+                {error && (
+                  <div className="bg-red-50 text-red-600 text-[10px] font-bold p-3 rounded-xl border border-red-100 uppercase tracking-wider text-center">
+                    {error}
+                  </div>
+                )}
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
                   <div className="relative">
@@ -75,7 +128,10 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                     <input
                       type="email"
                       placeholder="name@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 pl-12 pr-6 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                      required
                     />
                   </div>
                 </div>
@@ -90,13 +146,20 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                     <input
                       type="password"
                       placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 pl-12 pr-6 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                      required
                     />
                   </div>
                 </div>
 
-                <button className="w-full bg-primary text-white py-4 rounded-2xl font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 mt-4">
-                  Sign In
+                <button 
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-primary text-white py-4 rounded-2xl font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 mt-4 disabled:opacity-50"
+                >
+                  {isLoading ? 'Signing In...' : 'Sign In'}
                 </button>
               </form>
 
