@@ -45,7 +45,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, addToCart }) => {
               </span>
             )}
             {(product.status === 'Featured' || (product as any).isTrending) && (
-              <span className="bg-[#800020] text-[#D4AF37] text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg border border-[#D4AF37]/30">
+              <span className="bg-black text-accent text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg border border-accent/30">
                 Trending
               </span>
             )}
@@ -70,7 +70,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, addToCart }) => {
       </div>
 
       {/* Info Area with Gradient */}
-      <div className="p-5 bg-gradient-to-br from-rose-50 to-white relative">
+      <div className="p-5 bg-gradient-to-br from-red-50/30 to-white relative">
         <div className="text-[10px] text-accent font-black uppercase tracking-[0.2em] mb-2">
           {product.category}
         </div>
@@ -87,7 +87,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, addToCart }) => {
           <span className="text-[10px] text-gray-400 ml-1 font-bold">(4.0)</span>
         </div>
 
-        <div className="flex items-end justify-between border-t border-rose-100 pt-4">
+        <div className="flex items-end justify-between border-t border-red-100/50 pt-4">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xl font-black text-primary">${product.salePrice}</span>
@@ -95,11 +95,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, addToCart }) => {
                 <span className="text-xs text-gray-400 line-through font-bold">${product.regularPrice}</span>
               )}
             </div>
-            <p className="text-[10px] text-green-600 font-black uppercase tracking-wider mt-1">Free Delivery</p>
+            <p className="text-[10px] text-accent font-black uppercase tracking-wider mt-1">Free Delivery</p>
           </div>
           <button 
             onClick={() => addToCart?.(product)}
-            className="bg-white border border-rose-100 hover:bg-accent hover:text-white text-primary w-10 h-10 rounded-2xl transition-all shadow-sm flex items-center justify-center active:scale-95"
+            className="bg-white border border-red-100 hover:bg-accent hover:text-white text-primary w-10 h-10 rounded-2xl transition-all shadow-sm flex items-center justify-center active:scale-95"
           >
             <Plus size={20} />
           </button>

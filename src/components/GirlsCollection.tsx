@@ -9,35 +9,35 @@ const collections = [
     description: "Flowy floral patterns with vintage earthy tones.",
     image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSglkOLGA6MxKnIGquJ8W7T8DDFotZa_r8wKQ&s",
     tag: "Trending",
-    color: "bg-amber-50"
+    color: "bg-red-50/10"
   },
   {
     title: "Denim & Daisy Mix",
     description: "Soft denim layers paired with playful floral skirts.",
     image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbVrULCgTRys2duV4cXOEACIYhat9fCJfLpg&s",
     tag: "Casual Chic",
-    color: "bg-blue-50"
+    color: "bg-gray-50"
   },
   {
     title: "Country Chic",
     description: "Romantic ruffled skirts with classic western accents.",
     image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNZD8P-ReM7ea3ZDdYfIjNjpBcRuJowRYvVg&s",
     tag: "Style Icon",
-    color: "bg-stone-50"
+    color: "bg-red-50/10"
   },
   {
     title: "Vintage Tiered Maxi",
     description: "Multi-layered ethereal skirts for a timeless look.",
     image: "https://www.shutterstock.com/image-photo/rack-stylish-womens-clothes-on-260nw-2391831755.jpg",
     tag: "Luxury",
-    color: "bg-rose-50"
+    color: "bg-gray-50"
   },
   {
     title: "Urban Hat & Knit",
     description: "Contemporary knits styled with boutique hats.",
     image: "https://www.shutterstock.com/image-photo/pensive-young-woman-choosing-between-260nw-2345230445.jpg",
     tag: "Modern",
-    color: "bg-neutral-50"
+    color: "bg-gray-50"
   }
 ];
 

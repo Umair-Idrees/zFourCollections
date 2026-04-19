@@ -11,10 +11,10 @@ interface LogoProps {
 const Logo: React.FC<LogoProps> = ({ className, variant = 'dark', showText = true }) => {
   const getColors = () => {
     switch (variant) {
-      case 'light': return { primary: '#FFFFFF', accent: '#c5a059' };
-      case 'accent': return { primary: '#c5a059', accent: '#111111' };
+      case 'light': return { primary: '#FFFFFF', accent: '#e11d48' };
+      case 'accent': return { primary: '#e11d48', accent: '#111111' };
       case 'dark': 
-      default: return { primary: '#111111', accent: '#c5a059' };
+      default: return { primary: '#111111', accent: '#e11d48' };
     }
   };
 

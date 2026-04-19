@@ -72,7 +72,7 @@ export default function ProductSection({ title, subtitle, limit = 8, category, a
     return (
       <section className="py-24 max-w-[1440px] mx-auto px-4" id={title.toLowerCase().replace(/\s+/g, '-')}>
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-5xl font-serif font-black text-primary mb-3">{title}</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-black text-primary mb-3">{title}</h2>
           <div className="w-20 h-1 bg-accent mx-auto mt-6"></div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -87,7 +87,7 @@ export default function ProductSection({ title, subtitle, limit = 8, category, a
   return (
     <section className="py-16 max-w-[1440px] mx-auto px-4" id={title.toLowerCase().replace(/\s+/g, '-')}>
       <div className="text-center mb-16 px-4">
-        <h2 className="text-3xl md:text-5xl font-serif font-black text-primary uppercase tracking-tight leading-none mb-6">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-black text-primary uppercase tracking-tight leading-none mb-6">
           {title.split(' ')[0]} <span className="text-accent underline decoration-4 underline-offset-8 decoration-accent/30">{title.split(' ').slice(1).join(' ')}</span>
         </h2>
         {subtitle && (
