@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Mail, Lock, Github, Chrome } from 'lucide-react';
-import { signInWithGoogle } from '../lib/firebase';
+import { signInWithGoogle, loginAsDemoUser, loginAsDemoAdmin } from '../lib/firebase';
+import { User, ShieldCheck } from 'lucide-react';
 
 import Logo from './Logo';
 
@@ -116,6 +117,25 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                   <Github size={18} />
                   GitHub
                 </button>
+              </div>
+
+              {/* Demo / Bypass Section */}
+              <div className="mt-8 pt-8 border-t border-gray-100">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center mb-4">Development Mode (Skip Auth)</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <button 
+                    onClick={() => { loginAsDemoAdmin(); onClose(); }}
+                    className="flex items-center justify-center gap-2 py-2.5 px-3 bg-accent/10 text-accent rounded-xl hover:bg-accent hover:text-white transition-all font-bold text-xs"
+                  >
+                    <ShieldCheck size={14} /> Demo Admin
+                  </button>
+                  <button 
+                    onClick={() => { loginAsDemoUser(); onClose(); }}
+                    className="flex items-center justify-center gap-2 py-2.5 px-3 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition-all font-bold text-xs"
+                  >
+                    <User size={14} /> Demo User
+                  </button>
+                </div>
               </div>
 
               <p className="text-center text-sm text-gray-500 mt-10">

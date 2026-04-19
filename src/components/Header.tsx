@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Search, User, Heart, ShoppingCart, Menu, ChevronDown, ChevronRight, Phone, MapPin, Facebook, Instagram, Music2, LogOut, LayoutDashboard, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 import LoginModal from './LoginModal';
-import { auth, logout } from '../lib/firebase';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { auth, logout, useAuth } from '../lib/firebase';
+import { User as FirebaseUser } from 'firebase/auth';
 import { Link, useNavigate } from 'react-router-dom';
 import { useProducts } from '../context/ProductContext';
 import { motion, AnimatePresence } from 'motion/react';
@@ -17,11 +17,12 @@ interface HeaderProps {
 export default function Header({ cart = [] }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showResults, setShowResults] = useState(false);
   const { products } = useProducts();
   const navigate = useNavigate();
+
+  const { user, isAdmin } = useAuth();
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const cartTotal = cart.reduce((acc, item) => acc + (item.salePrice * item.quantity), 0);
@@ -30,14 +31,6 @@ export default function Header({ cart = [] }: HeaderProps) {
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.category.toLowerCase().includes(searchQuery.toLowerCase())
   ).slice(0, 5);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
-
   const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (searchQuery.trim()) {
@@ -85,7 +78,7 @@ export default function Header({ cart = [] }: HeaderProps) {
           </Link>
         </div>
         <div className="flex items-center gap-6">
-          {user && ['umairmayo607@gmail.com', 'carenexon143@gmail.com'].includes(user.email || '') && (
+          {isAdmin && (
             <Link to="/admin" className="flex items-center gap-1.5 text-accent font-bold hover:underline">
               <LayoutDashboard size={14} />
               Admin Dashboard

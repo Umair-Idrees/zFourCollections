@@ -28,7 +28,7 @@ import {
   Globe
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { auth, logout, loginWithGoogle } from '../lib/firebase';
+import { auth, logout, loginWithGoogle, useAuth, loginAsDemoUser } from '../lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
@@ -81,24 +81,16 @@ const NOTIFICATIONS = [
 
 export default function UserDashboard({ cart = [] }: { cart?: any[] }) {
   const [activeTab, setActiveTab] = useState('Dashboard');
-  const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const { products } = useProducts();
   const { userOrders } = useOrders();
   const navigate = useNavigate();
 
+  const { user, loading: authLoading } = useAuth();
+
+  const totalOrders = userOrders.length;
   const pendingOrders = userOrders.filter(o => o.status === 'Pending' || o.status === 'Processing').length;
   const deliveredOrders = userOrders.filter(o => o.status === 'Delivered').length;
-  const totalOrders = userOrders.length;
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setAuthLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
 
   if (authLoading) {
     return (
@@ -119,12 +111,24 @@ export default function UserDashboard({ cart = [] }: { cart?: any[] }) {
             </div>
             <h1 className="text-2xl font-bold text-primary mb-2">My Account</h1>
             <p className="text-gray-500 mb-8">Please login to view your orders, wishlist, and account settings.</p>
-            <button 
-              onClick={() => loginWithGoogle()}
-              className="w-full py-4 bg-primary text-white rounded-2xl font-bold hover:bg-gray-800 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-3"
-            >
-              <Globe size={20} /> Login with Google
-            </button>
+            <div className="space-y-4">
+              <button 
+                onClick={() => loginWithGoogle()}
+                className="w-full py-4 bg-primary text-white rounded-2xl font-bold hover:bg-gray-800 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-3"
+              >
+                <Globe size={20} /> Login with Google
+              </button>
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100"></div></div>
+                <span className="relative px-3 text-xs text-gray-400 bg-white">OR TESTING ONLY</span>
+              </div>
+              <button 
+                onClick={() => loginAsDemoUser()}
+                className="w-full py-4 bg-gray-100 text-primary rounded-2xl font-bold hover:bg-gray-200 transition-all flex items-center justify-center gap-3"
+              >
+                <User size={20} /> Bypass & Enter as Demo User
+              </button>
+            </div>
             <Link to="/" className="block mt-6 text-sm font-bold text-gray-400 hover:text-primary transition-colors">
               Back to Home
             </Link>
