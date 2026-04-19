@@ -30,12 +30,12 @@ export default function Newsletter() {
       <div className="max-w-[1440px] mx-auto px-4 relative z-10 flex flex-col items-center">
         {/* Boutique Icon */}
         <div className="mb-6 flex items-center justify-center bg-white/5 border border-white/10 backdrop-blur-sm p-4 rounded-full shadow-sm">
-          <Heart size={28} className="text-deep-rose fill-deep-rose/20 animate-pulse" />
+          <Heart size={28} className="text-accent fill-accent/20 animate-pulse" />
         </div>
 
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-serif font-black text-white mb-6 tracking-tight leading-tight italic">
-            Join the <span className="text-deep-rose">Fashion Circle</span>
+            Join the <span className="text-accent">Fashion Circle</span>
           </h2>
           <p className="text-gray-400 font-medium text-lg md:text-xl mb-10 leading-relaxed max-w-2xl mx-auto">
             Be the first to know about our new arrivals, trending lawn collections, and <span className="text-white font-bold">exclusive member-only sales</span>.
@@ -49,7 +49,7 @@ export default function Newsletter() {
                 className="flex-1 bg-transparent border-0 rounded-full py-4 px-8 text-white placeholder:text-gray-500 focus:outline-none transition-all text-base font-medium"
                 required
               />
-              <button className="bg-deep-rose text-white px-10 py-4 rounded-[1.5rem] font-black uppercase tracking-widest text-xs hover:bg-rose-600 transition-all flex items-center justify-center gap-2 group shadow-lg hover:shadow-deep-rose/30 hover:-translate-y-0.5 active:translate-y-0">
+              <button className="bg-accent text-white px-10 py-4 rounded-[1.5rem] font-black uppercase tracking-widest text-xs hover:bg-neutral-900 transition-all flex items-center justify-center gap-2 group shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 active:translate-y-0">
                 Unlock 10% Off
                 <Send size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </button>
@@ -59,15 +59,15 @@ export default function Newsletter() {
           {/* Value Props */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-10 border-t border-white/5 pt-10">
             <div className="flex items-center gap-3 justify-center text-gray-400 font-black uppercase tracking-[0.2em] text-[10px]">
-              <CheckCircle2 size={16} className="text-deep-rose" />
+              <CheckCircle2 size={16} className="text-accent" />
               <span>No Spam</span>
             </div>
             <div className="flex items-center gap-3 justify-center text-gray-400 font-black uppercase tracking-[0.2em] text-[10px]">
-              <CheckCircle2 size={16} className="text-deep-rose" />
+              <CheckCircle2 size={16} className="text-accent" />
               <span>Early Sale Access</span>
             </div>
             <div className="flex items-center gap-3 justify-center text-gray-400 font-black uppercase tracking-[0.2em] text-[10px]">
-              <CheckCircle2 size={16} className="text-deep-rose" />
+              <CheckCircle2 size={16} className="text-accent" />
               <span>Style Updates</span>
             </div>
           </div>

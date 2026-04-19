@@ -85,10 +85,12 @@ export default function Header({ cart = [] }: HeaderProps) {
           </Link>
         </div>
         <div className="flex items-center gap-6">
-          <Link to="/admin" className="flex items-center gap-1.5 text-accent font-bold hover:underline">
-            <LayoutDashboard size={14} />
-            Admin Dashboard
-          </Link>
+          {user && ['umairmayo607@gmail.com', 'carenexon143@gmail.com'].includes(user.email || '') && (
+            <Link to="/admin" className="flex items-center gap-1.5 text-accent font-bold hover:underline">
+              <LayoutDashboard size={14} />
+              Admin Dashboard
+            </Link>
+          )}
           <div className="flex items-center gap-3">
             <a href="https://www.facebook.com/share/1AnztTsb53/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer">
               <Facebook size={14} className="cursor-pointer hover:text-accent" />
@@ -144,7 +146,7 @@ export default function Header({ cart = [] }: HeaderProps) {
             )}
             <button 
               type="submit"
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-white p-2 rounded-full hover:bg-gray-800 transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-accent text-white p-2 rounded-full hover:bg-neutral-800 transition-colors"
             >
               <Search size={18} />
             </button>

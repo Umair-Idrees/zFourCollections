@@ -54,15 +54,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, addToCart }) => {
 
         {/* Quick Actions (All cards get this) */}
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-4 backdrop-blur-[2px]">
-          <button className="p-3 bg-white rounded-full text-gray-900 hover:bg-deep-rose hover:text-white transition-all transform translate-y-8 group-hover:translate-y-0 shadow-xl">
+          <button className="p-3 bg-white rounded-full text-gray-900 hover:bg-accent hover:text-white transition-all transform translate-y-8 group-hover:translate-y-0 shadow-xl">
             <Heart className={cn("w-5 h-5", (product as any).isTrending && "fill-red-500 text-red-500")} />
           </button>
-          <Link to={`/product/${product.id}`} className="p-3 bg-white rounded-full text-gray-900 hover:bg-deep-rose hover:text-white transition-all transform translate-y-8 group-hover:translate-y-0 delay-75 shadow-xl">
+          <Link to={`/product/${product.id}`} className="p-3 bg-white rounded-full text-gray-900 hover:bg-accent hover:text-white transition-all transform translate-y-8 group-hover:translate-y-0 delay-75 shadow-xl">
             <Eye className="w-5 h-5" />
           </Link>
           <button 
             onClick={() => addToCart?.(product)}
-            className="p-3 bg-white rounded-full text-gray-900 hover:bg-deep-rose hover:text-white transition-all transform translate-y-8 group-hover:translate-y-0 delay-150 shadow-xl"
+            className="p-3 bg-white rounded-full text-gray-900 hover:bg-accent hover:text-white transition-all transform translate-y-8 group-hover:translate-y-0 delay-150 shadow-xl"
           >
             <ShoppingCart className="w-5 h-5" />
           </button>
@@ -99,7 +99,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, addToCart }) => {
           </div>
           <button 
             onClick={() => addToCart?.(product)}
-            className="bg-white border border-rose-100 hover:bg-primary hover:text-white text-primary w-10 h-10 rounded-2xl transition-all shadow-sm flex items-center justify-center active:scale-95"
+            className="bg-white border border-rose-100 hover:bg-accent hover:text-white text-primary w-10 h-10 rounded-2xl transition-all shadow-sm flex items-center justify-center active:scale-95"
           >
             <Plus size={20} />
           </button>

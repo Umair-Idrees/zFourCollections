@@ -33,7 +33,7 @@ const Cart: React.FC<CartProps> = ({ cart, setCart }) => {
         <p className="text-gray-500 mb-10 max-w-md mx-auto font-medium">Looks like you haven't added anything to your cart yet. Start shopping and discover our latest boutique collection.</p>
         <Link 
           to="/shop" 
-          className="inline-flex items-center gap-3 bg-primary text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-gold transition-all shadow-xl shadow-primary/10 active:scale-95"
+          className="inline-flex items-center gap-3 bg-accent text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-neutral-900 transition-all shadow-xl shadow-accent/10 active:scale-95"
         >
           Start Shopping
           <ArrowRight size={18} />
@@ -127,7 +127,7 @@ const Cart: React.FC<CartProps> = ({ cart, setCart }) => {
 
             <Link 
               to="/checkout" 
-              className="w-full bg-primary text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-gold transition-all shadow-xl shadow-primary/10 flex items-center justify-center gap-3 active:scale-95"
+              className="w-full bg-accent text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-neutral-900 transition-all shadow-xl shadow-accent/10 flex items-center justify-center gap-3 active:scale-95"
             >
               Proceed to Checkout
               <ArrowRight size={18} />

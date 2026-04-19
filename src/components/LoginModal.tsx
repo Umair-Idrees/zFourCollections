@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Mail, Lock, Github, Chrome } from 'lucide-react';
-import { signInWithGoogle } from '../firebase';
+import { signInWithGoogle } from '../lib/firebase';
 
 import Logo from './Logo';
 

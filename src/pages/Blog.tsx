@@ -152,7 +152,7 @@ const Blog: React.FC = () => {
                   className="flex-1 bg-transparent border-0 rounded-full py-3 px-6 text-white placeholder:text-gray-500 focus:outline-none transition-all text-sm font-medium"
                   required
                 />
-                <button className="bg-primary text-white px-8 py-3 rounded-[1.5rem] font-black uppercase tracking-widest text-[10px] hover:bg-gold transition-all flex items-center justify-center gap-2 group shadow-lg">
+                <button className="bg-accent text-white px-8 py-3 rounded-[1.5rem] font-black uppercase tracking-widest text-[10px] hover:bg-neutral-900 transition-all flex items-center justify-center gap-2 group shadow-lg">
                   Subscribe
                   <Send size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                 </button>

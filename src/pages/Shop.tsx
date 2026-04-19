@@ -81,7 +81,7 @@ const Shop: React.FC<ShopProps> = ({ addToCart }) => {
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
                   className={`w-full text-left px-4 py-3 rounded-xl text-xs font-black tracking-widest uppercase transition-all ${
-                    selectedCategory === cat ? 'bg-primary text-white shadow-xl shadow-primary/20' : 'text-gray-500 hover:bg-linen hover:text-primary'
+                    selectedCategory === cat ? 'bg-accent text-white shadow-xl shadow-accent/20' : 'text-gray-500 hover:bg-linen hover:text-accent'
                   }`}
                 >
                   {cat}
@@ -93,7 +93,7 @@ const Shop: React.FC<ShopProps> = ({ addToCart }) => {
           <div>
             <h3 className="text-sm font-black text-primary uppercase tracking-[0.2em] mb-4">Price Range</h3>
             <div className="space-y-4">
-              <input type="range" className="w-full accent-primary h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer" />
+              <input type="range" className="w-full accent-accent h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer" />
               <div className="flex justify-between text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                 <span>$0</span>
                 <span>$10,000</span>
@@ -108,7 +108,7 @@ const Shop: React.FC<ShopProps> = ({ addToCart }) => {
               Special Offer
             </h4>
             <p className="text-xs text-gray-500 font-medium leading-relaxed mb-6">Get 20% off on your first order with code: <span className="text-gold font-black">WELCOME20</span></p>
-            <button className="w-full py-4 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gold transition-all shadow-lg active:scale-95">
+            <button className="w-full py-4 bg-accent text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-neutral-900 transition-all shadow-lg active:scale-95">
               Copy Code
             </button>
           </div>

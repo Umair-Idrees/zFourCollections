@@ -201,7 +201,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ addToCart }) => {
                 
                 <button 
                   onClick={() => addToCart(product, quantity)}
-                  className="flex-1 bg-primary text-white px-10 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] hover:bg-gold transition-all shadow-2xl shadow-primary/20 flex items-center justify-center gap-4 active:scale-95 translate-y-0 hover:-translate-y-1"
+                  className="flex-1 bg-accent text-white px-10 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] hover:bg-neutral-900 transition-all shadow-2xl shadow-accent/20 flex items-center justify-center gap-4 active:scale-95 translate-y-0 hover:-translate-y-1"
                 >
                   <ShoppingCart size={18} />
                   Add to Cart

@@ -139,7 +139,8 @@ export default function AdminDashboard({
     return () => unsubscribe();
   }, []);
 
-  const isAdmin = user?.email === 'umairmayo607@gmail.com';
+  const ADMIN_EMAILS = ['umairmayo607@gmail.com', 'carenexon143@gmail.com'];
+  const isAdmin = user && ADMIN_EMAILS.includes(user.email || '');
 
   const [newProduct, setNewProduct] = useState({
     name: '',

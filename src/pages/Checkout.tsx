@@ -75,7 +75,7 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 text-center">
         <h2 className="text-3xl font-black text-primary mb-4 uppercase tracking-tight">Your cart is empty</h2>
-        <Link to="/shop" className="bg-primary text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-gold transition-all shadow-xl shadow-primary/10">Back to Shop</Link>
+        <Link to="/shop" className="bg-accent text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-neutral-900 transition-all shadow-xl shadow-accent/10">Back to Shop</Link>
       </div>
     );
   }
@@ -95,7 +95,7 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link 
             to="/" 
-            className="bg-primary text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-gold transition-all shadow-xl shadow-primary/10 active:scale-95"
+            className="bg-accent text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-neutral-900 transition-all shadow-xl shadow-accent/10 active:scale-95"
           >
             Back to Home
           </Link>
@@ -288,7 +288,7 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
             <button 
               type="submit"
               disabled={isProcessing}
-              className="w-full bg-primary text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-gold transition-all shadow-xl shadow-primary/10 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+              className="w-full bg-accent text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-neutral-900 transition-all shadow-xl shadow-accent/10 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
             >
               {isProcessing ? (
                 <>

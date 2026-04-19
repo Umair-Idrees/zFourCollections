@@ -132,7 +132,7 @@ export default function GirlsCollection() {
                   referrerPolicy="no-referrer"
                 />
               </div>
-              <div>
+              <div className="flex-1 w-full flex flex-col h-full">
                 <div className="flex items-center gap-1 text-accent mb-4">
                   {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
                 </div>
@@ -142,10 +142,10 @@ export default function GirlsCollection() {
                 <p className="text-gray-500 group-hover:text-gray-300 text-sm font-medium leading-relaxed mb-8 transition-colors">
                   {item.detail}
                 </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-black">{item.price}</span>
-                  <button className="bg-primary text-white group-hover:bg-white group-hover:text-primary px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg active:scale-95">
-                    <ShoppingBag size={16} /> Add To Bag
+                <div className="flex items-center justify-between w-full mt-auto">
+                  <span className="text-2xl font-black">${item.price.replace('$', '')}</span>
+                  <button className="bg-accent text-white group-hover:bg-white group-hover:text-accent px-8 py-4 rounded-full font-black text-[10px] uppercase tracking-widest flex items-center gap-3 transition-all shadow-2xl shadow-accent/20 active:scale-95 border border-transparent hover:border-accent">
+                    <ShoppingBag size={16} /> ADD TO BAG
                   </button>
                 </div>
               </div>

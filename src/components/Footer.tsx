@@ -19,7 +19,7 @@ export default function Footer() {
               <Logo variant="dark" className="scale-125 origin-left" />
             </div>
             <p className="text-gray-500 mb-8 leading-relaxed">
-              Premium ecommerce destination for high-quality electronics, fashion, and lifestyle products. We bring you the best brands and latest trends.
+              CareNexon Luxury Boutique offers a curated collection of premium fabrics, festive formals, and modern pret. Discover elegance and craftsmanship in every piece.
             </p>
             <div className="flex items-center gap-4">
               {socialLinks.map(({ Icon, href }, i) => (
@@ -69,20 +69,20 @@ export default function Footer() {
                   <MapPin size={18} />
                 </div>
                 <p className="text-gray-500 text-sm leading-relaxed">
-                  Pakistan
+                  CareNexon Punjab Coperative Housing Socienty(PCHS), Pakistan, Lahore
                 </p>
               </li>
               <li className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent flex-shrink-0">
                   <Phone size={18} />
                 </div>
-                <p className="text-gray-500 text-sm font-bold">03008847890</p>
+                <p className="text-gray-500 text-sm font-bold">0339300639</p>
               </li>
               <li className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent flex-shrink-0">
                   <Mail size={18} />
                 </div>
-                <p className="text-gray-500 text-sm font-bold">umairmayo607@gmail.com</p>
+                <p className="text-gray-500 text-sm font-bold">carenexon143@gmail.com</p>
               </li>
             </ul>
           </div>
@@ -91,7 +91,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-10 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-gray-400 text-sm">
-            © 2026 zFour. All rights reserved.
+            © 2026 CareNexon. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-4 opacity-50 grayscale hover:grayscale-0 transition-all" />
