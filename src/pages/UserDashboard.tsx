@@ -191,7 +191,10 @@ export default function UserDashboard({ cart = [] }: { cart?: any[] }) {
                   </button>
                 ))}
                 <button 
-                  onClick={() => logout()}
+                  onClick={async () => {
+                    await logout();
+                    window.location.href = "/";
+                  }}
                   className="w-full flex items-center gap-3 px-5 py-3.5 rounded-2xl font-bold text-sm text-sale hover:bg-red-50 transition-all mt-6"
                 >
                   <LogOut size={18} />

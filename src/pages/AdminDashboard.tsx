@@ -849,8 +849,7 @@ export default function AdminDashboard({
       <aside className="w-72 bg-white border-r border-gray-100 flex flex-col fixed h-full z-50">
         <div className="p-8 mb-4">
           <Link to="/" className="flex items-center gap-2">
-            <Logo variant="dark" className="scale-110 origin-left" />
-            <span className="text-xl font-bold text-accent -ml-1">Admin</span>
+            <Logo variant="dark" className="scale-125 origin-left" />
           </Link>
         </div>
 
@@ -885,7 +884,13 @@ export default function AdminDashboard({
         </nav>
 
         <div className="p-6 border-t border-gray-100">
-          <button className="w-full flex items-center gap-3 px-5 py-3.5 rounded-2xl font-bold text-sm text-sale hover:bg-red-50 transition-all">
+          <button 
+            onClick={async () => {
+              await logout();
+              window.location.href = "/";
+            }}
+            className="w-full flex items-center gap-3 px-5 py-3.5 rounded-2xl font-bold text-sm text-sale hover:bg-red-50 transition-all"
+          >
             <LogOut size={18} />
             Logout
           </button>
@@ -898,10 +903,13 @@ export default function AdminDashboard({
         <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-40 px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <h1 className="text-xl font-bold text-primary">{activeTab}</h1>
-              <div className="hidden md:flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                <ChevronRight size={14} />
-                Overview
+              <div>
+                <h1 className="text-2xl font-black text-primary uppercase tracking-tighter">Admin Dashboard</h1>
+                <div className="flex items-center gap-2 text-[10px] font-bold text-accent uppercase tracking-[0.2em] mt-0.5">
+                  <span>Management Portal</span>
+                  <ChevronRight size={10} />
+                  <span className="text-gray-400">{activeTab}</span>
+                </div>
               </div>
             </div>
 
