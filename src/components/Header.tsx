@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Search, User, Heart, ShoppingCart, Menu, ChevronDown, ChevronRight, Phone, MapPin, Facebook, Instagram, Music2, LogOut, LayoutDashboard, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 import LoginModal from './LoginModal';
-import { auth, logout } from '../lib/firebase';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { auth, logout, useAuth } from '../lib/firebase';
+import { User as FirebaseUser } from 'firebase/auth';
 import { Link, useNavigate } from 'react-router-dom';
 import { useProducts } from '../context/ProductContext';
 import { motion, AnimatePresence } from 'motion/react';
@@ -17,11 +17,12 @@ interface HeaderProps {
 export default function Header({ cart = [] }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showResults, setShowResults] = useState(false);
   const { products } = useProducts();
   const navigate = useNavigate();
+
+  const { user, isAdmin } = useAuth();
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const cartTotal = cart.reduce((acc, item) => acc + (item.salePrice * item.quantity), 0);
@@ -30,14 +31,6 @@ export default function Header({ cart = [] }: HeaderProps) {
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.category.toLowerCase().includes(searchQuery.toLowerCase())
   ).slice(0, 5);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
-
   const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (searchQuery.trim()) {
@@ -85,9 +78,10 @@ export default function Header({ cart = [] }: HeaderProps) {
           </Link>
         </div>
         <div className="flex items-center gap-6">
-          <Link to="/admin" className="flex items-center gap-1.5 text-accent font-bold hover:underline">
-            <LayoutDashboard size={14} />
-            Admin Dashboard
+          <Link to="/admin" className="flex items-center gap-1.5 text-accent font-bold hover:underline group">
+            <LayoutDashboard size={14} className="group-hover:rotate-12 transition-transform" />
+            <span>Admin Dashboard</span>
+            {!isAdmin && <span className="text-[8px] bg-accent/10 px-1.5 py-0.5 rounded-full uppercase tracking-tighter ml-1">Test Access</span>}
           </Link>
           <div className="flex items-center gap-3">
             <a href="https://www.facebook.com/share/1AnztTsb53/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer">
@@ -112,7 +106,7 @@ export default function Header({ cart = [] }: HeaderProps) {
         {/* Logo */}
         <div className="flex-shrink-0">
           <Link to="/">
-            <Logo variant="dark" className="active:scale-95 transition-transform" />
+            <Logo variant="dark" className="scale-110 active:scale-95 transition-transform" />
           </Link>
         </div>
 

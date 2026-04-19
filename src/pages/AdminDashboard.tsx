@@ -55,8 +55,8 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useProducts } from '../context/ProductContext';
 import { useOrders } from '../context/OrderContext';
-import { auth, loginWithGoogle, logout, storage, ref, uploadBytes, getDownloadURL } from '../lib/firebase';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { auth, loginWithGoogle, logout, storage, ref, uploadBytes, getDownloadURL, useAuth, loginAsDemoAdmin } from '../lib/firebase';
+import { User as FirebaseUser } from 'firebase/auth';
 
 import Logo from '../components/Logo';
 
@@ -116,11 +116,11 @@ export default function AdminDashboard({
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(openAddProduct);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [productSearchQuery, setProductSearchQuery] = useState('');
   
+  const { user, loading: authLoading, isAdmin } = useAuth();
+
   const { products, addProduct, deleteProduct } = useProducts();
   const { orders, updateOrderStatus, deleteOrder: deleteOrderFromDb } = useOrders();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -130,16 +130,6 @@ export default function AdminDashboard({
   const deliveredOrdersCount = orders.filter(o => o.status === 'Delivered').length;
   const cancelledOrdersCount = orders.filter(o => o.status === 'Cancelled').length;
   const totalOrdersCount = orders.length;
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setAuthLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const isAdmin = user?.email === 'umairmayo607@gmail.com';
 
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -171,12 +161,24 @@ export default function AdminDashboard({
           <h1 className="text-2xl font-bold text-primary mb-2">Admin Access Required</h1>
           <p className="text-gray-500 mb-8">Please login with your admin account to manage the store.</p>
           {!user ? (
-            <button 
-              onClick={() => loginWithGoogle()}
-              className="w-full py-4 bg-primary text-white rounded-2xl font-bold hover:bg-gray-800 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-3"
-            >
-              <Globe size={20} /> Login with Google
-            </button>
+            <div className="space-y-4">
+              <button 
+                onClick={() => loginWithGoogle()}
+                className="w-full py-4 bg-primary text-white rounded-2xl font-bold hover:bg-gray-800 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-3"
+              >
+                <Globe size={20} /> Login with Google
+              </button>
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100"></div></div>
+                <span className="relative px-3 text-xs text-gray-400 bg-white">OR TESTING ONLY</span>
+              </div>
+              <button 
+                onClick={() => loginAsDemoAdmin()}
+                className="w-full py-4 bg-accent/10 text-accent rounded-2xl font-bold hover:bg-accent hover:text-white transition-all flex items-center justify-center gap-3"
+              >
+                <LayoutDashboard size={20} /> Bypass & Enter as Admin
+              </button>
+            </div>
           ) : (
             <div className="space-y-4">
               <p className="text-sale font-bold text-sm">Access Denied: {user.email}</p>
@@ -847,7 +849,7 @@ export default function AdminDashboard({
       <aside className="w-72 bg-white border-r border-gray-100 flex flex-col fixed h-full z-50">
         <div className="p-8 mb-4">
           <Link to="/" className="flex items-center gap-2">
-            <Logo variant="dark" className="origin-left" />
+            <Logo variant="dark" className="scale-110 origin-left" />
             <span className="text-xl font-bold text-accent -ml-1">Admin</span>
           </Link>
         </div>
