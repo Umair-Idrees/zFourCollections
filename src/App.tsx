@@ -141,7 +141,6 @@ export default function App() {
         </div>
       } />
       <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/dashboard" element={<UserDashboard cart={cart} />} />
       <Route path="/blog" element={
         <div className="min-h-screen flex flex-col bg-white">

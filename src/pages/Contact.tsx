@@ -30,7 +30,7 @@ const Contact: React.FC = () => {
         </div>
 
         <div className="relative z-10">
-          <h1 className="text-4xl md:text-6xl font-serif font-black text-white mb-6 italic tracking-tight uppercase">Contact <span className="text-gold">CareNexon</span></h1>
+          <h1 className="text-4xl md:text-6xl font-serif font-black text-white mb-6 italic tracking-tight uppercase">Contact <span className="text-gold">ZFour Collection</span></h1>
           <p className="text-gray-400 max-w-2xl mx-auto font-medium text-lg leading-relaxed">Have questions? We're here to help. Reach out to us through any of our professional boutique channels below.</p>
         </div>
       </div>
@@ -71,7 +71,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Office</p>
-                    <p className="text-primary font-bold">CareNexon Punjab Coperative Housing Socienty(PCHS)</p>
+                    <p className="text-primary font-bold">ZFour Collection Punjab Coperative Housing Socienty(PCHS)</p>
                     <p className="text-sm text-gray-500">Pakistan, Lahore</p>
                   </div>
                 </div>
@@ -118,7 +118,7 @@ const Contact: React.FC = () => {
                     <label className="text-sm font-bold text-primary ml-1">Full Name</label>
                     <input 
                       type="text" 
-                      placeholder="CareNexon" 
+                      placeholder="ZFour Collection" 
                       className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
                     />
                   </div>
@@ -174,7 +174,7 @@ const Contact: React.FC = () => {
                 <MapPin size={24} />
               </div>
               <div>
-                <p className="font-bold text-primary">CareNexon HQ</p>
+                <p className="font-bold text-primary">ZFour Collection HQ</p>
                 <p className="text-xs text-gray-500">PCHS, Lahore, Pakistan</p>
               </div>
             </div>

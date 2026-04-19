@@ -16,10 +16,10 @@ export default function Footer() {
           {/* Brand Info */}
           <div>
             <div className="mb-6">
-              <Logo variant="dark" className="scale-125 origin-left" />
+              <Logo variant="dark" className="origin-left" />
             </div>
             <p className="text-gray-500 mb-8 leading-relaxed">
-              CareNexon Luxury Boutique offers a curated collection of premium fabrics, festive formals, and modern pret. Discover elegance and craftsmanship in every piece.
+              ZFour Collection Luxury Boutique offers a curated collection of premium fabrics, festive formals, and modern pret. Discover elegance and craftsmanship in every piece.
             </p>
             <div className="flex items-center gap-4">
               {socialLinks.map(({ Icon, href }, i) => (
@@ -69,7 +69,7 @@ export default function Footer() {
                   <MapPin size={18} />
                 </div>
                 <p className="text-gray-500 text-sm leading-relaxed">
-                  CareNexon Punjab Coperative Housing Socienty(PCHS), Pakistan, Lahore
+                  ZFour Collection Punjab Coperative Housing Socienty(PCHS), Pakistan, Lahore
                 </p>
               </li>
               <li className="flex items-center gap-4">
@@ -91,7 +91,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-10 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-gray-400 text-sm">
-            © 2026 CareNexon. All rights reserved.
+            © 2026 ZFour Collection. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-4 opacity-50 grayscale hover:grayscale-0 transition-all" />

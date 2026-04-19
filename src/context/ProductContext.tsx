@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '../types';
-import { PRODUCTS } from '../constants';
 import { db, collection, onSnapshot, query, orderBy, addDoc, deleteDoc, doc, updateDoc, serverTimestamp, handleFirestoreError, OperationType } from '../lib/firebase';
 
 interface ProductContextType {
@@ -27,13 +26,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         createdAt: (doc.data() as any).createdAt?.toDate() || new Date(),
         updatedAt: (doc.data() as any).updatedAt?.toDate() || new Date(),
       })) as Product[];
-      
-      // If Firestore is empty, use dummy products for testing
-      if (productList.length === 0) {
-        setProducts(PRODUCTS as Product[]);
-      } else {
-        setProducts(productList);
-      }
+      setProducts(productList);
       setLoading(false);
     }, (error) => {
       console.error("Error fetching products:", error);

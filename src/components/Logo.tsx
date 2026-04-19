@@ -22,7 +22,7 @@ const Logo: React.FC<LogoProps> = ({ className, variant = 'dark', showText = tru
 
   return (
     <div className={cn("flex items-center gap-2 select-none", className)}>
-      <div className="relative w-12 h-12 flex items-center justify-center">
+      <div className="relative w-9 h-9 flex items-center justify-center">
         <svg
           width="100%"
           height="100%"
@@ -34,7 +34,7 @@ const Logo: React.FC<LogoProps> = ({ className, variant = 'dark', showText = tru
           <circle cx="50" cy="50" r="48" stroke={colors.accent} strokeWidth="0.5" strokeDasharray="2 4" className="opacity-40" />
           <circle cx="50" cy="50" r="42" stroke={colors.accent} strokeWidth="2" />
           
-          {/* Serif Monogram 'CN' */}
+          {/* Serif Monogram 'ZF' */}
           <text 
             x="50" 
             y="58" 
@@ -45,7 +45,7 @@ const Logo: React.FC<LogoProps> = ({ className, variant = 'dark', showText = tru
             textAnchor="middle" 
             className="italic font-serif"
           >
-            CN
+            ZF
           </text>
 
           {/* Luxury Accents */}
@@ -58,19 +58,19 @@ const Logo: React.FC<LogoProps> = ({ className, variant = 'dark', showText = tru
         <div className="flex flex-col leading-none">
           <span 
             className={cn(
-              "text-2xl font-serif font-black tracking-tight uppercase italic",
+              "text-base font-serif font-black tracking-normal uppercase italic",
               variant === 'light' ? "text-white" : "text-primary"
             )}
           >
-            Care<span className="text-accent">Nexon</span>
+            ZFour <span className="text-accent">Collection</span>
           </span>
           <span 
             className={cn(
-              "text-[8px] font-bold tracking-[0.5em] uppercase opacity-70 ml-0.5 mt-0.5",
+              "text-[6px] font-bold tracking-[0.3em] uppercase opacity-70 ml-0.5 mt-0.5",
               variant === 'light' ? "text-white/70" : "text-accent"
             )}
           >
-            Luxury Boutique
+            Premium Boutique
           </span>
         </div>
       )}
