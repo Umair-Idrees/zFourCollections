@@ -70,7 +70,7 @@ export const clearSimulatedUser = () => {
 
 const DEMO_ADMIN = {
   uid: 'demo-admin-123',
-  email: 'umairmayo607@gmail.com',
+  email: 'admin@test.com',
   displayName: 'Admin Demo',
   photoURL: 'https://ui-avatars.com/api/?name=Admin+Demo&background=c5a059&color=fff',
   role: 'admin'
@@ -190,5 +190,5 @@ export function useAuth() {
     };
   }, []);
 
-  return { user, loading, isAdmin: user && ['umairmayo607@gmail.com', 'carenexon143@gmail.com'].includes(user.email || '') };
+  return { user, loading, isAdmin: user && ['umairmayo607@gmail.com', 'carenexon143@gmail.com', 'admin@test.com'].includes(user.email || '') };
 }

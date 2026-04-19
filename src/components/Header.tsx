@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, User, Heart, ShoppingCart, Menu, ChevronDown, ChevronRight, Phone, MapPin, Facebook, Instagram, Music2, LogOut, LayoutDashboard, X } from 'lucide-react';
+import { Search, User, Heart, ShoppingCart, Menu, ChevronDown, ChevronRight, Phone, MapPin, Facebook, Instagram, Music2, LogOut, LayoutDashboard, X, ShieldCheck } from 'lucide-react';
 import { cn } from '../lib/utils';
 import LoginModal from './LoginModal';
 import { auth, logout, useAuth } from '../lib/firebase';
@@ -201,36 +201,59 @@ export default function Header({ cart = [] }: HeaderProps) {
         {/* Icons */}
         <div className="flex items-center gap-5">
           {user ? (
-            <Link 
-              to="/dashboard"
-              className="hidden sm:flex items-center gap-3 cursor-pointer group"
-            >
-              <div className="p-0.5 rounded-full border-2 border-accent/20 group-hover:border-accent transition-all duration-300">
-                <img 
-                  src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName || user.email}`} 
-                  alt="User" 
-                  className="w-9 h-9 rounded-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              </div>
-              <div className="hidden xl:block">
-                <p className="text-[10px] text-gray-400 uppercase font-black tracking-[0.15em] leading-none mb-1">Welcome</p>
-                <p className="text-sm font-black text-primary truncate max-w-[100px] leading-none tracking-tight">
-                  {user.displayName?.split(' ')[0] || 'User'}
-                </p>
-              </div>
-            </Link>
+            <div className="flex items-center gap-5">
+              {isAdmin && (
+                <Link 
+                  to="/admin" 
+                  className="hidden md:flex items-center gap-1.5 px-4 py-2 bg-accent text-white rounded-full text-xs font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-lg shadow-accent/20"
+                >
+                  <LayoutDashboard size={14} />
+                  Dashboard
+                </Link>
+              )}
+              <Link 
+                to="/dashboard"
+                className="hidden sm:flex items-center gap-3 cursor-pointer group"
+              >
+                <div className="p-0.5 rounded-full border-2 border-accent/20 group-hover:border-accent transition-all duration-300">
+                  <img 
+                    src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName || user.email}`} 
+                    alt="User" 
+                    className="w-9 h-9 rounded-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <div className="hidden xl:block">
+                  <p className="text-[10px] text-gray-400 uppercase font-black tracking-[0.15em] leading-none mb-1">
+                    {isAdmin ? 'Welcome, Admin' : 'Welcome'}
+                  </p>
+                  <p className="text-sm font-black text-primary truncate max-w-[100px] leading-none tracking-tight">
+                    {isAdmin ? 'Store Manager' : (user.displayName?.split(' ')[0] || 'User')}
+                  </p>
+                </div>
+              </Link>
+            </div>
           ) : (
-            <div 
-              className="hidden sm:flex items-center gap-3 cursor-pointer group"
-              onClick={() => setIsLoginOpen(true)}
-            >
-              <div className="p-2.5 rounded-full bg-gray-50 group-hover:bg-accent/10 transition-colors">
-                <User size={20} className="text-gray-700 group-hover:text-accent" />
-              </div>
-              <div className="hidden xl:block">
-                <p className="text-[10px] text-gray-400 uppercase font-black tracking-[0.15em] leading-none mb-1">Account</p>
-                <p className="text-sm font-black text-primary leading-none tracking-tight">Login</p>
+            <div className="flex items-center gap-5">
+              {/* Temporary Admin Link for testing */}
+              <Link 
+                to="/admin" 
+                className="hidden md:flex items-center gap-1.5 px-4 py-2 border-2 border-accent/20 text-accent rounded-full text-[10px] font-black uppercase tracking-widest hover:border-accent transition-all animate-pulse"
+              >
+                <ShieldCheck size={12} />
+                Admin Bypass
+              </Link>
+              <div 
+                className="hidden sm:flex items-center gap-3 cursor-pointer group"
+                onClick={() => setIsLoginOpen(true)}
+              >
+                <div className="p-2.5 rounded-full bg-gray-50 group-hover:bg-accent/10 transition-colors">
+                  <User size={20} className="text-gray-700 group-hover:text-accent" />
+                </div>
+                <div className="hidden xl:block">
+                  <p className="text-[10px] text-gray-400 uppercase font-black tracking-[0.15em] leading-none mb-1">Account</p>
+                  <p className="text-sm font-black text-primary leading-none tracking-tight">Login</p>
+                </div>
               </div>
             </div>
           )}
