@@ -184,7 +184,7 @@ export default function AdminDashboard({
   const [productStatusFilter, setProductStatusFilter] = useState('All Status');
   const [productSortFilter, setProductSortFilter] = useState('Sort by (Default)');
   const [productEntriesPerPage, setProductEntriesPerPage] = useState(10);
-  const [isOrdersExpanded, setIsOrdersExpanded] = useState(true);
+  const [isOrdersExpanded, setIsOrdersExpanded] = useState(false);
   const [settings, setSettings] = useState({
     firstName: 'Kristin',
     lastName: 'Watson',
