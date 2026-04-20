@@ -22,6 +22,7 @@ import Checkout from './pages/Checkout';
 import ProductDetail from './pages/ProductDetail';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
+import AdminAddProduct from './pages/AdminAddProduct';
 
 function HomePage({ addToCart, cart }: { addToCart: (product: any) => void, cart: any[] }) {
   const [selectedCategory, setSelectedCategory] = React.useState<string | undefined>(undefined);
@@ -141,6 +142,7 @@ export default function App() {
         </div>
       } />
       <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/admin/add-product" element={<AdminAddProduct />} />
       <Route path="/dashboard" element={<UserDashboard cart={cart} />} />
       <Route path="/blog" element={
         <div className="min-h-screen flex flex-col bg-white">

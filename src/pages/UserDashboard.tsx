@@ -58,9 +58,9 @@ const RECENTLY_VIEWED_PLACEHOLDERS = [
 ];
 
 const ORDERS = [
-  { id: '#10234', date: 'May 16, 2024', status: 'Shipped', total: '$299.99', product: 'Premium Wireless Headphones', image: 'https://picsum.photos/seed/headphones/200/200' },
-  { id: '#10229', date: 'May 12, 2024', status: 'Delivered', total: '$189.00', product: 'Minimalist Leather Watch', image: 'https://picsum.photos/seed/watch/200/200' },
-  { id: '#10215', date: 'May 05, 2024', status: 'Delivered', total: '$1,299.99', product: 'Laptop Pro 15"', image: 'https://picsum.photos/seed/laptop/200/200' },
+  { id: '#10234', date: 'May 16, 2024', status: 'Shipped', total: '$115.00', product: 'Floral Boutique Maxi', image: 'https://img.freepik.com/free-photo/portrait-young-stylish-girl-model-casual-summer-clothes-brown-hat-with-natural-makeup-glasses-isolated_158538-8562.jpg' },
+  { id: '#10229', date: 'May 12, 2024', status: 'Delivered', total: '$48.00', product: 'Chic Denim & Floral Mix', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDtlimnu5VN4jKnHDDtykPPcriyIiVXzYWhA&s' },
+  { id: '#10215', date: 'May 05, 2024', status: 'Delivered', total: '$89.00', product: 'Country Tiered Set', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiWPNAO3EvRsK9CJX4Feug6WaefYlGoPOvow&s' },
 ];
 
 const ADDRESSES = [
@@ -75,7 +75,7 @@ const PAYMENTS = [
 
 const NOTIFICATIONS = [
   { id: 'n1', title: 'Order Shipped!', message: 'Your order #10234 has been shipped and is on its way.', time: '2 hours ago', type: 'order' },
-  { id: 'n2', title: 'Flash Sale Alert', message: 'Get 50% off on all electronics this weekend!', time: '5 hours ago', type: 'promo' },
+  { id: 'n2', title: 'Season Sale Alert', message: 'Get 50% off on all READY-TO-WEAR collections this weekend!', time: '5 hours ago', type: 'promo' },
   { id: 'n3', title: 'Delivery Update', message: 'Order #10229 was successfully delivered.', time: '1 day ago', type: 'delivery' },
 ];
 
@@ -475,8 +475,8 @@ export default function UserDashboard({ cart = [] }: { cart?: any[] }) {
                       </div>
                       <div className="divide-y divide-gray-50">
                         {[
-                          { id: 'c1', name: 'Premium Wireless Headphones', price: 299.99, qty: 1, image: 'https://picsum.photos/seed/headphones/200/200' },
-                          { id: 'c2', name: 'Minimalist Leather Watch', price: 189.00, qty: 1, image: 'https://picsum.photos/seed/watch/200/200' },
+                          { id: 'c1', name: 'Floral Boutique Maxi', price: 115.00, qty: 1, image: 'https://img.freepik.com/free-photo/portrait-young-stylish-girl-model-casual-summer-clothes-brown-hat-with-natural-makeup-glasses-isolated_158538-8562.jpg' },
+                          { id: 'c2', name: 'Chic Denim & Floral Mix', price: 48.00, qty: 1, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDtlimnu5VN4jKnHDDtykPPcriyIiVXzYWhA&s' },
                         ].map((item) => (
                           <div key={item.id} className="p-8 grid grid-cols-12 items-center group">
                             <div className="col-span-6 flex gap-6">

@@ -19,11 +19,21 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
-// Connect to MongoDB if MONGO_URI is provided
-if (process.env.MONGO_URI) {
-  mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('MongoDB connection error:', err));
+// Connect to MongoDB if MONGO_URI is provided and not a local address
+if (process.env.MONGO_URI && process.env.MONGO_URI !== 'undefined') {
+  const isLocalhost = process.env.MONGO_URI.includes('localhost') || process.env.MONGO_URI.includes('127.0.0.1');
+  
+  // In this cloud environment, localhost MongoDB will always fail.
+  // We only attempt connection if it looks like a remote URI (e.g. Atlas).
+  if (isLocalhost) {
+    console.log('💡 MongoDB Notice: A local MONGO_URI was detected. To use a database, please provide a remote MongoDB Atlas URI in the setttings.');
+  } else {
+    mongoose.connect(process.env.MONGO_URI)
+      .then(() => console.log('✅ Connected to MongoDB'))
+      .catch(err => {
+        console.error('❌ MongoDB connection error:', err.message);
+      });
+  }
 }
 
 // Middleware

@@ -32,7 +32,9 @@ import {
   Truck,
   ShieldCheck,
   X,
-  Upload
+  Upload,
+  CloudUpload,
+  Calendar
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -48,10 +50,12 @@ import {
   Pie,
   Cell,
   LineChart,
-  Line
+  Line,
+  ComposedChart,
+  Legend
 } from 'recharts';
 import { cn } from '../lib/utils';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useProducts } from '../context/ProductContext';
 import { useOrders } from '../context/OrderContext';
@@ -62,20 +66,52 @@ import Logo from '../components/Logo';
 
 // --- Mock Data ---
 const REVENUE_DATA = [
-  { name: 'Jan', revenue: 45000, orders: 120 },
-  { name: 'Feb', revenue: 52000, orders: 150 },
-  { name: 'Mar', revenue: 48000, orders: 140 },
-  { name: 'Apr', revenue: 61000, orders: 180 },
-  { name: 'May', revenue: 55000, orders: 160 },
-  { name: 'Jun', revenue: 67000, orders: 210 },
-  { name: 'Jul', revenue: 72000, orders: 230 },
+  { name: 'Jan', revenue: 6000, orders: 4000 },
+  { name: 'Feb', revenue: 8000, orders: 4200 },
+  { name: 'Mar', revenue: 15000, orders: 4500 },
+  { name: 'Apr', revenue: 9000, orders: 5000 },
+  { name: 'May', revenue: 11000, orders: 5500 },
+  { name: 'Jun', revenue: 26000, orders: 6000 },
+  { name: 'Jul', revenue: 20000, orders: 7500 },
+  { name: 'Aug', revenue: 16000, orders: 7000 },
+  { name: 'Sep', revenue: 19000, orders: 6500 },
+  { name: 'Oct', revenue: 24000, orders: 8000 },
+  { name: 'Nov', revenue: 22000, orders: 7500 },
+  { name: 'Dec', revenue: 28000, orders: 8500 },
+];
+
+const SPARKLINE_DATA = [
+  { value: 40 }, { value: 30 }, { value: 60 }, { value: 50 }, 
+  { value: 80 }, { value: 55 }, { value: 90 }, { value: 70 }
+];
+
+const PROMOTIONAL_DATA = [
+  { name: 'Social Media', value: 3432, color: '#3b82f6' },
+  { name: 'Website', value: 2100, color: '#6366f1' },
+  { name: 'Store', value: 1200, color: '#f43f5e' },
+];
+
+const TOP_SALES_DATA = [
+  { id: 1, name: 'Neptune Longsleeve', price: '$138', sales: 952, image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=100&h=100&fit=crop' },
+  { id: 2, name: 'Ribbed Tank Top', price: '$108', sales: 952, image: 'https://images.unsplash.com/photo-1554412930-c96790ca4a9b?w=100&h=100&fit=crop' },
+  { id: 3, name: 'Ribbed Modal Maxi', price: '$125', sales: 902, image: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=100&h=100&fit=crop' },
+  { id: 4, name: 'Oversized Motion Duo', price: '$98', sales: 882, image: 'https://images.unsplash.com/photo-1544441893-675973e31985?w=100&h=100&fit=crop' },
+];
+
+const LOCATION_DATA = [
+  { name: 'California', value: 40, color: '#f97316' },
+  { name: 'Arizona', value: 15, color: '#f97316' },
+  { name: 'Texas', value: 10, color: '#f97316' },
+  { name: 'Georgia', value: 3.5, color: '#f97316' },
+  { name: 'North Carolina', value: 2, color: '#f97316' },
+  { name: 'Florida', value: 1.5, color: '#f97316' },
 ];
 
 const CATEGORY_DATA = [
-  { name: 'Electronics', value: 45, color: '#3b82f6' },
-  { name: 'Fashion', value: 30, color: '#ec4899' },
-  { name: 'Home', value: 15, color: '#10b981' },
-  { name: 'Beauty', value: 10, color: '#f59e0b' },
+  { name: 'FABRICS (Unstitched)', value: 45, color: '#e11d48' },
+  { name: 'READY-TO-WEAR (Pret)', value: 30, color: '#000000' },
+  { name: 'BOUTIQUE', value: 15, color: '#f43f5e' },
+  { name: 'WESTERN', value: 10, color: '#4b5563' },
 ];
 
 const STATS = [
@@ -100,24 +136,49 @@ const ORDERS = [
 ];
 
 const CUSTOMERS = [
-  { id: 'c1', name: 'Sarah Johnson', email: 'sarah@example.com', phone: '+1 234 567 890', orders: 12, spend: '$2,450', status: 'Active' },
-  { id: 'c2', name: 'Michael Chen', email: 'mchen@example.com', phone: '+1 234 567 891', orders: 8, spend: '$1,890', status: 'Active' },
-  { id: 'c3', name: 'Emma Wilson', email: 'emma@example.com', phone: '+1 234 567 892', orders: 5, spend: '$3,200', status: 'Inactive' },
+  { id: 'c1', name: 'Sarah Johnson', email: 'sarah@example.com', phone: '+1 234 567 890', orders: 12, spend: '$2,450', status: 'Active', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&fit=crop' },
+  { id: 'c2', name: 'Michael Chen', email: 'mchen@example.com', phone: '+1 234 567 891', orders: 8, spend: '$1,890', status: 'Active', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&fit=crop' },
+  { id: 'c3', name: 'Emma Wilson', email: 'emma@example.com', phone: '+1 234 567 892', orders: 5, spend: '$3,200', status: 'Inactive', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&fit=crop' },
+];
+
+const MOCK_CATEGORIES = [
+  { id: 'cat1', name: 'FABRICS (Unstitched)', products: 145, slug: 'fabrics', status: 'Active', image: 'https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=200' },
+  { id: 'cat2', name: 'READY-TO-WEAR (Pret)', products: 92, slug: 'ready-to-wear', status: 'Active', image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=200' },
+  { id: 'cat3', name: 'BOUTIQUE', products: 48, slug: 'boutique', status: 'Active', image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=200' },
+  { id: 'cat4', name: 'WESTERN', products: 36, slug: 'western', status: 'Active', image: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=200' },
+  { id: 'cat5', name: 'BOTTOMS & DUPATTAS', products: 64, slug: 'bottoms', status: 'Active', image: 'https://picsum.photos/seed/bottoms/200/200' },
+];
+
+const MOCK_DISCOUNTS = [
+  { id: 'd1', code: 'WELCOME20', type: 'Percentage', value: '20%', usage: '84/100', expiry: 'Dec 31, 2024', status: 'Active' },
+  { id: 'd2', code: 'SUMMER50', type: 'Fixed', value: '$50', usage: '120/500', expiry: 'Aug 15, 2024', status: 'Active' },
+  { id: 'd3', code: 'EIDGIFT', type: 'Percentage', value: '15%', usage: '200/200', expiry: 'May 10, 2024', status: 'Expired' },
+];
+
+const MOCK_REVIEWS = [
+  { id: 'r1', customer: 'Ayesha Khan', product: 'Luxury Velvet Suit', rating: 5, comment: 'Amazing quality! The embroidery is very detailed.', date: '2 days ago' },
+  { id: 'r2', customer: 'Zainab Ahmed', product: 'Printed Silk Maxi', rating: 4, comment: 'Fabric is great, but delivery took a bit long.', date: '1 week ago' },
+  { id: 'r3', customer: 'Fatima Ali', product: 'Lawn Collection Set', rating: 5, comment: 'Perfect for summers. Highly recommend!', date: '3 days ago' },
+];
+
+const MOCK_TRANSACTIONS = [
+  { id: 'tx1', order: '#10234', method: 'Visa ending in 4242', amount: '$299.99', date: 'May 16, 2024', status: 'Success' },
+  { id: 'tx2', order: '#10229', method: 'Mastercard ending in 8888', amount: '$189.00', date: 'May 12, 2024', status: 'Success' },
+  { id: 'tx3', order: '#10215', method: 'PayPal', amount: '$1,299.99', date: 'May 05, 2024', status: 'Pending' },
 ];
 
 export default function AdminDashboard({ 
-  initialTab = 'Dashboard',
-  openAddProduct = false
+  initialTab = 'Dashboard'
 }: { 
   initialTab?: string;
-  openAddProduct?: boolean;
 }) {
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(openAddProduct);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const navigate = useNavigate();
   const [productSearchQuery, setProductSearchQuery] = useState('');
+  const [productCategoryFilter, setProductCategoryFilter] = useState('All Categories');
+  const [productStatusFilter, setProductStatusFilter] = useState('All Status');
+  const [productSortFilter, setProductSortFilter] = useState('Sort by (Default)');
+  const [productEntriesPerPage, setProductEntriesPerPage] = useState(10);
   
   const { user, loading: authLoading, isAdmin } = useAuth();
 
@@ -130,18 +191,6 @@ export default function AdminDashboard({
   const deliveredOrdersCount = orders.filter(o => o.status === 'Delivered').length;
   const cancelledOrdersCount = orders.filter(o => o.status === 'Cancelled').length;
   const totalOrdersCount = orders.length;
-
-  const [newProduct, setNewProduct] = useState({
-    name: '',
-    category: 'Fashion',
-    price: '',
-    salePrice: '',
-    stock: '',
-    description: '',
-    images: [''],
-    sizes: [] as string[],
-    colors: [] as { name: string, hex: string }[]
-  });
 
   if (authLoading) {
     return (
@@ -198,396 +247,443 @@ export default function AdminDashboard({
     );
   }
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewProduct(prev => ({
-          ...prev,
-          images: [reader.result as string]
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleAddProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      console.log("Starting product addition process...");
-      let imageUrl = 'https://picsum.photos/seed/placeholder/600/600';
-
-      if (selectedFile) {
-        console.log("Uploading image to storage...");
-        const storageRef = ref(storage, `products/${Date.now()}_${selectedFile.name}`);
-        const snapshot = await uploadBytes(storageRef, selectedFile);
-        imageUrl = await getDownloadURL(snapshot.ref);
-        console.log("Image uploaded successfully:", imageUrl);
-      } else if (newProduct.images[0] && newProduct.images[0].startsWith('http')) {
-        imageUrl = newProduct.images[0];
-        console.log("Using provided image URL:", imageUrl);
-      }
-
-      const price = parseFloat(newProduct.price) || 0;
-      const salePrice = newProduct.salePrice ? parseFloat(newProduct.salePrice) : price;
-      const stock = parseInt(newProduct.stock) || 0;
-      const discount = (price > 0 && salePrice < price) 
-        ? Math.round(((price - salePrice) / price) * 100) 
-        : 0;
-
-      console.log("Calling addProduct with data:", {
-        name: newProduct.name,
-        category: newProduct.category,
-        price,
-        salePrice,
-        stock,
-        discount,
-        imageUrl
-      });
-
-      await addProduct({
-        name: newProduct.name,
-        category: newProduct.category,
-        regularPrice: price,
-        salePrice: salePrice,
-        quantity: stock,
-        mainImage: imageUrl,
-        fullDescription: newProduct.description,
-        shortDescription: newProduct.description.substring(0, 100) + '...',
-        sku: `ZF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-        tags: [newProduct.category, 'New Arrival'],
-        discountPercentage: discount,
-        lowStockAlert: 5,
-        galleryImages: [imageUrl],
-        thumbnailImage: imageUrl,
-        colors: newProduct.colors.map(c => c.name),
-        sizes: newProduct.sizes,
-        deliveryDays: 3,
-        status: 'Active'
-      } as any);
-
-      console.log("Product added successfully to database!");
-      setIsAddProductModalOpen(false);
-      setSelectedFile(null);
-      // Reset form
-      setNewProduct({
-        name: '',
-        category: 'Fashion',
-        price: '',
-        salePrice: '',
-        stock: '',
-        description: '',
-        images: [''],
-        sizes: [],
-        colors: []
-      });
-    } catch (error) {
-      console.error('Error adding product:', error);
-      setFormError(error instanceof Error ? error.message : 'Failed to add product. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const renderContent = () => {
     switch (activeTab) {
       case 'Dashboard':
         return (
-          <div className="space-y-10">
-            {/* Stats Grid */}
+          <div className="space-y-8 pb-10">
+            {/* Top Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { label: 'Total Revenue', value: `$${totalRevenue.toLocaleString()}`, change: '+12.5%', isPositive: true, icon: BarChart3, color: 'text-blue-600', bg: 'bg-blue-50' },
-                { label: 'Total Orders', value: totalOrdersCount.toLocaleString(), change: '+8.2%', isPositive: true, icon: ShoppingCart, color: 'text-purple-600', bg: 'bg-purple-50' },
-                { label: 'Total Customers', value: '1,540', change: '+5.4%', isPositive: true, icon: Users, color: 'text-green-600', bg: 'bg-green-50' },
-                { label: 'Total Products', value: products.length.toLocaleString(), change: '+12', isPositive: true, icon: Package, color: 'text-orange-600', bg: 'bg-orange-50' },
-              ].map((stat) => (
-                <div key={stat.label} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={cn("p-3 rounded-2xl", stat.bg)}>
-                      <stat.icon size={24} className={stat.color} />
-                    </div>
-                    <div className={cn(
-                      "flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full",
-                      stat.isPositive ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"
-                    )}>
-                      {stat.isPositive ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
-                      {stat.change}
+                { label: 'Total Earnings', value: '$334,945', change: '1.56%', isPositive: true, color: '#22c55e', bg: 'bg-green-500', icon: CreditCard },
+                { label: 'Total Orders', value: '2,802', change: '1.56%', isPositive: false, color: '#f97316', bg: 'bg-orange-500', icon: ShoppingCart },
+                { label: 'Customers', value: '4,945', change: '1.56%', isPositive: true, color: '#8b5cf6', bg: 'bg-purple-500', icon: Users },
+                { label: 'My Balance', value: '$4,945', change: '1.56%', isPositive: true, color: '#3b82f6', bg: 'bg-blue-500', icon: BarChart3 }
+              ].map((stat, idx) => (
+                <div key={stat.label} className="bg-white rounded-[1.5rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col p-6">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className={cn("p-2 rounded-xl text-white shadow-sm", stat.bg)}>
+                        <stat.icon size={18} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[11px] font-bold text-gray-400 uppercase tracking-tight">{stat.label}</span>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-xl font-black text-primary leading-none">{stat.value}</span>
+                          <span className={cn("text-[10px] font-bold flex items-center gap-0.5", stat.isPositive ? "text-green-500" : "text-sale")}>
+                            {stat.isPositive ? <TrendingUp size={10} /> : <TrendingUp size={10} className="rotate-180" />}
+                            {stat.change}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">{stat.label}</p>
-                  <h3 className="text-2xl font-bold text-primary">{stat.value}</h3>
+                  <div className="h-20 w-full mt-auto -mx-6 -mb-6">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={SPARKLINE_DATA.map(d => ({ ...d, value: d.value + (idx * 5) }))}>
+                        <defs>
+                          <linearGradient id={`color-${idx}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={stat.color} stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor={stat.color} stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <Area type="monotone" dataKey="value" stroke={stat.color} strokeWidth={2} fillOpacity={1} fill={`url(#color-${idx})`} />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               ))}
             </div>
 
-            {/* Secondary Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { label: 'Pending Orders', value: pendingOrdersCount.toLocaleString(), status: 'Pending', color: 'text-yellow-600', bg: 'bg-yellow-50' },
-                { label: 'Delivered Orders', value: deliveredOrdersCount.toLocaleString(), status: 'Delivered', color: 'text-green-600', bg: 'bg-green-50' },
-                { label: 'Cancelled Orders', value: cancelledOrdersCount.toLocaleString(), status: 'Cancelled', color: 'text-red-600', bg: 'bg-red-50' },
-                { label: 'Low Stock', value: products.filter(p => p.quantity < 5).length.toLocaleString(), status: 'Alert', color: 'text-orange-600', bg: 'bg-orange-50' },
-              ].map((stat) => (
-                <div key={stat.label} className={cn("p-6 rounded-[2rem] border shadow-sm transition-all", stat.bg, "border-white/20")}>
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs font-bold uppercase tracking-widest opacity-60">{stat.label}</p>
-                    <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-white/50", stat.color)}>
-                      {stat.status}
-                    </span>
-                  </div>
-                  <h3 className={cn("text-3xl font-bold", stat.color)}>{stat.value}</h3>
-                </div>
-              ))}
-            </div>
-
-            {/* Charts Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Sales Overview */}
-              <div className="lg:col-span-2 bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
-                <div className="flex items-center justify-between mb-8">
+            {/* Middle Charts & Top Sales */}
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
+              {/* Revenue (Main Chart) */}
+              <div className="xl:col-span-2 bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col h-full min-h-[500px]">
+                <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h3 className="text-xl font-bold text-primary">Sales Overview</h3>
-                    <p className="text-sm text-gray-400">Monthly revenue and orders trend</p>
+                    <h3 className="text-lg font-black text-primary">Revenue</h3>
+                    <div className="flex gap-6 mt-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-orange-500" />
+                        <span className="text-xs font-bold text-gray-400 uppercase">Revenue</span>
+                        <span className="text-sm font-black text-primary">$37,802</span>
+                        <span className="text-[10px] font-bold text-green-500 flex items-center gap-0.5"><TrendingUp size={10} /> 0.56%</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-purple-500" />
+                        <span className="text-xs font-bold text-gray-400 uppercase">Order</span>
+                        <span className="text-sm font-black text-primary">$28,305</span>
+                        <span className="text-[10px] font-bold text-green-500 flex items-center gap-0.5"><TrendingUp size={10} /> 0.56%</span>
+                      </div>
+                    </div>
                   </div>
-                  <select className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 text-sm font-bold text-gray-500 focus:outline-none">
-                    <option>Last 7 Months</option>
-                    <option>Last Year</option>
+                  <select className="bg-gray-50 border-none rounded-xl px-4 py-2 text-[11px] font-bold text-gray-500 focus:ring-0">
+                    <option>Yearly</option>
+                    <option>Weekly</option>
                   </select>
                 </div>
-                <div className="h-[350px] w-full">
+                <div className="flex-1 mt-4">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={REVENUE_DATA}>
-                      <defs>
-                        <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
+                    <ComposedChart data={REVENUE_DATA}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dy={10} />
-                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} />
-                      <Tooltip 
-                        contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}}
-                      />
-                      <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
-                    </AreaChart>
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 10}} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 10}} />
+                      <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
+                      <Bar dataKey="revenue" fill="#f97316" radius={[4, 4, 0, 0]} barSize={20} />
+                      <Line type="monotone" dataKey="orders" stroke="#8b5cf6" strokeWidth={3} dot={{ r: 4, fill: '#8b5cf6', strokeWidth: 2, stroke: '#fff' }} />
+                    </ComposedChart>
                   </ResponsiveContainer>
                 </div>
               </div>
 
-              {/* Category Distribution */}
-              <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
-                <h3 className="text-xl font-bold text-primary mb-8">Sales by Category</h3>
-                <div className="h-[250px] w-full mb-8">
+              {/* Promotional Sales (Doughnut) */}
+              <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col h-full min-h-[500px]">
+                <div className="flex items-center justify-between mb-8">
+                  <h3 className="text-lg font-black text-primary">Promotional Sales</h3>
+                  <select className="bg-gray-50 border-none rounded-xl px-4 py-2 text-[11px] font-bold text-gray-500 focus:ring-0">
+                    <option>Weekly</option>
+                  </select>
+                </div>
+                <div className="text-center">
+                  <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Visitors</span>
+                  <p className="text-2xl font-black text-primary flex items-center justify-center gap-2">
+                    7,802
+                    <span className="text-[10px] font-bold text-green-500 flex items-center gap-0.5"><TrendingUp size={10} /> 0.56%</span>
+                  </p>
+                </div>
+                <div className="flex-1 relative mt-4">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={CATEGORY_DATA}
+                        data={PROMOTIONAL_DATA}
                         cx="50%"
                         cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
+                        innerRadius={80}
+                        outerRadius={105}
                         paddingAngle={5}
                         dataKey="value"
                       >
-                        {CATEGORY_DATA.map((entry, index) => (
+                        {PROMOTIONAL_DATA.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
                       <Tooltip />
                     </PieChart>
                   </ResponsiveContainer>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-4">
+                    <div className="w-2 h-2 rounded-full border-2 border-orange-500" />
+                    <span className="text-[10px] font-black text-primary uppercase mt-1">Social Media</span>
+                    <span className="text-lg font-black text-primary leading-none">3,432</span>
+                    <span className="text-[9px] font-bold text-green-500 flex items-center gap-0.5 mt-0.5"><ArrowUpRight size={8} /> 5.6%</span>
+                  </div>
                 </div>
-                <div className="space-y-4">
-                  {CATEGORY_DATA.map((cat) => (
-                    <div key={cat.name} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }}></div>
-                        <span className="text-sm font-medium text-gray-600">{cat.name}</span>
+                <div className="grid grid-cols-3 gap-2 mt-8">
+                  {PROMOTIONAL_DATA.map((cat) => (
+                    <div key={cat.name} className="flex flex-col items-center gap-1">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }} />
+                        <span className="text-[9px] font-bold text-gray-400 uppercase truncate max-w-[50px]">{cat.name.split(' ')[0]}</span>
                       </div>
-                      <span className="text-sm font-bold text-primary">{cat.value}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Top Sale */}
+              <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col h-full min-h-[500px]">
+                <div className="flex items-center justify-between mb-8">
+                  <h3 className="text-lg font-black text-primary">Top sale</h3>
+                  <select className="bg-gray-50 border-none rounded-xl px-4 py-2 text-[11px] font-bold text-gray-500 focus:ring-0">
+                    <option>Weekly</option>
+                  </select>
+                </div>
+                <div className="space-y-6 flex-1">
+                  {TOP_SALES_DATA.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between group">
+                      <div className="flex items-center gap-4">
+                        <img src={item.image} alt={item.name} className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform" />
+                        <div>
+                          <p className="text-sm font-black text-primary truncate max-w-[120px]">{item.name}</p>
+                          <p className="text-[11px] font-bold text-gray-400">{item.price}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-black text-primary">{item.sales}</p>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Sales</p>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Bottom Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Recent Orders */}
-              <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
-                <div className="p-8 border-b border-gray-50 flex justify-between items-center">
-                  <h3 className="text-xl font-bold text-primary">Recent Orders</h3>
-                  <button onClick={() => setActiveTab('Orders')} className="text-sm font-bold text-accent hover:underline">View All</button>
+            {/* Bottom Grid: Recent Orders & Map */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 pb-10">
+              {/* Recent Orders Table */}
+              <div className="xl:col-span-2 bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col min-h-[500px]">
+                <div className="p-8 pb-4">
+                  <h3 className="text-lg font-black text-primary uppercase tracking-tight">Recent orders</h3>
                 </div>
-                <div className="divide-y divide-gray-50">
-                  {orders.slice(0, 4).map((order) => (
-                    <div key={order.id} className="p-6 flex items-center justify-between hover:bg-gray-50/50 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-bold text-primary text-xs">
-                          {order.customerName.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-primary">{order.customerName}</p>
-                          <p className="text-xs text-gray-400">
-                            {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString() : 'Recent'}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-bold text-primary">${order.total.toFixed(2)}</p>
-                        <span className={cn(
-                          "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider",
-                          order.status === 'Shipped' ? "bg-blue-50 text-blue-600" : 
-                          order.status === 'Delivered' ? "bg-green-50 text-green-600" :
-                          order.status === 'Cancelled' ? "bg-red-50 text-red-600" :
-                          "bg-yellow-50 text-yellow-600"
-                        )}>
-                          {order.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                  {orders.length === 0 && (
-                    <div className="p-10 text-center text-gray-400 text-sm">No recent orders.</div>
-                  )}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="border-b border-gray-50">
+                        <th className="py-4 px-8 text-[11px] font-bold text-gray-400 uppercase">Product</th>
+                        <th className="py-4 px-8 text-[11px] font-bold text-gray-400 uppercase">Customer</th>
+                        <th className="py-4 px-8 text-[11px] font-bold text-gray-400 uppercase">Product ID</th>
+                        <th className="py-4 px-8 text-[11px] font-bold text-gray-400 uppercase">Quantity</th>
+                        <th className="py-4 px-8 text-[11px] font-bold text-gray-400 uppercase text-right">Price</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {[
+                        { name: 'Neptune Longsleeve', customer: 'Leslie Alexander', id: '1452', qty: 'X1', price: '$120', image: TOP_SALES_DATA[0].image },
+                        { name: 'Corduroy slim-fit', customer: 'Leslie Alexander', id: '1452', qty: 'X1', price: '$120', image: TOP_SALES_DATA[1].image },
+                        { name: 'Turtleneck knitted', customer: 'Leslie Alexander', id: '1452', qty: 'X1', price: '$120', image: TOP_SALES_DATA[2].image },
+                        { name: 'Wool oversized', customer: 'Leslie Alexander', id: '1452', qty: 'X1', price: '$120', image: TOP_SALES_DATA[3].image },
+                        { name: 'Oversized poplin', customer: 'Leslie Alexander', id: '1452', qty: 'X1', price: '$120', image: TOP_SALES_DATA[1].image },
+                      ].map((item, idx) => (
+                        <tr key={idx} className="hover:bg-gray-50/50 transition-colors group">
+                          <td className="py-4 px-8">
+                            <div className="flex items-center gap-4">
+                              <img src={item.image} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                              <span className="text-sm font-bold text-primary">{item.name}</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-8 text-sm font-medium text-gray-500">{item.customer}</td>
+                          <td className="py-4 px-8 text-sm font-medium text-gray-500">{item.id}</td>
+                          <td className="py-4 px-8 text-sm font-medium text-gray-500">{item.qty}</td>
+                          <td className="py-4 px-8 text-sm font-black text-primary text-right">{item.price}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mt-auto p-6 flex flex-col sm:flex-row items-center justify-between border-t border-gray-50">
+                  <span className="text-[11px] font-bold text-gray-400">Showing 1-5 of 15</span>
+                  <div className="flex gap-2 mt-4 sm:mt-0">
+                    <button className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors"><ChevronRight className="rotate-180" size={14} /></button>
+                    <button className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold text-gray-400 hover:bg-gray-50 transition-colors">1</button>
+                    <button className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold bg-orange-500 text-white shadow-lg shadow-orange-500/20">2</button>
+                    <button className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold text-gray-400 hover:bg-gray-50 transition-colors">3</button>
+                    <button className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors"><ChevronRight size={14} /></button>
+                  </div>
                 </div>
               </div>
 
-              {/* Top Selling Products */}
-              <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
-                <div className="p-8 border-b border-gray-50 flex justify-between items-center">
-                  <h3 className="text-xl font-bold text-primary">Top Selling Products</h3>
-                  <button onClick={() => setActiveTab('Products')} className="text-sm font-bold text-accent hover:underline">View All</button>
+              {/* User Location */}
+              <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col min-h-[500px]">
+                <h3 className="text-lg font-black text-primary">User Location</h3>
+                <div className="flex-1 my-8 flex items-center justify-center relative overflow-hidden bg-gray-50 rounded-3xl p-4">
+                  {/* Simplified USA Map SVG Representation */}
+                  <svg viewBox="0 0 500 300" className="w-full h-auto text-gray-300">
+                    <path fill="currentColor" d="M100,50 L400,50 L420,150 L380,250 L80,250 L60,150 Z" opacity="0.1" />
+                    <circle cx="150" cy="180" r="40" fill="#f97316" opacity="0.7" />
+                    <circle cx="350" cy="200" r="30" fill="#f97316" opacity="0.6" />
+                    <circle cx="300" cy="120" r="25" fill="#f97316" opacity="0.5" />
+                    <circle cx="200" cy="100" r="20" fill="#f97316" opacity="0.4" />
+                    <circle cx="420" cy="160" r="15" fill="#f97316" opacity="0.3" />
+                  </svg>
+                  <div className="absolute inset-0 bg-transparent pointer-events-none border border-gray-100 rounded-3xl" />
                 </div>
-                <div className="p-8 space-y-6">
-                  {products.slice(0, 4).map((product) => (
-                    <div key={product.id} className="flex items-center gap-4 group">
-                      <img src={product.mainImage} alt={product.name} className="w-14 h-14 rounded-2xl object-cover border border-gray-100 group-hover:scale-110 transition-transform" referrerPolicy="no-referrer" />
-                      <div className="flex-1">
-                        <p className="text-sm font-bold text-primary truncate group-hover:text-accent transition-colors">{product.name}</p>
-                        <p className="text-xs text-gray-400">{product.category}</p>
+                <div className="grid grid-cols-3 gap-y-4 gap-x-6">
+                  {LOCATION_DATA.map((loc) => (
+                    <div key={loc.name} className="flex flex-col gap-0.5">
+                      <div className="flex items-center gap-1.5 line-clamp-1">
+                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: loc.color }} />
+                        <span className="text-[10px] font-bold text-gray-400 uppercase truncate leading-none">{loc.name}</span>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm font-bold text-primary">${product.salePrice}</p>
-                        <p className="text-[10px] text-green-500 font-bold">120 Sold</p>
-                      </div>
+                      <span className="text-xs font-black text-primary pl-3.5 leading-none">{loc.value}%</span>
                     </div>
                   ))}
                 </div>
               </div>
+            </div>
+
+            {/* Footer */}
+            <div className="text-center py-10">
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                Copyright © 2026 <span className="text-accent">Z-Four Collections</span> Design By Themesflat All rights reserved.
+              </p>
             </div>
           </div>
         );
 
       case 'Products':
-        const filteredProducts = products.filter(p => 
-          p.name.toLowerCase().includes(productSearchQuery.toLowerCase()) ||
-          p.category.toLowerCase().includes(productSearchQuery.toLowerCase()) ||
-          p.sku?.toLowerCase().includes(productSearchQuery.toLowerCase())
-        );
+        const filteredProducts = products.filter(p => {
+          const matchesSearch = p.name.toLowerCase().includes(productSearchQuery.toLowerCase()) ||
+                              p.category.toLowerCase().includes(productSearchQuery.toLowerCase()) ||
+                              p.sku?.toLowerCase().includes(productSearchQuery.toLowerCase()) ||
+                              p.id.toLowerCase().includes(productSearchQuery.toLowerCase());
+          
+          const matchesCategory = productCategoryFilter === 'All Categories' || p.category === productCategoryFilter;
+          
+          const matchesStatus = productStatusFilter === 'All Status' || 
+                               (productStatusFilter === 'In Stock' && p.quantity > 0) ||
+                               (productStatusFilter === 'Out of Stock' && p.quantity === 0);
+                               
+          return matchesSearch && matchesCategory && matchesStatus;
+        }).sort((a, b) => {
+          if (productSortFilter === 'Price: Low to High') return a.salePrice - b.salePrice;
+          if (productSortFilter === 'Price: High to Low') return b.salePrice - a.salePrice;
+          return 0;
+        });
+
+        const paginatedProducts = filteredProducts.slice(0, productEntriesPerPage);
 
         return (
-          <div className="space-y-8">
-            <div className="flex items-center justify-between">
-              <h1 className="text-3xl font-bold text-primary">Product Management</h1>
-              <button 
-                onClick={() => {
-                  setFormError(null);
-                  setIsAddProductModalOpen(true);
-                }}
-                className="flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-2xl font-bold hover:bg-accent/90 transition-all shadow-lg shadow-accent/20"
-              >
-                <Plus size={18} /> Add Product
-              </button>
+          <div className="space-y-8 pb-10">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <h1 className="text-3xl font-black text-primary">All Products</h1>
+              <div className="flex items-center gap-2 text-[11px] font-bold text-gray-400 uppercase tracking-tight">
+                <span>Dashboard</span>
+                <ChevronRight size={12} />
+                <span>Product</span>
+                <ChevronRight size={12} />
+                <span className="text-gray-900">All Products</span>
+              </div>
+            </div>
+
+            {/* Tip Banner */}
+            <div className="bg-orange-50 border border-orange-100 p-4 rounded-2xl flex items-start gap-3">
+              <div className="bg-white p-2 rounded-xl text-orange-500 shadow-sm flex-shrink-0">
+                <AlertCircle size={18} />
+              </div>
+              <p className="text-sm font-medium text-orange-800 leading-relaxed mt-1">
+                <span className="font-bold underline">Tip search by Product ID:</span> Each product is provided with a unique ID, which you can rely on to find the exact product you need.
+              </p>
             </div>
 
             <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
-              <div className="p-6 border-b border-gray-50 flex flex-col md:flex-row gap-4 items-center justify-between">
-                <div className="relative w-full md:w-96">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              {/* Filter Bar */}
+              <div className="p-8 pb-4 flex flex-col xl:flex-row gap-6 items-center justify-between">
+                <div className="flex items-center gap-2 text-sm font-bold text-gray-500">
+                  <span>Showing</span>
+                  <select 
+                    value={productEntriesPerPage}
+                    onChange={(e) => setProductEntriesPerPage(Number(e.target.value))}
+                    className="bg-gray-50 border-none rounded-lg px-3 py-1.5 focus:ring-0 cursor-pointer"
+                  >
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                  <span>entries</span>
+                </div>
+
+                <div className="flex flex-1 max-w-xl relative">
                   <input 
                     type="text" 
-                    placeholder="Search products..." 
+                    placeholder="Search here..." 
                     value={productSearchQuery}
                     onChange={(e) => setProductSearchQuery(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 pl-12 pr-6 focus:outline-none focus:ring-2 focus:ring-accent/20" 
+                    className="w-full bg-gray-50 border-none rounded-[1.25rem] py-4 pl-6 pr-14 text-sm font-medium focus:ring-2 focus:ring-orange-500/20" 
                   />
-                </div>
-                <div className="flex gap-3 w-full md:w-auto">
-                  <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-gray-100 text-sm font-bold text-gray-500 hover:bg-gray-50">
-                    <Filter size={18} /> Filter
+                  <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors">
+                    <Search size={20} />
                   </button>
-                  <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-gray-100 text-sm font-bold text-gray-500 hover:bg-gray-50">
-                    <Download size={18} /> Export
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full xl:w-auto">
+                  <select 
+                    value={productCategoryFilter}
+                    onChange={(e) => setProductCategoryFilter(e.target.value)}
+                    className="bg-gray-50 border-none rounded-xl px-4 py-3.5 text-[11px] font-black text-primary uppercase tracking-tight focus:ring-0 cursor-pointer"
+                  >
+                    <option>All Categories</option>
+                    {Array.from(new Set(products.map(p => p.category))).map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                  <select 
+                    value={productStatusFilter}
+                    onChange={(e) => setProductStatusFilter(e.target.value)}
+                    className="bg-gray-50 border-none rounded-xl px-4 py-3.5 text-[11px] font-black text-primary uppercase tracking-tight focus:ring-0 cursor-pointer"
+                  >
+                    <option>All Status</option>
+                    <option>In Stock</option>
+                    <option>Out of Stock</option>
+                  </select>
+                  <select 
+                    value={productSortFilter}
+                    onChange={(e) => setProductSortFilter(e.target.value)}
+                    className="bg-gray-50 border-none rounded-xl px-4 py-3.5 text-[11px] font-black text-primary uppercase tracking-tight focus:ring-0 cursor-pointer"
+                  >
+                    <option>Sort by (Default)</option>
+                    <option>Price: Low to High</option>
+                    <option>Price: High to Low</option>
+                  </select>
+                  <button 
+                    onClick={() => navigate('/admin/add-product')}
+                    className="flex items-center justify-center gap-2 bg-orange-500 text-white px-6 py-3.5 rounded-xl font-black text-[11px] uppercase tracking-wider hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/20"
+                  >
+                    <Plus size={16} /> Add new
                   </button>
                 </div>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full">
+
+              {/* Products Table */}
+              <div className="overflow-x-auto mt-4 px-4 pb-4">
+                <table className="w-full text-left">
                   <thead>
-                    <tr className="bg-gray-50/50">
-                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase tracking-widest">Product</th>
-                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase tracking-widest">Category</th>
-                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase tracking-widest">Price</th>
-                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase tracking-widest">Stock</th>
-                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase tracking-widest">Status</th>
-                      <th className="text-right py-4 px-8 text-xs font-bold text-gray-400 uppercase tracking-widest">Actions</th>
+                    <tr className="border-b border-gray-50">
+                      <th className="py-5 px-6 text-[11px] font-black text-gray-400 uppercase tracking-tight">Product</th>
+                      <th className="py-5 px-6 text-[11px] font-black text-gray-400 uppercase tracking-tight">Product ID</th>
+                      <th className="py-5 px-6 text-[11px] font-black text-gray-400 uppercase tracking-tight">Price</th>
+                      <th className="py-5 px-6 text-[11px] font-black text-gray-400 uppercase tracking-tight">Quantity</th>
+                      <th className="py-5 px-6 text-[11px] font-black text-gray-400 uppercase tracking-tight">Sale</th>
+                      <th className="py-5 px-6 text-[11px] font-black text-gray-400 uppercase tracking-tight">Stock</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {filteredProducts.length > 0 ? filteredProducts.map((product) => (
-                      <tr key={product.id} className="hover:bg-gray-50/50 transition-colors group">
-                        <td className="py-4 px-8">
-                          <div className="flex items-center gap-4">
-                            <img src={product.mainImage} alt={product.name} className="w-12 h-12 rounded-xl object-cover border border-gray-100" referrerPolicy="no-referrer" />
-                            <div className="flex flex-col">
-                              <span className="text-sm font-bold text-primary truncate max-w-[200px]">{product.name}</span>
-                              <span className="text-[10px] text-gray-400 font-mono">{product.sku}</span>
+                    {paginatedProducts.length > 0 ? (
+                      paginatedProducts.map((product) => (
+                        <tr key={product.id} className="hover:bg-gray-50/50 transition-colors group">
+                          <td className="py-6 px-6">
+                            <div className="flex items-center gap-5">
+                              <img src={product.mainImage} alt="" className="w-14 h-14 rounded-2xl object-cover border border-gray-100 shadow-sm" referrerPolicy="no-referrer" />
+                              <div className="flex flex-col">
+                                <span className="text-sm font-black text-primary leading-tight group-hover:text-orange-600 transition-colors">{product.name}</span>
+                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">{product.category}</span>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-8 text-sm text-gray-500">{product.category}</td>
-                        <td className="py-4 px-8 text-sm font-bold text-primary">${product.salePrice}</td>
-                        <td className="py-4 px-8 text-sm text-gray-500">{product.quantity} in stock</td>
-                        <td className="py-4 px-8">
-                          <span className={cn(
-                            "text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider",
-                            product.stockStatus === 'In Stock' ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"
-                          )}>
-                            {product.stockStatus}
-                          </span>
-                        </td>
-                        <td className="py-4 px-8 text-right">
-                          <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button className="p-2 text-gray-400 hover:text-accent transition-colors"><Edit2 size={16} /></button>
-                            <button 
-                              onClick={() => deleteProduct(product.id)}
-                              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    )) : (
+                          </td>
+                          <td className="py-6 px-6 text-sm font-bold text-gray-500">#{product.id.substring(0, 8).toUpperCase()}</td>
+                          <td className="py-6 px-6 text-sm font-black text-primary">${product.salePrice.toLocaleString()}</td>
+                          <td className="py-6 px-6 text-sm font-bold text-gray-500">{product.quantity.toLocaleString()}</td>
+                          <td className="py-6 px-6 text-sm font-bold text-gray-500">20</td>
+                          <td className="py-6 px-6">
+                            <span className={cn(
+                              "text-[10px] font-black px-4 py-1.5 rounded-xl uppercase tracking-widest leading-none",
+                              product.quantity > 0 
+                                ? "bg-green-50 text-green-500 border border-green-100" 
+                                : "bg-orange-50 text-orange-500 border border-orange-100"
+                            )}>
+                              {product.quantity > 0 ? 'In Stock' : 'Out of Stock'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
                       <tr>
-                        <td colSpan={6} className="py-20 text-center">
-                          <div className="flex flex-col items-center gap-3">
-                            <div className="p-4 bg-gray-50 rounded-full">
-                              <Search size={32} className="text-gray-300" />
+                        <td colSpan={6} className="py-24 text-center">
+                          <div className="flex flex-col items-center gap-4">
+                            <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center text-gray-300">
+                              <Search size={32} />
                             </div>
-                            <p className="text-gray-500 font-medium">No products found matching "{productSearchQuery}"</p>
+                            <div>
+                              <p className="text-lg font-black text-primary">No products found</p>
+                              <p className="text-sm text-gray-400 mt-1">Try adjusting your filters or search term</p>
+                            </div>
                             <button 
-                              onClick={() => setProductSearchQuery('')}
-                              className="text-accent text-sm font-bold hover:underline"
+                              onClick={() => {
+                                setProductSearchQuery('');
+                                setProductCategoryFilter('All Categories');
+                                setProductStatusFilter('All Status');
+                              }}
+                              className="mt-4 px-8 py-3 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all"
                             >
-                              Clear search
+                              Reset all filters
                             </button>
                           </div>
                         </td>
@@ -595,6 +691,18 @@ export default function AdminDashboard({
                     )}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Table Footer / Pagination */}
+              <div className="p-8 pt-4 flex flex-col sm:flex-row items-center justify-between border-t border-gray-50">
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Showing {paginatedProducts.length} of {filteredProducts.length} entries</span>
+                <div className="flex gap-2 mt-4 sm:mt-0">
+                  <button className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors border border-gray-50 shadow-sm" disabled><ChevronRight className="rotate-180" size={16} /></button>
+                  <button className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black bg-orange-500 text-white shadow-lg shadow-orange-500/20">1</button>
+                  <button className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black text-gray-400 hover:bg-gray-50 transition-colors border border-gray-50 shadow-sm">2</button>
+                  <button className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black text-gray-400 hover:bg-gray-50 transition-colors border border-gray-50 shadow-sm">3</button>
+                  <button className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors border border-gray-50 shadow-sm"><ChevronRight size={16} /></button>
+                </div>
               </div>
             </div>
           </div>
@@ -703,8 +811,8 @@ export default function AdminDashboard({
                       <tr key={customer.id} className="hover:bg-gray-50/50 transition-colors group">
                         <td className="py-5 px-8">
                           <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center font-bold text-accent">
-                              {customer.name.charAt(0)}
+                            <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-100 shadow-sm">
+                              <img src={customer.avatar} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                             </div>
                             <span className="text-sm font-bold text-primary">{customer.name}</span>
                           </div>
@@ -830,14 +938,400 @@ export default function AdminDashboard({
           </div>
         );
 
+      case 'Categories':
+        return (
+          <div className="space-y-8">
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-bold text-primary">Category Management</h1>
+              <button 
+                onClick={() => alert('Add Category functionality would open a modal here.')}
+                className="flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-2xl font-bold hover:bg-accent/90 transition-all shadow-lg shadow-accent/20"
+              >
+                <Plus size={18} /> Add Category
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {MOCK_CATEGORIES.map((cat) => (
+                <div key={cat.id} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
+                  <div className="aspect-video rounded-2xl overflow-hidden mb-6 bg-gray-50 relative">
+                    <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <div className="absolute top-3 right-3">
+                      <span className={cn(
+                        "text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest",
+                        cat.status === 'Active' ? "bg-green-500 text-white" : "bg-gray-400 text-white"
+                      )}>
+                        {cat.status}
+                      </span>
+                    </div>
+                  </div>
+                  <h4 className="text-lg font-bold text-primary mb-1">{cat.name}</h4>
+                  <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-4">{cat.products} Products</p>
+                  <div className="flex items-center gap-2 pt-4 border-t border-gray-50">
+                    <button 
+                      onClick={() => alert(`Editing ${cat.name}`)}
+                      className="flex-1 py-2 rounded-xl bg-gray-50 text-primary text-xs font-bold hover:bg-gray-100 transition-all"
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      onClick={() => alert(`Deleting ${cat.name}`)}
+                      className="flex-1 py-2 rounded-xl bg-red-50 text-red-500 text-xs font-bold hover:bg-red-100 transition-all"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'Inventory':
+        return (
+          <div className="space-y-8">
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-bold text-primary">Inventory Tracking</h1>
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => alert('Exporting Inventory List...')}
+                  className="flex items-center gap-2 px-6 py-3 rounded-2xl border border-gray-100 font-bold text-gray-500 hover:bg-gray-50"
+                >
+                  <Download size={18} /> Export List
+                </button>
+                <button 
+                  onClick={() => alert('Restock Request Initiated')}
+                  className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-2xl font-bold hover:bg-gray-800 shadow-lg"
+                >
+                  Restock Inventory
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
+              <div className="p-6 border-b border-gray-50 bg-gray-50/30">
+                <div className="grid grid-cols-4 gap-6">
+                  <div className="bg-white p-4 rounded-2xl border border-gray-100">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Total Items</p>
+                    <p className="text-xl font-black text-primary">4,520</p>
+                  </div>
+                  <div className="bg-white p-4 rounded-2xl border border-gray-100">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Out of Stock</p>
+                    <p className="text-xl font-black text-sale">0</p>
+                  </div>
+                  <div className="bg-white p-4 rounded-2xl border border-gray-100">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Low Stock Alert</p>
+                    <p className="text-xl font-black text-orange-500">12</p>
+                  </div>
+                  <div className="bg-white p-4 rounded-2xl border border-gray-100">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Total Valuation</p>
+                    <p className="text-xl font-black text-green-500">$85,420</p>
+                  </div>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50/50">
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase">Product Name</th>
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase">SKU</th>
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase">Price</th>
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase">In Stock</th>
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase">Status</th>
+                      <th className="text-right py-4 px-8 text-xs font-bold text-gray-400 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {products.map((product) => (
+                      <tr key={product.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="py-4 px-8 flex items-center gap-3">
+                          <img src={product.mainImage} className="w-10 h-10 rounded-lg object-cover" alt="" />
+                          <span className="text-sm font-bold text-primary">{product.name}</span>
+                        </td>
+                        <td className="py-4 px-8 text-xs text-gray-400 font-mono">{product.sku}</td>
+                        <td className="py-4 px-8 text-sm font-bold text-primary">${product.salePrice}</td>
+                        <td className="py-4 px-8 text-sm text-gray-600 font-medium">{product.quantity} Units</td>
+                        <td className="py-4 px-8">
+                          <span className={cn(
+                            "text-[10px] font-bold px-3 py-1 rounded-full uppercase",
+                            product.quantity < 5 ? "bg-orange-50 text-orange-600" : "bg-green-50 text-green-600"
+                          )}>
+                            {product.quantity < 5 ? 'Low Stock' : 'Good Stock'}
+                          </span>
+                        </td>
+                        <td className="py-4 px-8 text-right">
+                          <button className="text-accent text-xs font-bold hover:underline">Edit Stock</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'Discounts':
+        return (
+          <div className="space-y-8">
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-bold text-primary">Discount Coupons</h1>
+              <button 
+                onClick={() => alert('Open Discount Creator')}
+                className="flex items-center gap-2 bg-sale text-white px-6 py-3 rounded-2xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-sale/20"
+              >
+                <Tag size={18} /> Create Coupon
+              </button>
+            </div>
+
+            <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50/50">
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase">Coupon Code</th>
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase">Type</th>
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase">Value</th>
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase">Usage</th>
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase">Expiry</th>
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase">Status</th>
+                      <th className="text-right py-4 px-8 text-xs font-bold text-gray-400 uppercase text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {MOCK_DISCOUNTS.map((d) => (
+                      <tr key={d.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="py-5 px-8">
+                          <span className="bg-gray-100 text-primary font-mono font-bold px-3 py-1 rounded-lg border border-gray-200">{d.code}</span>
+                        </td>
+                        <td className="py-5 px-8 text-sm text-gray-600">{d.type}</td>
+                        <td className="py-5 px-8 text-sm font-bold text-sale">{d.value} OFF</td>
+                        <td className="py-5 px-8 text-sm text-gray-400">{d.usage}</td>
+                        <td className="py-5 px-8 text-sm text-gray-500 font-medium">{d.expiry}</td>
+                        <td className="py-5 px-8">
+                          <span className={cn(
+                            "text-[10px] font-bold px-3 py-1 rounded-full uppercase",
+                            d.status === 'Active' ? "bg-green-50 text-green-600" : "bg-red-50 text-sale"
+                          )}>
+                            {d.status}
+                          </span>
+                        </td>
+                        <td className="py-5 px-8 text-right">
+                          <button className="p-2 text-gray-400 hover:text-accent"><Edit2 size={16} /></button>
+                          <button className="p-2 text-gray-400 hover:text-sale"><Trash2 size={16} /></button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'Reviews':
+        return (
+          <div className="space-y-8">
+            <h1 className="text-3xl font-bold text-primary">Customer Reviews</h1>
+            <div className="grid grid-cols-1 gap-6">
+              {MOCK_REVIEWS.map((review) => (
+                <div key={review.id} className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-lg transition-all">
+                  <div className="flex flex-col md:flex-row gap-6">
+                    <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center font-bold text-accent text-xl flex-shrink-0">
+                      {review.customer.charAt(0)}
+                    </div>
+                    <div className="flex-grow">
+                      <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
+                        <div>
+                          <h4 className="font-bold text-primary text-lg">{review.customer}</h4>
+                          <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Reviewed: <span className="text-accent">{review.product}</span></p>
+                        </div>
+                        <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1.5 rounded-xl">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} size={14} className={cn(i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-200")} />
+                          ))}
+                          <span className="ml-2 text-sm font-bold text-yellow-600">{review.rating}.0</span>
+                        </div>
+                      </div>
+                      <p className="text-gray-600 leading-relaxed mb-6 italic">"{review.comment}"</p>
+                      <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+                        <span className="text-xs font-medium text-gray-400">{review.date}</span>
+                        <div className="flex gap-2">
+                          <button className="text-xs font-bold text-accent hover:underline px-4 py-2 bg-accent/5 rounded-xl">Reply</button>
+                          <button className="text-xs font-bold text-sale hover:underline px-4 py-2 bg-red-50 rounded-xl">Hide</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'Payments':
+        return (
+          <div className="space-y-8">
+            <h1 className="text-3xl font-bold text-primary">Transactions & Payments</h1>
+            <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
+              <div className="p-8 border-b border-gray-50 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-green-50 rounded-2xl">
+                    <ShieldCheck size={24} className="text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-primary">Verified Transactions</h3>
+                    <p className="text-xs text-gray-400 font-medium">All financial events are encrypted and safe.</p>
+                  </div>
+                </div>
+                <button className="text-sm font-bold text-accent px-6 py-2.5 bg-accent/5 rounded-xl border border-accent/10">View Audit Log</button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50/50">
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase">Transaction ID</th>
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase">Order</th>
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase">Method</th>
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase">Amount</th>
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase">Date</th>
+                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {MOCK_TRANSACTIONS.map((tx) => (
+                      <tr key={tx.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="py-5 px-8 text-sm font-bold text-primary">{tx.id}</td>
+                        <td className="py-5 px-8 text-sm text-accent font-bold hover:underline cursor-pointer">{tx.order}</td>
+                        <td className="py-5 px-8 text-sm text-gray-600">{tx.method}</td>
+                        <td className="py-5 px-8 text-sm font-bold text-primary">{tx.amount}</td>
+                        <td className="py-5 px-8 text-sm text-gray-400">{tx.date}</td>
+                        <td className="py-5 px-8 text-right">
+                          <span className={cn(
+                            "text-[10px] font-bold px-3 py-1 rounded-full uppercase",
+                            tx.status === 'Success' ? "bg-green-50 text-green-600" : "bg-yellow-50 text-yellow-600"
+                          )}>
+                            {tx.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'Reports':
+        return (
+          <div className="space-y-8">
+            <h1 className="text-3xl font-bold text-primary">Advanced Reports</h1>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
+                <h3 className="text-xl font-bold text-primary mb-8">Revenue Breakdown</h3>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={REVENUE_DATA}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} />
+                      <Tooltip contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}} />
+                      <Bar dataKey="revenue" fill="#e11d48" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
+                <h3 className="text-xl font-bold text-primary mb-8">Order Volume Trend</h3>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={REVENUE_DATA}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} />
+                      <Tooltip contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}} />
+                      <Line type="monotone" dataKey="orders" stroke="#000000" strokeWidth={4} dot={{r: 6, fill: '#000000', strokeWidth: 2, stroke: '#fff'}} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
+                <h3 className="text-xl font-bold text-primary mb-8">Category Distribution</h3>
+                <div className="h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={CATEGORY_DATA}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {CATEGORY_DATA.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="mt-4 space-y-2">
+                  {CATEGORY_DATA.map((cat) => (
+                    <div key={cat.name} className="flex items-center justify-between text-xs font-bold">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }}></div>
+                        <span className="text-gray-500 uppercase tracking-tighter">{cat.name}</span>
+                      </div>
+                      <span className="text-primary">{cat.value}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { label: 'Avg. Order Value', value: '$184.20', trend: '+5.2%', icon: TrendingUp },
+                { label: 'Conversion Rate', value: '4.8%', trend: '+1.2%', icon: BarChart3 },
+                { label: 'Customer Retention', value: '62%', trend: '-0.5%', icon: Users },
+              ].map((stat) => (
+                <div key={stat.label} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-3 bg-gray-50 rounded-2xl">
+                      <stat.icon size={20} className="text-primary" />
+                    </div>
+                    <span className={cn("text-xs font-bold", stat.trend.includes('+') ? "text-green-500" : "text-sale")}>
+                      {stat.trend}
+                    </span>
+                  </div>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{stat.label}</p>
+                  <h4 className="text-2xl font-black text-primary mt-1">{stat.value}</h4>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
       default:
         return (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-              <Settings size={40} className="text-gray-400 animate-spin-slow" />
+          <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-[3rem] border border-gray-100 shadow-sm p-12">
+            <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6">
+              <Settings size={48} className="text-gray-300 animate-spin-slow" />
             </div>
             <h2 className="text-2xl font-bold text-primary mb-2">{activeTab} Section</h2>
-            <p className="text-gray-500">This section is currently under development.</p>
+            <p className="text-gray-500 max-w-sm">We are working on this feature to give you the best management experience. Stay tuned!</p>
+            <button 
+              onClick={() => setActiveTab('Dashboard')}
+              className="mt-8 px-8 py-3 bg-primary text-white rounded-2xl font-bold hover:apply-dark shadow-xl"
+            >
+              Back to Dashboard
+            </button>
           </div>
         );
     }
@@ -934,9 +1428,10 @@ export default function AdminDashboard({
                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Super Admin</p>
                   </div>
                   <img 
-                    src="https://ui-avatars.com/api/?name=Admin+User&background=3b82f6&color=fff" 
+                    src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=400&fit=crop" 
                     alt="Admin" 
-                    className="w-10 h-10 rounded-xl border-2 border-white shadow-sm"
+                    className="w-10 h-10 rounded-xl border-2 border-white shadow-sm object-cover"
+                    referrerPolicy="no-referrer"
                   />
                 </div>
               </div>
@@ -948,286 +1443,6 @@ export default function AdminDashboard({
         <div className="p-8 max-w-[1600px] mx-auto">
           {renderContent()}
         </div>
-
-        {/* Add Product Modal */}
-        <AnimatePresence>
-          {isAddProductModalOpen && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsAddProductModalOpen(false)}
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-              />
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="relative w-full max-w-5xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
-              >
-                {/* Modal Header */}
-                <div className="p-8 border-b border-gray-50 flex items-center justify-between bg-white sticky top-0 z-10">
-                  <div>
-                    <h2 className="text-2xl font-bold text-primary">Add New Product</h2>
-                    <p className="text-sm text-gray-400">Fill in the details to list a new item on zFour</p>
-                  </div>
-                  <button 
-                    onClick={() => setIsAddProductModalOpen(false)}
-                    className="p-3 hover:bg-gray-50 rounded-2xl text-gray-400 hover:text-primary transition-all"
-                  >
-                    <X size={24} />
-                  </button>
-                </div>
-
-                {/* Modal Body - Scrollable */}
-                <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-                  {formError && (
-                    <div className="mb-8 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 animate-shake">
-                      <AlertCircle size={20} />
-                      <p className="text-sm font-medium">{formError}</p>
-                      <button onClick={() => setFormError(null)} className="ml-auto p-1 hover:bg-red-100 rounded-lg transition-colors">
-                        <X size={16} />
-                      </button>
-                    </div>
-                  )}
-                  <form onSubmit={handleAddProduct} className="space-y-10">
-                    {/* Basic Information */}
-                    <section className="space-y-6">
-                      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                        <div className="w-1 h-4 bg-accent rounded-full"></div>
-                        Basic Information
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label className="text-sm font-bold text-primary ml-1">Product Name</label>
-                          <input 
-                            required
-                            type="text" 
-                            placeholder="e.g. Premium Wool Overcoat"
-                            value={newProduct.name}
-                            onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-bold text-primary ml-1">Category</label>
-                          <select 
-                            value={newProduct.category}
-                            onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all appearance-none"
-                          >
-                            <option>Fashion</option>
-                            <option>Electronics</option>
-                            <option>Watches</option>
-                            <option>Accessories</option>
-                            <option>Home & Living</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-primary ml-1">Product Description</label>
-                        <textarea 
-                          required
-                          rows={4}
-                          placeholder="Describe your product in detail (features, materials, care instructions...)"
-                          value={newProduct.description}
-                          onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
-                          className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all resize-none"
-                        ></textarea>
-                      </div>
-                    </section>
-
-                    {/* Pricing & Inventory */}
-                    <section className="space-y-6">
-                      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                        <div className="w-1 h-4 bg-accent rounded-full"></div>
-                        Pricing & Inventory
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="space-y-2">
-                          <label className="text-sm font-bold text-primary ml-1">Regular Price ($)</label>
-                          <input 
-                            required
-                            type="number" 
-                            placeholder="0.00"
-                            value={newProduct.price}
-                            onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
-                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-bold text-primary ml-1">Sale Price ($)</label>
-                          <input 
-                            type="number" 
-                            placeholder="0.00"
-                            value={newProduct.salePrice}
-                            onChange={(e) => setNewProduct({...newProduct, salePrice: e.target.value})}
-                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-bold text-primary ml-1">Stock Quantity</label>
-                          <input 
-                            required
-                            type="number" 
-                            placeholder="0"
-                            value={newProduct.stock}
-                            onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
-                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
-                          />
-                        </div>
-                      </div>
-                    </section>
-
-                    {/* Media & Variants */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                      {/* Images */}
-                      <section className="space-y-6">
-                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                          <div className="w-1 h-4 bg-accent rounded-full"></div>
-                          Product Images
-                        </h3>
-                        <div className="grid grid-cols-2 gap-4">
-                          <input 
-                            type="file" 
-                            accept="image/*" 
-                            className="hidden" 
-                            ref={fileInputRef}
-                            onChange={handleImageUpload}
-                          />
-                          <div 
-                            onClick={() => fileInputRef.current?.click()}
-                            className="aspect-square bg-gray-50 border-2 border-dashed border-gray-100 rounded-3xl flex flex-col items-center justify-center text-gray-400 hover:border-accent/40 hover:bg-accent/5 transition-all cursor-pointer group relative overflow-hidden"
-                          >
-                            {newProduct.images[0] ? (
-                              <img src={newProduct.images[0]} alt="Preview" className="w-full h-full object-cover" />
-                            ) : (
-                              <>
-                                <div className="p-4 bg-white rounded-2xl shadow-sm group-hover:scale-110 transition-transform">
-                                  <Upload size={24} className="text-accent" />
-                                </div>
-                                <span className="mt-4 text-xs font-bold uppercase tracking-widest">Main Image</span>
-                              </>
-                            )}
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            {[1, 2, 3, 4].map((i) => (
-                              <div key={i} className="aspect-square bg-gray-50 border border-gray-100 rounded-2xl flex items-center justify-center text-gray-300 hover:bg-gray-100 transition-all cursor-pointer">
-                                <Plus size={20} />
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Or Image URL</label>
-                          <input 
-                            type="url" 
-                            placeholder="https://images.unsplash.com/..."
-                            value={newProduct.images[0]}
-                            onChange={(e) => setNewProduct({...newProduct, images: [e.target.value]})}
-                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3 px-5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
-                          />
-                        </div>
-                      </section>
-
-                      {/* Variants */}
-                      <section className="space-y-6">
-                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                          <div className="w-1 h-4 bg-accent rounded-full"></div>
-                          Variants
-                        </h3>
-                        <div className="space-y-6">
-                          <div className="space-y-3">
-                            <label className="text-sm font-bold text-primary ml-1">Available Sizes</label>
-                            <div className="flex flex-wrap gap-2">
-                              {['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'].map((size) => (
-                                <button
-                                  key={size}
-                                  type="button"
-                                  onClick={() => {
-                                    const sizes = newProduct.sizes.includes(size)
-                                      ? newProduct.sizes.filter(s => s !== size)
-                                      : [...newProduct.sizes, size];
-                                    setNewProduct({...newProduct, sizes});
-                                  }}
-                                  className={cn(
-                                    "px-4 py-2 rounded-xl text-xs font-bold border transition-all",
-                                    newProduct.sizes.includes(size)
-                                      ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
-                                      : "bg-white text-gray-500 border-gray-100 hover:border-primary"
-                                  )}
-                                >
-                                  {size}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="space-y-3">
-                            <label className="text-sm font-bold text-primary ml-1">Available Colors</label>
-                            <div className="flex flex-wrap gap-3">
-                              {[
-                                { name: 'Black', hex: '#000000' },
-                                { name: 'White', hex: '#FFFFFF' },
-                                { name: 'Navy', hex: '#000080' },
-                                { name: 'Red', hex: '#EF4444' },
-                                { name: 'Beige', hex: '#F5F5DC' },
-                                { name: 'Gray', hex: '#808080' },
-                              ].map((color) => (
-                                <button
-                                  key={color.name}
-                                  type="button"
-                                  onClick={() => {
-                                    const colors = newProduct.colors.some(c => c.name === color.name)
-                                      ? newProduct.colors.filter(c => c.name !== color.name)
-                                      : [...newProduct.colors, color];
-                                    setNewProduct({...newProduct, colors});
-                                  }}
-                                  className={cn(
-                                    "w-10 h-10 rounded-full border-2 transition-all p-0.5",
-                                    newProduct.colors.some(c => c.name === color.name) ? "border-accent shadow-lg shadow-accent/20" : "border-transparent"
-                                  )}
-                                >
-                                  <div className="w-full h-full rounded-full border border-gray-100" style={{ backgroundColor: color.hex }}></div>
-                                </button>
-                              ))}
-                              <button type="button" className="w-10 h-10 rounded-full border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-400 hover:border-accent hover:text-accent transition-all">
-                                <Plus size={16} />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </section>
-                    </div>
-
-                    {/* Form Actions */}
-                    <div className="pt-6 flex items-center justify-end gap-4 border-t border-gray-50">
-                      <button 
-                        type="button"
-                        onClick={() => setIsAddProductModalOpen(false)}
-                        className="px-8 py-4 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 transition-all"
-                      >
-                        Cancel
-                      </button>
-                      <button 
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="px-10 py-4 bg-accent text-white rounded-2xl font-bold hover:bg-accent/90 transition-all shadow-xl shadow-accent/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            Publishing...
-                          </>
-                        ) : 'Publish Product'}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
       </main>
     </div>
   );
