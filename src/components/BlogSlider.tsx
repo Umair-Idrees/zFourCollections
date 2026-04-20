@@ -26,19 +26,19 @@ const blogs = [
   {
     id: 3,
     title: "The Silk Tradition",
-    image: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&q=80&w=1200",
+    image: "https://media.istockphoto.com/id/488216826/photo/girl-chooses-dresses.jpg?s=612x612&w=0&k=20&c=0ytRJDf7cd_CJFvtGpktcynKAy49-OWFuGky60TeTKI=",
     description: "Pure silk unstitched fabrics curated for the modern ethnic wardrobe."
   },
   {
     id: 4,
     title: "Ready-To-Wear Pret",
-    image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&q=80&w=1200",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCVt3E3CTumkrPphlWnBReXmJJjPfg-EZHIg&s",
     description: "Effortless style in our new ready-to-wear pret collection."
   },
   {
     id: 5,
     title: "Boutique Craftsmanship",
-    image: "https://images.unsplash.com/photo-1445205170230-053b830c6039?auto=format&fit=crop&q=80&w=1200",
+    image: "https://static.vecteezy.com/system/resources/thumbnails/022/989/858/small/clothes-hang-on-hangers-illustration-ai-generative-free-photo.jpg",
     description: "Behind the scenes of our master craftsmen at work."
   },
   {
