@@ -123,7 +123,7 @@ const BlogSlider: React.FC = () => {
             {blogs.map((blog) => (
               <SwiperSlide key={blog.id}>
                 <motion.div 
-                  className="group relative aspect-[16/10] overflow-hidden rounded-[2.5rem] bg-gray-200 cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-700"
+                  className="group relative aspect-[3/4] sm:aspect-[16/10] overflow-hidden rounded-[2.5rem] bg-gray-200 cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-700"
                   whileHover={{ y: -10 }}
                 >
                   <img 
@@ -134,11 +134,11 @@ const BlogSlider: React.FC = () => {
                   />
                   
                   {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-10">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6 sm:p-10">
                     <div className="translate-y-8 group-hover:translate-y-0 transition-transform duration-700">
-                      <h3 className="text-2xl font-black text-white mb-3">{blog.title}</h3>
-                      <p className="text-white/70 text-sm font-medium line-clamp-2 mb-8 leading-relaxed">{blog.description}</p>
-                      <span className="inline-flex items-center gap-3 text-xs font-black text-white uppercase tracking-widest border-b-2 border-accent pb-1 group/btn transition-all">
+                      <h3 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">{blog.title}</h3>
+                      <p className="text-white/70 text-xs sm:text-sm font-medium line-clamp-2 mb-6 sm:mb-8 leading-relaxed">{blog.description}</p>
+                      <span className="inline-flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs font-black text-white uppercase tracking-widest border-b-2 border-accent pb-1 group/btn transition-all">
                         Read Exclusive Article
                       </span>
                     </div>

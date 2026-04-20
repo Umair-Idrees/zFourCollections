@@ -179,43 +179,47 @@ const FashionHeroSection = () => {
           </div>
 
           {/* BOTTOM TWO BANNERS */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 flex-grow">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 flex-grow">
             
             {/* Banner 1: Ethnic Wear */}
-            <div className="h-[216px] rounded-xl overflow-hidden relative group shadow-sm border border-gray-100">
+            <div className="h-[280px] sm:h-[216px] rounded-xl overflow-hidden relative group shadow-sm border border-gray-100">
               <img
                 src="https://zfourcollections.com/wp-content/uploads/2026/04/1-1-2048x1150.png"
                 alt="Ethnic Kurtas"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               
-              <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
-                <h4 className="text-xl font-black uppercase tracking-tight">Ready-to-Wear</h4>
-                <p className="text-sm text-white/80 font-medium mb-4">Kurtas, palazzo & more</p>
-                <button className="text-[10px] font-black bg-white text-black px-4 py-2 rounded-lg hover:bg-black hover:text-white transition-all duration-300 w-fit shadow-md uppercase tracking-widest">
-                  View Collection
-                </button>
+              <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 text-white text-center sm:text-left">
+                <h4 className="text-base sm:text-xl font-black uppercase tracking-tight leading-tight mb-1">Ready-to-Wear</h4>
+                <p className="text-[10px] sm:text-sm text-white/80 font-medium mb-3 sm:mb-4">Kurtas, palazzo & more</p>
+                <div className="flex justify-center sm:justify-start">
+                  <button className="text-[9px] sm:text-[10px] font-black bg-white text-black px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-black hover:text-white transition-all duration-300 w-fit shadow-md uppercase tracking-widest">
+                    View Collection
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Banner 2: Detail Focus */}
-            <div className="h-[216px] rounded-xl overflow-hidden relative group shadow-sm border border-gray-100">
+            <div className="h-[280px] sm:h-[216px] rounded-xl overflow-hidden relative group shadow-sm border border-gray-100">
               <img
                 src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=800&auto=format&fit=crop"
                 alt="Fabric Detail"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               
-              <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
-                <h4 className="text-xl font-black uppercase tracking-tight">Craftsmanship</h4>
-                <p className="text-sm text-white/80 font-medium mb-4">Precision stitching & lace</p>
-                <button className="text-[10px] font-black bg-white text-black px-4 py-2 rounded-lg hover:bg-black hover:text-white transition-all duration-300 w-fit shadow-md uppercase tracking-widest">
-                  Explore Quality
-                </button>
+              <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 text-white text-center sm:text-left">
+                <h4 className="text-base sm:text-xl font-black uppercase tracking-tight leading-tight mb-1">Craftsmanship</h4>
+                <p className="text-[10px] sm:text-sm text-white/80 font-medium mb-3 sm:mb-4">Detail & Lace</p>
+                <div className="flex justify-center sm:justify-start">
+                  <button className="text-[9px] sm:text-[10px] font-black bg-white text-black px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-black hover:text-white transition-all duration-300 w-fit shadow-md uppercase tracking-widest">
+                    Explore
+                  </button>
+                </div>
               </div>
             </div>
 
