@@ -184,7 +184,7 @@ const FashionHeroSection = () => {
             {/* Banner 1: Ethnic Wear */}
             <div className="h-[216px] rounded-xl overflow-hidden relative group shadow-sm border border-gray-100">
               <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShuX5nRqAQETipAr1Fjd2yaPP7oX49MiFbfQ&s"
+                src="https://zfourcollections.com/wp-content/uploads/2026/04/1-1-2048x1150.png"
                 alt="Ethnic Kurtas"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 referrerPolicy="no-referrer"

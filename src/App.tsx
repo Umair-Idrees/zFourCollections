@@ -12,6 +12,7 @@ import { FashionCollection } from './components/FashionProductCard';
 import CategoryGrid from './components/CategoryGrid';
 import ProductSection from './components/ProductSection';
 import SpecialOffer from './components/SpecialOffer';
+import BlogSlider from './components/BlogSlider';
 import Newsletter from './components/Newsletter';
 import Footer from './components/Footer';
 import AdminDashboard from './pages/AdminDashboard';
@@ -52,6 +53,8 @@ function HomePage({ addToCart, cart }: { addToCart: (product: any) => void, cart
         {/* Special Offer Banner */}
         <SpecialOffer />
 
+        {/* Blog Journal Slider */}
+        <BlogSlider />
 
         {/* Newsletter Section */}
         <Newsletter />
