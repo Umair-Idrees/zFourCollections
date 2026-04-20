@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { db, doc, getDoc } from '../lib/firebase';
 import { Product } from '../types';
+import { useProducts } from '../context/ProductContext';
 import { ShoppingCart, Heart, Share2, Star, Truck, ShieldCheck, Clock, Plus, Minus, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import ProductSection from '../components/ProductSection';
@@ -12,30 +13,24 @@ interface ProductDetailProps {
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ addToCart }) => {
   const { id } = useParams<{ id: string }>();
+  const { products: contextProducts, loading: contextLoading } = useProducts();
   const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      if (!id) return;
-      try {
-        const docRef = doc(db, 'products', id);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data() as Product;
-          setProduct({ id: docSnap.id, ...data });
-          setSelectedImage(data.mainImage);
-        }
-      } catch (error) {
-        console.error('Error fetching product:', error);
-      } finally {
-        setLoading(false);
+    if (id && contextProducts.length > 0) {
+      const foundProduct = contextProducts.find(p => p.id === id);
+      if (foundProduct) {
+        setProduct(foundProduct);
+        setSelectedImage(foundProduct.mainImage);
       }
-    };
+    }
+  }, [id, contextProducts]);
 
-    fetchProduct();
+  const loading = contextLoading && contextProducts.length === 0;
+
+  useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
 

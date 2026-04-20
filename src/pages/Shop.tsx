@@ -4,6 +4,7 @@ import { db, collection, getDocs, onSnapshot, query, orderBy } from '../lib/fire
 import ProductCard from '../components/ProductCard';
 import { Filter, Search, ChevronDown, LayoutGrid, List as ListIcon } from 'lucide-react';
 import { Product } from '../types';
+import { useProducts } from '../context/ProductContext';
 import { cn } from '../lib/utils';
 import { PRODUCTS } from '../constants';
 
@@ -17,14 +18,14 @@ const Shop: React.FC<ShopProps> = ({ addToCart }) => {
   const initialCategory = searchParams.get('category') || 'All';
   const initialFilter = searchParams.get('filter') || '';
   
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { products: contextProducts, loading: contextLoading } = useProducts();
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState('Latest');
-  const [categories, setCategories] = useState<string[]>(['All']);
-  const [maxPrice, setMaxPrice] = useState(1000);
+  const [maxPrice, setMaxPrice] = useState(100000); // Increased for PKR/Large values
   const [viewType, setViewType] = useState<'grid' | 'list'>('grid');
+
+  const categories = ['All', ...new Set(contextProducts.map(p => p.category))];
 
   useEffect(() => {
     setSearchQuery(initialSearch);
@@ -33,25 +34,8 @@ const Shop: React.FC<ShopProps> = ({ addToCart }) => {
     }
   }, [initialSearch, initialCategory]);
 
-  useEffect(() => {
-    const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      let prods = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
-      
-      // If Firestore is empty, use PRODUCTS from constants as context does
-      if (prods.length === 0) {
-        prods = PRODUCTS as Product[];
-      }
-
-      setProducts(prods);
-      
-      const uniqueCategories = ['All', ...new Set(prods.map(p => p.category))];
-      setCategories(uniqueCategories);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
+  const loading = contextLoading;
+  const products = contextProducts;
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText('WELCOME20');

@@ -17,71 +17,88 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const productList = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        // Handle Firestore timestamps
-        createdAt: (doc.data() as any).createdAt?.toDate() || new Date(),
-        updatedAt: (doc.data() as any).updatedAt?.toDate() || new Date(),
-      })) as Product[];
-      
-      // If Firestore is empty, use dummy products for testing
-      if (productList.length === 0) {
-        setProducts(PRODUCTS as Product[]);
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/products');
+      if (res.ok) {
+        const data = await res.json();
+        setProducts(data.map((p: any) => ({ ...p, id: p._id })));
       } else {
-        setProducts(productList);
+        const contentType = res.headers.get('content-type');
+        let errorMsg = 'Failed to fetch products';
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await res.json();
+          errorMsg = errorData.error || errorMsg;
+        }
+        console.error("Backend Error:", errorMsg);
+        setProducts([]);
       }
-      setLoading(false);
-    }, (error) => {
+    } catch (error) {
       console.error("Error fetching products:", error);
+      setProducts([]);
+    } finally {
       setLoading(false);
-      handleFirestoreError(error, OperationType.LIST, 'products');
-    });
+    }
+  };
 
-    return () => unsubscribe();
+  useEffect(() => {
+    fetchProducts();
   }, []);
 
   const addProduct = async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const path = 'products';
     try {
-      console.log("Attempting to add product to Firestore...", productData);
-      await addDoc(collection(db, path), {
-        ...productData,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        stockStatus: Number(productData.quantity) > 0 ? 'In Stock' : 'Out of Stock',
-        status: 'Active'
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...productData,
+          stockStatus: Number(productData.quantity) > 0 ? 'In Stock' : 'Out of Stock',
+          status: 'Active'
+        })
       });
-      console.log("Product added successfully!");
+      
+      if (!res.ok) {
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || 'Failed to add product to database');
+        } else {
+          const text = await res.text();
+          throw new Error(`Server Error (${res.status}): ${text.substring(0, 100)}`);
+        }
+      }
+      
+      await fetchProducts();
     } catch (error) {
-      console.error("Error adding product to Firestore:", error);
-      handleFirestoreError(error, OperationType.CREATE, path);
+      console.error("Error adding product:", error);
+      throw error; // Rethrow so the UI can handle it
     }
   };
 
   const deleteProduct = async (id: string) => {
-    const path = `products/${id}`;
     try {
-      await deleteDoc(doc(db, 'products', id));
+      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        await fetchProducts();
+      }
     } catch (error) {
       console.error("Error deleting product:", error);
-      handleFirestoreError(error, OperationType.DELETE, path);
     }
   };
 
   const updateProduct = async (id: string, updates: Partial<Product>) => {
-    const path = `products/${id}`;
     try {
-      await updateDoc(doc(db, 'products', id), {
-        ...updates,
-        updatedAt: serverTimestamp()
+      const res = await fetch(`/api/products/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
       });
+      if (res.ok) {
+        await fetchProducts();
+      }
     } catch (error) {
       console.error("Error updating product:", error);
-      handleFirestoreError(error, OperationType.UPDATE, path);
     }
   };
 

@@ -178,9 +178,12 @@ export default function AdminDashboard({
 }) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(openAddProduct);
+  const [isEditProductModalOpen, setIsEditProductModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedBlogFile, setSelectedBlogFile] = useState<File | null>(null);
   const [productSearchQuery, setProductSearchQuery] = useState('');
   const [productCategoryFilter, setProductCategoryFilter] = useState('All Categories');
   const [productStatusFilter, setProductStatusFilter] = useState('All Status');
@@ -211,7 +214,7 @@ export default function AdminDashboard({
   
   const { user, loading: authLoading, isAdmin } = useAuth();
 
-  const { products, addProduct, deleteProduct } = useProducts();
+  const { products, addProduct, deleteProduct, updateProduct } = useProducts();
   const { orders, updateOrderStatus, deleteOrder: deleteOrderFromDb } = useOrders();
   const { blogs, addBlog } = useBlogs();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -319,41 +322,29 @@ export default function AdminDashboard({
     setFormError(null);
     
     try {
-      // Check if user is in simulated session
-      if (user && user.uid && user.uid.startsWith('demo-')) {
-        throw new Error('You are currently in UI Testing mode. Database writes are restricted. Please Logout and "Login with Google" to perform real operations.');
-      }
-
-      console.log("Starting product addition process...");
       let imageUrl = 'https://picsum.photos/seed/placeholder/600/600';
 
       if (selectedFile) {
-        console.log("Uploading image to storage...");
-        const storageRef = ref(storage, `products/${Date.now()}_${selectedFile.name}`);
-        const snapshot = await uploadBytes(storageRef, selectedFile);
-        imageUrl = await getDownloadURL(snapshot.ref);
+        console.log("Uploading product image to Cloudinary...");
+        const formData = new FormData();
+        formData.append('image', selectedFile);
+
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!uploadRes.ok) throw new Error('Failed to upload image to Cloudinary');
+        const uploadData = await uploadRes.json();
+        imageUrl = uploadData.url;
         console.log("Image uploaded successfully:", imageUrl);
       } else if (newProduct.images[0] && newProduct.images[0].startsWith('http')) {
         imageUrl = newProduct.images[0];
-        console.log("Using provided image URL:", imageUrl);
       }
 
       const price = parseFloat(newProduct.price) || 0;
       const salePrice = newProduct.salePrice ? parseFloat(newProduct.salePrice) : price;
       const stock = parseInt(newProduct.stock) || 0;
-      const discount = (price > 0 && salePrice < price) 
-        ? Math.round(((price - salePrice) / price) * 100) 
-        : 0;
-
-      console.log("Calling addProduct with data:", {
-        name: newProduct.name,
-        category: newProduct.category,
-        price,
-        salePrice,
-        stock,
-        discount,
-        imageUrl
-      });
 
       await addProduct({
         name: newProduct.name,
@@ -363,20 +354,13 @@ export default function AdminDashboard({
         quantity: stock,
         mainImage: imageUrl,
         fullDescription: newProduct.description,
-        shortDescription: newProduct.description.substring(0, 100) + '...',
         sku: `ZF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-        tags: [newProduct.category, 'New Arrival'],
-        discountPercentage: discount,
-        lowStockAlert: 5,
-        galleryImages: [imageUrl],
-        thumbnailImage: imageUrl,
-        colors: newProduct.colors.map(c => c.name),
-        sizes: newProduct.sizes,
-        deliveryDays: 3,
+        isTrending: false,
         status: 'Active'
       } as any);
 
-      console.log("Product added successfully to database!");
+      console.log("Product added successfully!");
+      alert("Product added successfully!");
       setIsAddProductModalOpen(false);
       setSelectedFile(null);
       // Reset form
@@ -389,11 +373,86 @@ export default function AdminDashboard({
         description: '',
         images: [''],
         sizes: [],
-        colors: []
+        colors: [],
+        sku: '',
+        brand: '',
+        schedule: '',
+        tags: ''
       });
     } catch (error) {
       console.error('Error adding product:', error);
-      setFormError(error instanceof Error ? error.message : 'Failed to add product. Please try again.');
+      const msg = error instanceof Error ? error.message : 'Failed to add product.';
+      setFormError(msg);
+      alert(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleEditClick = (product: any) => {
+    setEditingProduct(product);
+    setNewProduct({
+      name: product.name,
+      category: product.category,
+      price: product.regularPrice.toString(),
+      salePrice: product.salePrice.toString(),
+      stock: product.quantity.toString(),
+      description: product.fullDescription || '',
+      images: [product.mainImage],
+      sku: product.sku || '',
+      brand: product.brand || '',
+      schedule: '',
+      tags: '',
+      sizes: product.sizes || ['M'],
+      colors: product.colors || [{ name: 'Deep Rose', hex: '#e11d48' }]
+    });
+    setIsEditProductModalOpen(true);
+  };
+
+  const handleUpdateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+    setIsSubmitting(true);
+    setFormError(null);
+    
+    try {
+      let imageUrl = editingProduct.mainImage;
+
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append('image', selectedFile);
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        if (!uploadRes.ok) throw new Error('Failed to upload image');
+        const uploadData = await uploadRes.json();
+        imageUrl = uploadData.url;
+      }
+
+      const price = parseFloat(newProduct.price) || 0;
+      const salePrice = newProduct.salePrice ? parseFloat(newProduct.salePrice) : price;
+      const stock = parseInt(newProduct.stock) || 0;
+
+      await updateProduct(editingProduct._id || editingProduct.id, {
+        name: newProduct.name,
+        category: newProduct.category,
+        regularPrice: price,
+        salePrice: salePrice,
+        quantity: stock,
+        mainImage: imageUrl,
+        fullDescription: newProduct.description,
+      });
+
+      alert("Product updated successfully!");
+      setIsEditProductModalOpen(false);
+      setEditingProduct(null);
+      setSelectedFile(null);
+    } catch (error) {
+      console.error('Error updating product:', error);
+      const msg = error instanceof Error ? error.message : 'Failed to update product.';
+      setFormError(msg);
+      alert(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -401,25 +460,47 @@ export default function AdminDashboard({
 
   const handleBlogSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newBlog.title || !newBlog.imageURL || !newBlog.description) {
-      alert('Please fill in all blog fields');
+    if (!newBlog.title || !newBlog.description) {
+      alert('Please fill in title and description');
       return;
     }
 
     try {
       setIsSubmitting(true);
-      await addBlog(newBlog);
+      let blogImageUrl = newBlog.imageURL;
+
+      if (selectedBlogFile) {
+        console.log("Uploading blog cover to Cloudinary...");
+        const formData = new FormData();
+        formData.append('image', selectedBlogFile);
+
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!uploadRes.ok) throw new Error('Failed to upload blog image');
+        const uploadData = await uploadRes.json();
+        blogImageUrl = uploadData.url;
+      }
+
+      await addBlog({
+        ...newBlog,
+        imageURL: blogImageUrl || 'https://picsum.photos/seed/blog/1200/800'
+      });
+
       setNewBlog({
         title: '',
         imageURL: '',
         description: '',
         category: 'Styling Tips'
       });
+      setSelectedBlogFile(null);
       setActiveTab('View All Blogs');
-      alert('Blog added successfully!');
+      alert('Blog published successfully!');
     } catch (err: any) {
       console.error('Error adding blog:', err);
-      alert('Error adding blog: ' + err.message);
+      alert('Error: ' + err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -811,6 +892,7 @@ export default function AdminDashboard({
                       <th className="py-5 px-6 text-[11px] font-black text-gray-400 uppercase tracking-tight">Quantity</th>
                       <th className="py-5 px-6 text-[11px] font-black text-gray-400 uppercase tracking-tight">Sale</th>
                       <th className="py-5 px-6 text-[11px] font-black text-gray-400 uppercase tracking-tight">Stock</th>
+                      <th className="py-5 px-6 text-[11px] font-black text-gray-400 uppercase tracking-tight text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -829,7 +911,7 @@ export default function AdminDashboard({
                           <td className="py-6 px-6 text-sm font-bold text-gray-500">#{product.id.substring(0, 8).toUpperCase()}</td>
                           <td className="py-6 px-6 text-sm font-black text-primary">${product.salePrice.toLocaleString()}</td>
                           <td className="py-6 px-6 text-sm font-bold text-gray-500">{product.quantity.toLocaleString()}</td>
-                          <td className="py-6 px-6 text-sm font-bold text-gray-500">20</td>
+                          <td className="py-6 px-6 text-sm font-bold text-gray-500">${product.regularPrice.toLocaleString()}</td>
                           <td className="py-6 px-6">
                             <span className={cn(
                               "text-[10px] font-black px-4 py-1.5 rounded-xl uppercase tracking-widest leading-none",
@@ -839,6 +921,28 @@ export default function AdminDashboard({
                             )}>
                               {product.quantity > 0 ? 'In Stock' : 'Out of Stock'}
                             </span>
+                          </td>
+                          <td className="py-6 px-6 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <button 
+                                onClick={() => handleEditClick(product)}
+                                className="p-2 text-gray-400 hover:text-accent hover:bg-accent/5 rounded-xl transition-all"
+                                title="Edit Product"
+                              >
+                                <Edit2 size={18} />
+                              </button>
+                              <button 
+                                onClick={() => {
+                                  if(window.confirm('Are you sure you want to delete this product?')) {
+                                    deleteProduct(product.id);
+                                  }
+                                }}
+                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                title="Delete Product"
+                               >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))
@@ -2148,17 +2252,50 @@ export default function AdminDashboard({
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-black text-gray-900 ml-1">Image URL *</label>
+                <div className="space-y-4">
+                  <label className="text-sm font-black text-gray-900 ml-1">Cover Image *</label>
+                  <div 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full bg-[#f4f7f9] border-2 border-dashed border-gray-200 rounded-3xl py-10 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-accent/40 transition-all group"
+                  >
+                    {selectedBlogFile ? (
+                      <div className="text-center">
+                        <ImageIcon className="text-accent mx-auto mb-2" size={32} />
+                        <p className="text-sm font-bold text-primary">{selectedBlogFile.name}</p>
+                        <p className="text-[10px] text-gray-400">Click to change</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="p-4 bg-white rounded-2xl shadow-sm group-hover:scale-110 transition-transform">
+                          <CloudUpload className="text-accent" size={24} />
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-black text-primary">Click to upload cover</p>
+                          <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Max size 5MB (JPG, PNG, WEBP)</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    className="hidden" 
+                    accept="image/*"
+                    onChange={(e) => setSelectedBlogFile(e.target.files?.[0] || null)}
+                  />
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-100"></div>
+                    </div>
+                    <span className="relative px-3 text-[10px] text-gray-400 bg-white uppercase tracking-tighter ml-4">Or use URL</span>
+                  </div>
                   <input 
                     type="url" 
-                    placeholder="Paste fashion image URL"
+                    placeholder="Paste fashion image URL (Optional if file selected)"
                     className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none"
                     value={newBlog.imageURL}
                     onChange={(e) => setNewBlog({...newBlog, imageURL: e.target.value})}
-                    required
                   />
-                  <p className="text-[10px] text-gray-400 font-medium ml-1">Use high-quality portrait or landscape fashion images.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -2483,16 +2620,18 @@ export default function AdminDashboard({
                       {/* Category */}
                       <div className="space-y-2">
                         <label className="text-sm font-black text-gray-900">Category <span className="text-accent">*</span></label>
-                        <div className="relative">
-                          <div className="w-full bg-[#f4f7f9] rounded-xl py-4 px-6 flex flex-wrap gap-2 pr-12 min-h-[56px]">
-                            {['Women', 'Dress'].map(cat => (
-                              <span key={cat} className="inline-flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-accent/10 text-xs font-bold text-accent capitalize">
-                                <X size={12} className="cursor-pointer" /> {cat}
-                              </span>
-                            ))}
-                          </div>
-                          <ChevronRight size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 rotate-90" />
-                        </div>
+                        <select 
+                          className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
+                          value={newProduct.category}
+                          onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+                        >
+                          <option value="Women">Women</option>
+                          <option value="FABRICS (Unstitched)">FABRICS (Unstitched)</option>
+                          <option value="READY-TO-WEAR (Pret)">READY-TO-WEAR (Pret)</option>
+                          <option value="BOUTIQUE">BOUTIQUE</option>
+                          <option value="WESTERN">WESTERN</option>
+                          <option value="BOTTOMS & DUPATTAS">BOTTOMS & DUPATTAS</option>
+                        </select>
                       </div>
 
                       {/* Price, Sale, Schedule */}
@@ -2524,90 +2663,6 @@ export default function AdminDashboard({
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-sm font-black text-gray-900">Schedule</label>
-                          <div className="relative">
-                            <input 
-                              type="date"
-                              className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
-                              value={newProduct.schedule}
-                              onChange={(e) => setNewProduct({...newProduct, schedule: e.target.value})}
-                            />
-                            <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Brand, Color, Size */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div className="space-y-2">
-                          <label className="text-sm font-black text-gray-900">Brand <span className="text-accent">*</span></label>
-                          <div className="relative">
-                            <input 
-                              type="text"
-                              placeholder="Choose brand"
-                              className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
-                              value={newProduct.brand}
-                              onChange={(e) => setNewProduct({...newProduct, brand: e.target.value})}
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-black text-gray-900">Color: <span className="text-gray-400 ml-1 font-bold">Orange</span></label>
-                          <div className="flex items-center gap-3 pt-2">
-                            {[
-                              { hex: '#e11d48', name: 'Deep Rose' },
-                              { hex: '#3b82f6', name: 'Blue' },
-                              { hex: '#fbbf24', name: 'Yellow' },
-                              { hex: '#000000', name: 'Black' }
-                            ].map(c => (
-                              <button 
-                                key={c.hex}
-                                type="button"
-                                className={cn(
-                                  "w-8 h-8 rounded-full transition-all border-4 shadow-sm",
-                                  newProduct.colors.some(cp => cp.hex === c.hex) ? "border-white shadow-xl scale-110" : "border-transparent"
-                                )}
-                                style={{ backgroundColor: c.hex }}
-                                onClick={() => setNewProduct({...newProduct, colors: [c]})}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-black text-gray-900">Size: <span className="text-gray-400 ml-1 font-bold">M</span></label>
-                          <div className="flex items-center gap-2 pt-2">
-                            {['S', 'M', 'L', 'XL'].map(s => (
-                              <button 
-                                key={s}
-                                type="button"
-                                className={cn(
-                                  "w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold transition-all",
-                                  newProduct.sizes.includes(s) 
-                                    ? "bg-accent text-white shadow-lg shadow-accent/20" 
-                                    : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-                                )}
-                                onClick={() => setNewProduct({...newProduct, sizes: [s]})}
-                              >
-                                {s}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* SKU, Stock, Tags */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div className="space-y-2">
-                          <label className="text-sm font-black text-gray-900">SKU</label>
-                          <input 
-                            type="text"
-                            placeholder="Enter SKU"
-                            className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
-                            value={newProduct.sku}
-                            onChange={(e) => setNewProduct({...newProduct, sku: e.target.value})}
-                          />
-                        </div>
-                        <div className="space-y-2">
                           <label className="text-sm font-black text-gray-900">Stock <span className="text-accent">*</span></label>
                           <input 
                             type="number"
@@ -2617,34 +2672,23 @@ export default function AdminDashboard({
                             onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
                           />
                         </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-black text-gray-900">Tags</label>
-                          <input 
-                            type="text"
-                            placeholder="Enter a tag"
-                            className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
-                            value={newProduct.tags}
-                            onChange={(e) => setNewProduct({...newProduct, tags: e.target.value})}
-                          />
-                        </div>
                       </div>
 
                       {/* Description */}
                       <div className="space-y-2">
                         <label className="text-sm font-black text-gray-900">Description <span className="text-accent">*</span></label>
                         <textarea 
-                          rows={8}
+                          rows={4}
                           placeholder="Short description about product"
                           className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 resize-none"
                           value={newProduct.description}
                           onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
                         />
-                        <p className="text-[10px] text-gray-400 font-medium ml-1">Do not exceed 100 characters when entering the product name.</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Modal Footer (Page Footer) */}
+                  {/* Modal Footer */}
                   <div className="flex flex-col sm:flex-row gap-4 pt-4 pb-12">
                     <button 
                       onClick={handleAddProduct}
@@ -2660,11 +2704,177 @@ export default function AdminDashboard({
                       Cancel
                     </button>
                   </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
 
-                  <div className="text-center py-6">
-                    <p className="text-[11px] font-bold text-gray-400">
-                      Copyright © 2026 <span className="text-accent">Dataflow</span> Design By Themesflat All rights reserved.
-                    </p>
+          {isEditProductModalOpen && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => {
+                  setIsEditProductModalOpen(false);
+                  setEditingProduct(null);
+                }}
+                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              />
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 30 }}
+                className="relative w-full h-[100dvh] md:h-[95vh] md:w-[95vw] max-w-[1200px] bg-[#f8f9fb] md:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
+              >
+                {/* Header with Breadcrumbs */}
+                <div className="bg-white px-10 py-6 border-b border-gray-100 flex items-center justify-between sticky top-0 z-20">
+                  <h2 className="text-2xl font-black text-gray-900">Edit Product</h2>
+                  <div className="flex items-center gap-2 text-[11px] font-bold text-gray-400 uppercase tracking-tight">
+                    <span>Dashboard</span>
+                    <ChevronRight size={12} />
+                    <span>Product</span>
+                    <ChevronRight size={12} />
+                    <span className="text-gray-900">Edit Product</span>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-10 space-y-10">
+                  {/* Image Upload Section */}
+                  <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm space-y-8">
+                    <h3 className="text-sm font-black text-gray-900">Product Image</h3>
+                    <div 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="aspect-[4/1] w-full border-2 border-dashed border-accent/20 bg-accent/5 rounded-3xl flex flex-col items-center justify-center group cursor-pointer hover:bg-accent/10 transition-all"
+                    >
+                      <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                      />
+                      <div className="mb-4 text-accent">
+                        <CloudUpload size={48} />
+                      </div>
+                      <p className="text-sm font-bold text-gray-500">
+                        Drop your image here or select <span className="text-accent underline">click to change</span>
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+                      {newProduct.images.length > 0 && (
+                        <div className="aspect-[3/4] rounded-2xl overflow-hidden border border-gray-100 shadow-sm relative group">
+                          <img src={newProduct.images[0]} alt="" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Form Content */}
+                  <div className="bg-white p-10 rounded-[2rem] border border-gray-100 shadow-sm space-y-10">
+                    <div className="space-y-8">
+                      {/* Product Title */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-black text-gray-900">Product title <span className="text-accent">*</span></label>
+                        <input 
+                          type="text"
+                          placeholder="Enter title"
+                          className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
+                          value={newProduct.name}
+                          onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+                        />
+                      </div>
+
+                      {/* Category */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-black text-gray-900">Category <span className="text-accent">*</span></label>
+                        <select 
+                          className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
+                          value={newProduct.category}
+                          onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+                        >
+                          <option value="Women">Women</option>
+                          <option value="FABRICS (Unstitched)">FABRICS (Unstitched)</option>
+                          <option value="READY-TO-WEAR (Pret)">READY-TO-WEAR (Pret)</option>
+                          <option value="BOUTIQUE">BOUTIQUE</option>
+                          <option value="WESTERN">WESTERN</option>
+                          <option value="BOTTOMS & DUPATTAS">BOTTOMS & DUPATTAS</option>
+                        </select>
+                      </div>
+
+                      {/* Price, Sale, Schedule */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="space-y-2">
+                          <label className="text-sm font-black text-gray-900">Price <span className="text-accent">*</span></label>
+                          <div className="relative">
+                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                            <input 
+                              type="number"
+                              placeholder="Price"
+                              className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 pl-10 pr-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
+                              value={newProduct.price}
+                              onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-black text-gray-900">Sale Price</label>
+                          <div className="relative">
+                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                            <input 
+                              type="number"
+                              placeholder="Sale Price"
+                              className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 pl-12 pr-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
+                              value={newProduct.salePrice}
+                              onChange={(e) => setNewProduct({...newProduct, salePrice: e.target.value})}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-black text-gray-900">Stock <span className="text-accent">*</span></label>
+                          <input 
+                            type="number"
+                            placeholder="Enter Stock"
+                            className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
+                            value={newProduct.stock}
+                            onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-black text-gray-900">Description <span className="text-accent">*</span></label>
+                        <textarea 
+                          rows={4}
+                          placeholder="Short description about product"
+                          className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 resize-none"
+                          value={newProduct.description}
+                          onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Modal Footer */}
+                  <div className="flex flex-col sm:flex-row gap-4 pt-4 pb-12">
+                    <button 
+                      onClick={handleUpdateProduct}
+                      disabled={isSubmitting}
+                      className="flex-1 py-5 bg-accent text-white rounded-[1.25rem] font-bold text-sm shadow-xl shadow-accent/20 hover:opacity-90 transition-all disabled:opacity-50"
+                    >
+                      {isSubmitting ? 'Saving...' : 'Save Changes'}
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setIsEditProductModalOpen(false);
+                        setEditingProduct(null);
+                      }}
+                      className="flex-1 py-5 bg-transparent text-accent border border-accent/20 rounded-[1.25rem] font-bold text-sm hover:bg-accent/5 transition-all"
+                    >
+                      Cancel
+                    </button>
                   </div>
                 </div>
               </motion.div>

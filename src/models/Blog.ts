@@ -8,4 +8,13 @@ const BlogSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.models.Blog || mongoose.model('Blog', BlogSchema);
+export interface IBlog extends mongoose.Document {
+  title: string;
+  imageURL: string;
+  description: string;
+  category: string;
+  createdAt: Date;
+}
+
+const Blog = mongoose.models.Blog || mongoose.model<IBlog>('Blog', BlogSchema);
+export default Blog;
