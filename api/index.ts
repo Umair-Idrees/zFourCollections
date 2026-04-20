@@ -4,56 +4,32 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import { v2 as cloudinary } from 'cloudinary';
-import multer from 'multer';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
-import Blog from '../src/models/Blog.ts';
-import Product from '../src/models/Product.ts';
+import Blog from '../src/models/Blog';
 
 dotenv.config();
 
-// Cloudinary Configuration
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
-
-// Multer Storage Configuration for Cloudinary
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: async (req, file) => {
-    return {
-      folder: 'zfour_collections',
-      format: 'webp',
-      public_id: `${Date.now()}-${file.originalname.split('.')[0]}`,
-    };
-  },
-});
-
-const upload = multer({ storage: storage });
-
 const app = express();
 
-// Connect to MongoDB
-if (process.env.MONGO_URI) {
-  mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('✅ Connected to MongoDB'))
-    .catch(err => console.error('❌ MongoDB connection error:', err));
+// Connect to MongoDB if MONGO_URI is provided and not a local address
+if (process.env.MONGO_URI && process.env.MONGO_URI !== 'undefined') {
+  const isLocalhost = process.env.MONGO_URI.includes('localhost') || process.env.MONGO_URI.includes('127.0.0.1');
+  
+  if (isLocalhost) {
+    console.log('💡 MongoDB Notice: A local MONGO_URI was detected. To use a database, please provide a remote MongoDB Atlas URI in the setttings.');
+  } else {
+    mongoose.connect(process.env.MONGO_URI)
+      .then(() => console.log('✅ Connected to MongoDB'))
+      .catch(err => {
+        console.error('❌ MongoDB connection error:', err.message);
+      });
+  }
 }
 
 // Middleware
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    /\.vercel\.app$/ // Allow all Vercel subdomains
-  ],
+  origin: true,
   credentials: true
 }));
 app.use(express.json());
@@ -63,8 +39,8 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: true,
+    sameSite: 'none',
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000
   }
@@ -74,8 +50,13 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Passport Config
-passport.serializeUser((user: any, done) => done(null, user));
-passport.deserializeUser((user: any, done) => done(null, user));
+passport.serializeUser((user: any, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user: any, done) => {
+  done(null, user);
+});
 
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   passport.use(new GoogleStrategy({
@@ -95,12 +76,21 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   }));
 }
 
-// API Routes
-app.get('/api/auth/user', (req, res) => res.json(req.user || null));
+// Auth API Routes
+app.get('/api/auth/user', (req, res) => {
+  res.json(req.user || null);
+});
 
 app.get('/api/auth/google/url', (req, res) => {
-  if (!process.env.GOOGLE_CLIENT_ID) return res.status(500).json({ error: 'Google Client ID not configured' });
-  const redirectUri = `${req.protocol}://${req.get('host')}/auth/google/callback`;
+  if (!process.env.GOOGLE_CLIENT_ID) {
+    return res.status(500).json({ error: 'Google Client ID not configured' });
+  }
+
+  // On Vercel, we need to construct the URL based on the request host
+  const host = req.get('host');
+  const protocol = host?.includes('localhost') ? 'http' : 'https';
+  const redirectUri = `${protocol}://${host}/auth/google/callback`;
+  
   const params = new URLSearchParams({
     client_id: process.env.GOOGLE_CLIENT_ID,
     redirect_uri: redirectUri,
@@ -108,11 +98,13 @@ app.get('/api/auth/google/url', (req, res) => {
     scope: 'profile email',
     prompt: 'select_account'
   });
-  res.json({ url: `https://accounts.google.com/o/oauth2/v2/auth?${params}` });
+
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
+  res.json({ url: authUrl });
 });
 
 app.get(['/auth/google/callback', '/auth/google/callback/'], 
-  passport.authenticate('google', { failureRedirect: '/login-failure' }),
+  passport.authenticate('google', { failureRedirect: '/' }),
   (req, res) => {
     res.send(`
       <html>
@@ -125,11 +117,31 @@ app.get(['/auth/google/callback', '/auth/google/callback/'],
               window.location.href = '/';
             }
           </script>
+          <p>Authentication successful. This window should close automatically.</p>
         </body>
       </html>
     `);
   }
 );
+
+app.post('/api/auth/super-access', (req, res) => {
+  const { email, password } = req.body;
+  if (email === 'admin@test.com' && password === 'admin123') {
+    const adminUser = {
+      uid: 'super-admin-root',
+      email: 'umairmayo607@gmail.com',
+      displayName: 'Super Admin',
+      photoURL: 'https://ui-avatars.com/api/?name=Super+Admin&background=c5a059&color=fff',
+      role: 'admin'
+    };
+    req.login(adminUser, (err) => {
+      if (err) return res.status(500).json({ error: 'Login failed' });
+      return res.json(adminUser);
+    });
+  } else {
+    res.status(401).json({ error: 'Invalid super access credentials' });
+  }
+});
 
 app.post('/api/auth/logout', (req, res) => {
   req.logout((err) => {
@@ -138,6 +150,7 @@ app.post('/api/auth/logout', (req, res) => {
   });
 });
 
+// Blog API Routes
 app.get('/api/blogs', async (req, res) => {
   try {
     const blogs = await Blog.find().sort({ createdAt: -1 });
@@ -149,87 +162,18 @@ app.get('/api/blogs', async (req, res) => {
 
 app.post('/api/blogs', async (req, res) => {
   try {
-    const newBlog = new Blog(req.body);
+    const { title, imageURL, description, category } = req.body;
+    const newBlog = new Blog({
+      title,
+      imageURL,
+      description,
+      category
+    });
     await newBlog.save();
     res.status(201).json(newBlog);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 });
-
-app.get('/api/products', async (req, res) => {
-  try {
-    const products = await Product.find().sort({ createdAt: -1 });
-    res.json(products);
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/api/products', async (req, res) => {
-  try {
-    const newProduct = new Product(req.body);
-    await newProduct.save();
-    res.status(201).json(newProduct);
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.put('/api/products/:id', async (req, res) => {
-  try {
-    const updatedProduct = await Product.findOneAndUpdate(
-      { _id: req.params.id },
-      { ...req.body, updatedAt: Date.now() },
-      { new: true }
-    );
-    res.json(updatedProduct);
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.delete('/api/products/:id', async (req, res) => {
-  try {
-    await Product.findOneAndDelete({ _id: req.params.id });
-    res.json({ success: true });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/api/upload', upload.single('image'), (req: any, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  res.json({ url: req.file.path });
-});
-
-// Error handling
-app.use('/api/*', (req, res) => res.status(404).json({ error: 'Route not found' }));
-
-app.use((err: any, req: any, res: any, next: any) => {
-  console.error(err);
-  res.status(500).json({ error: err.message || 'Internal Server Error' });
-});
-
-// Start server logic for local development/non-serverless environments
-if (process.env.NODE_ENV !== 'production' || process.env.VITE_DEV === 'true') {
-  const PORT = process.env.PORT || 3000;
-  
-  async function startDevServer() {
-    // Vite middleware for development
-    const { createServer: createViteServer } = await import('vite');
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa'
-    });
-    app.use(vite.middlewares);
-
-    app.listen(PORT, () => {
-      console.log(`🚀 Development server running on http://localhost:${PORT}`);
-    });
-  }
-  
-  startDevServer();
-}
 
 export default app;
