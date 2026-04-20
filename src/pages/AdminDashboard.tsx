@@ -55,7 +55,7 @@ import {
   Legend
 } from 'recharts';
 import { cn } from '../lib/utils';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useProducts } from '../context/ProductContext';
 import { useOrders } from '../context/OrderContext';
@@ -99,12 +99,12 @@ const TOP_SALES_DATA = [
 ];
 
 const LOCATION_DATA = [
-  { name: 'California', value: 40, color: '#f97316' },
-  { name: 'Arizona', value: 15, color: '#f97316' },
-  { name: 'Texas', value: 10, color: '#f97316' },
-  { name: 'Georgia', value: 3.5, color: '#f97316' },
-  { name: 'North Carolina', value: 2, color: '#f97316' },
-  { name: 'Florida', value: 1.5, color: '#f97316' },
+  { name: 'California', value: 40, color: '#e11d48' },
+  { name: 'Arizona', value: 15, color: '#e11d48' },
+  { name: 'Texas', value: 10, color: '#e11d48' },
+  { name: 'Georgia', value: 3.5, color: '#e11d48' },
+  { name: 'North Carolina', value: 2, color: '#e11d48' },
+  { name: 'Florida', value: 1.5, color: '#e11d48' },
 ];
 
 const CATEGORY_DATA = [
@@ -118,14 +118,14 @@ const STATS = [
   { label: 'Total Revenue', value: '$65,320', change: '+12.5%', isPositive: true, icon: BarChart3, color: 'text-blue-600', bg: 'bg-blue-50' },
   { label: 'Total Orders', value: '1,250', change: '+8.2%', isPositive: true, icon: ShoppingCart, color: 'text-purple-600', bg: 'bg-purple-50' },
   { label: 'Total Customers', value: '1,540', change: '+5.4%', isPositive: true, icon: Users, color: 'text-green-600', bg: 'bg-green-50' },
-  { label: 'Total Products', value: '450', change: '+12', isPositive: true, icon: Package, color: 'text-orange-600', bg: 'bg-orange-50' },
+  { label: 'Total Products', value: '450', change: '+12', isPositive: true, icon: Package, color: 'text-accent', bg: 'bg-accent/10' },
 ];
 
 const SECONDARY_STATS = [
   { label: 'Pending Orders', value: '32', status: 'Pending', color: 'text-yellow-600', bg: 'bg-yellow-50' },
   { label: 'Delivered Orders', value: '1,150', status: 'Delivered', color: 'text-green-600', bg: 'bg-green-50' },
   { label: 'Cancelled Orders', value: '15', status: 'Cancelled', color: 'text-red-600', bg: 'bg-red-50' },
-  { label: 'Low Stock', value: '12', status: 'Alert', color: 'text-orange-600', bg: 'bg-orange-50' },
+  { label: 'Low Stock', value: '12', status: 'Alert', color: 'text-accent', bg: 'bg-accent/10' },
 ];
 
 const ORDERS = [
@@ -168,17 +168,37 @@ const MOCK_TRANSACTIONS = [
 ];
 
 export default function AdminDashboard({ 
-  initialTab = 'Dashboard'
+  initialTab = 'Dashboard',
+  openAddProduct = false
 }: { 
   initialTab?: string;
+  openAddProduct?: boolean;
 }) {
   const [activeTab, setActiveTab] = useState(initialTab);
-  const navigate = useNavigate();
+  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(openAddProduct);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [productSearchQuery, setProductSearchQuery] = useState('');
   const [productCategoryFilter, setProductCategoryFilter] = useState('All Categories');
   const [productStatusFilter, setProductStatusFilter] = useState('All Status');
   const [productSortFilter, setProductSortFilter] = useState('Sort by (Default)');
   const [productEntriesPerPage, setProductEntriesPerPage] = useState(10);
+  const [isOrdersExpanded, setIsOrdersExpanded] = useState(true);
+  const [settings, setSettings] = useState({
+    firstName: 'Kristin',
+    lastName: 'Watson',
+    address: '52 Davis Street, Buffalo, New York',
+    contact: '+1 548 562 1023',
+    email: 'kristin@ecomus.com',
+    role: 'Sale Administrator',
+    enableGoogleLogin: true,
+    googleLoginId: '',
+    googleSecretKey: '',
+    enableFacebookLogin: false,
+    facebookId: '',
+    facebookSecretKey: ''
+  });
   
   const { user, loading: authLoading, isAdmin } = useAuth();
 
@@ -191,6 +211,22 @@ export default function AdminDashboard({
   const deliveredOrdersCount = orders.filter(o => o.status === 'Delivered').length;
   const cancelledOrdersCount = orders.filter(o => o.status === 'Cancelled').length;
   const totalOrdersCount = orders.length;
+
+  const [newProduct, setNewProduct] = useState({
+    name: '',
+    category: 'Women',
+    price: '',
+    salePrice: '',
+    stock: '',
+    sku: '',
+    brand: '',
+    schedule: '',
+    tags: '',
+    description: '',
+    images: [] as string[],
+    sizes: ['M'] as string[],
+    colors: [{ name: 'Deep Rose', hex: '#e11d48' }] as { name: string, hex: string }[]
+  });
 
   if (authLoading) {
     return (
@@ -208,7 +244,7 @@ export default function AdminDashboard({
             <ShieldCheck className="text-accent w-10 h-10" />
           </div>
           <h1 className="text-2xl font-bold text-primary mb-2">Admin Access Required</h1>
-          <p className="text-gray-500 mb-8">Please login with your admin account to manage the store.</p>
+          <p className="text-gray-500 mb-8">Please login with your admin account to manage the store and perform database operations.</p>
           {!user ? (
             <div className="space-y-4">
               <button 
@@ -219,14 +255,19 @@ export default function AdminDashboard({
               </button>
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100"></div></div>
-                <span className="relative px-3 text-xs text-gray-400 bg-white">OR TESTING ONLY</span>
+                <span className="relative px-3 text-xs text-gray-400 bg-white uppercase tracking-tighter">Development Only</span>
               </div>
-              <button 
-                onClick={() => loginAsDemoAdmin()}
-                className="w-full py-4 bg-accent/10 text-accent rounded-2xl font-bold hover:bg-accent hover:text-white transition-all flex items-center justify-center gap-3"
-              >
-                <LayoutDashboard size={20} /> Bypass & Enter as Admin
-              </button>
+              <div className="space-y-2">
+                <button 
+                  onClick={() => loginAsDemoAdmin()}
+                  className="w-full py-4 bg-gray-50 text-gray-500 rounded-2xl font-bold hover:bg-gray-100 transition-all flex items-center justify-center gap-3 border border-gray-100"
+                >
+                  <LayoutDashboard size={20} /> Bypass for UI Testing
+                </button>
+                <p className="text-[10px] text-gray-400 font-medium px-4 leading-normal italic">
+                  * Note: Bypassing will disable product additions/edits as Firestore security rules require a valid Google authenticated session.
+                </p>
+              </div>
             </div>
           ) : (
             <div className="space-y-4">
@@ -247,6 +288,107 @@ export default function AdminDashboard({
     );
   }
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewProduct(prev => ({
+          ...prev,
+          images: [reader.result as string]
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAddProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setFormError(null);
+    
+    try {
+      // Check if user is in simulated session
+      if (user && user.uid && user.uid.startsWith('demo-')) {
+        throw new Error('You are currently in UI Testing mode. Database writes are restricted. Please Logout and "Login with Google" to perform real operations.');
+      }
+
+      console.log("Starting product addition process...");
+      let imageUrl = 'https://picsum.photos/seed/placeholder/600/600';
+
+      if (selectedFile) {
+        console.log("Uploading image to storage...");
+        const storageRef = ref(storage, `products/${Date.now()}_${selectedFile.name}`);
+        const snapshot = await uploadBytes(storageRef, selectedFile);
+        imageUrl = await getDownloadURL(snapshot.ref);
+        console.log("Image uploaded successfully:", imageUrl);
+      } else if (newProduct.images[0] && newProduct.images[0].startsWith('http')) {
+        imageUrl = newProduct.images[0];
+        console.log("Using provided image URL:", imageUrl);
+      }
+
+      const price = parseFloat(newProduct.price) || 0;
+      const salePrice = newProduct.salePrice ? parseFloat(newProduct.salePrice) : price;
+      const stock = parseInt(newProduct.stock) || 0;
+      const discount = (price > 0 && salePrice < price) 
+        ? Math.round(((price - salePrice) / price) * 100) 
+        : 0;
+
+      console.log("Calling addProduct with data:", {
+        name: newProduct.name,
+        category: newProduct.category,
+        price,
+        salePrice,
+        stock,
+        discount,
+        imageUrl
+      });
+
+      await addProduct({
+        name: newProduct.name,
+        category: newProduct.category,
+        regularPrice: price,
+        salePrice: salePrice,
+        quantity: stock,
+        mainImage: imageUrl,
+        fullDescription: newProduct.description,
+        shortDescription: newProduct.description.substring(0, 100) + '...',
+        sku: `ZF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+        tags: [newProduct.category, 'New Arrival'],
+        discountPercentage: discount,
+        lowStockAlert: 5,
+        galleryImages: [imageUrl],
+        thumbnailImage: imageUrl,
+        colors: newProduct.colors.map(c => c.name),
+        sizes: newProduct.sizes,
+        deliveryDays: 3,
+        status: 'Active'
+      } as any);
+
+      console.log("Product added successfully to database!");
+      setIsAddProductModalOpen(false);
+      setSelectedFile(null);
+      // Reset form
+      setNewProduct({
+        name: '',
+        category: 'Fashion',
+        price: '',
+        salePrice: '',
+        stock: '',
+        description: '',
+        images: [''],
+        sizes: [],
+        colors: []
+      });
+    } catch (error) {
+      console.error('Error adding product:', error);
+      setFormError(error instanceof Error ? error.message : 'Failed to add product. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'Dashboard':
@@ -256,7 +398,7 @@ export default function AdminDashboard({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
                 { label: 'Total Earnings', value: '$334,945', change: '1.56%', isPositive: true, color: '#22c55e', bg: 'bg-green-500', icon: CreditCard },
-                { label: 'Total Orders', value: '2,802', change: '1.56%', isPositive: false, color: '#f97316', bg: 'bg-orange-500', icon: ShoppingCart },
+                { label: 'Total Orders', value: '2,802', change: '1.56%', isPositive: false, color: '#e11d48', bg: 'bg-accent', icon: ShoppingCart },
                 { label: 'Customers', value: '4,945', change: '1.56%', isPositive: true, color: '#8b5cf6', bg: 'bg-purple-500', icon: Users },
                 { label: 'My Balance', value: '$4,945', change: '1.56%', isPositive: true, color: '#3b82f6', bg: 'bg-blue-500', icon: BarChart3 }
               ].map((stat, idx) => (
@@ -304,7 +446,7 @@ export default function AdminDashboard({
                     <h3 className="text-lg font-black text-primary">Revenue</h3>
                     <div className="flex gap-6 mt-2">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-orange-500" />
+                        <div className="w-2 h-2 rounded-full bg-accent" />
                         <span className="text-xs font-bold text-gray-400 uppercase">Revenue</span>
                         <span className="text-sm font-black text-primary">$37,802</span>
                         <span className="text-[10px] font-bold text-green-500 flex items-center gap-0.5"><TrendingUp size={10} /> 0.56%</span>
@@ -329,7 +471,7 @@ export default function AdminDashboard({
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 10}} dy={10} />
                       <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 10}} />
                       <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
-                      <Bar dataKey="revenue" fill="#f97316" radius={[4, 4, 0, 0]} barSize={20} />
+                      <Bar dataKey="revenue" fill="#e11d48" radius={[4, 4, 0, 0]} barSize={20} />
                       <Line type="monotone" dataKey="orders" stroke="#8b5cf6" strokeWidth={3} dot={{ r: 4, fill: '#8b5cf6', strokeWidth: 2, stroke: '#fff' }} />
                     </ComposedChart>
                   </ResponsiveContainer>
@@ -371,7 +513,7 @@ export default function AdminDashboard({
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-4">
-                    <div className="w-2 h-2 rounded-full border-2 border-orange-500" />
+                    <div className="w-2 h-2 rounded-full border-2 border-accent" />
                     <span className="text-[10px] font-black text-primary uppercase mt-1">Social Media</span>
                     <span className="text-lg font-black text-primary leading-none">3,432</span>
                     <span className="text-[9px] font-bold text-green-500 flex items-center gap-0.5 mt-0.5"><ArrowUpRight size={8} /> 5.6%</span>
@@ -464,7 +606,7 @@ export default function AdminDashboard({
                   <div className="flex gap-2 mt-4 sm:mt-0">
                     <button className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors"><ChevronRight className="rotate-180" size={14} /></button>
                     <button className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold text-gray-400 hover:bg-gray-50 transition-colors">1</button>
-                    <button className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold bg-orange-500 text-white shadow-lg shadow-orange-500/20">2</button>
+                    <button className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold bg-accent text-white shadow-lg shadow-accent/20">2</button>
                     <button className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold text-gray-400 hover:bg-gray-50 transition-colors">3</button>
                     <button className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors"><ChevronRight size={14} /></button>
                   </div>
@@ -478,11 +620,11 @@ export default function AdminDashboard({
                   {/* Simplified USA Map SVG Representation */}
                   <svg viewBox="0 0 500 300" className="w-full h-auto text-gray-300">
                     <path fill="currentColor" d="M100,50 L400,50 L420,150 L380,250 L80,250 L60,150 Z" opacity="0.1" />
-                    <circle cx="150" cy="180" r="40" fill="#f97316" opacity="0.7" />
-                    <circle cx="350" cy="200" r="30" fill="#f97316" opacity="0.6" />
-                    <circle cx="300" cy="120" r="25" fill="#f97316" opacity="0.5" />
-                    <circle cx="200" cy="100" r="20" fill="#f97316" opacity="0.4" />
-                    <circle cx="420" cy="160" r="15" fill="#f97316" opacity="0.3" />
+                    <circle cx="150" cy="180" r="40" fill="#e11d48" opacity="0.7" />
+                    <circle cx="350" cy="200" r="30" fill="#e11d48" opacity="0.6" />
+                    <circle cx="300" cy="120" r="25" fill="#e11d48" opacity="0.5" />
+                    <circle cx="200" cy="100" r="20" fill="#e11d48" opacity="0.4" />
+                    <circle cx="420" cy="160" r="15" fill="#e11d48" opacity="0.3" />
                   </svg>
                   <div className="absolute inset-0 bg-transparent pointer-events-none border border-gray-100 rounded-3xl" />
                 </div>
@@ -545,11 +687,11 @@ export default function AdminDashboard({
             </div>
 
             {/* Tip Banner */}
-            <div className="bg-orange-50 border border-orange-100 p-4 rounded-2xl flex items-start gap-3">
-              <div className="bg-white p-2 rounded-xl text-orange-500 shadow-sm flex-shrink-0">
+            <div className="bg-accent/5 border border-accent/10 p-4 rounded-2xl flex items-start gap-3">
+              <div className="bg-white p-2 rounded-xl text-accent shadow-sm flex-shrink-0">
                 <AlertCircle size={18} />
               </div>
-              <p className="text-sm font-medium text-orange-800 leading-relaxed mt-1">
+              <p className="text-sm font-medium text-accent/80 leading-relaxed mt-1">
                 <span className="font-bold underline">Tip search by Product ID:</span> Each product is provided with a unique ID, which you can rely on to find the exact product you need.
               </p>
             </div>
@@ -577,7 +719,7 @@ export default function AdminDashboard({
                     placeholder="Search here..." 
                     value={productSearchQuery}
                     onChange={(e) => setProductSearchQuery(e.target.value)}
-                    className="w-full bg-gray-50 border-none rounded-[1.25rem] py-4 pl-6 pr-14 text-sm font-medium focus:ring-2 focus:ring-orange-500/20" 
+                    className="w-full bg-gray-50 border-none rounded-[1.25rem] py-4 pl-6 pr-14 text-sm font-medium focus:ring-2 focus:ring-accent/20" 
                   />
                   <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors">
                     <Search size={20} />
@@ -614,8 +756,8 @@ export default function AdminDashboard({
                     <option>Price: High to Low</option>
                   </select>
                   <button 
-                    onClick={() => navigate('/admin/add-product')}
-                    className="flex items-center justify-center gap-2 bg-orange-500 text-white px-6 py-3.5 rounded-xl font-black text-[11px] uppercase tracking-wider hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/20"
+                    onClick={() => setIsAddProductModalOpen(true)}
+                    className="flex items-center justify-center gap-2 bg-accent text-white px-6 py-3.5 rounded-xl font-black text-[11px] uppercase tracking-wider hover:opacity-90 transition-all shadow-lg shadow-accent/20"
                   >
                     <Plus size={16} /> Add new
                   </button>
@@ -643,7 +785,7 @@ export default function AdminDashboard({
                             <div className="flex items-center gap-5">
                               <img src={product.mainImage} alt="" className="w-14 h-14 rounded-2xl object-cover border border-gray-100 shadow-sm" referrerPolicy="no-referrer" />
                               <div className="flex flex-col">
-                                <span className="text-sm font-black text-primary leading-tight group-hover:text-orange-600 transition-colors">{product.name}</span>
+                                <span className="text-sm font-black text-primary leading-tight group-hover:text-accent transition-colors">{product.name}</span>
                                 <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">{product.category}</span>
                               </div>
                             </div>
@@ -657,7 +799,7 @@ export default function AdminDashboard({
                               "text-[10px] font-black px-4 py-1.5 rounded-xl uppercase tracking-widest leading-none",
                               product.quantity > 0 
                                 ? "bg-green-50 text-green-500 border border-green-100" 
-                                : "bg-orange-50 text-orange-500 border border-orange-100"
+                                : "bg-accent/5 text-accent border border-accent/10"
                             )}>
                               {product.quantity > 0 ? 'In Stock' : 'Out of Stock'}
                             </span>
@@ -698,7 +840,7 @@ export default function AdminDashboard({
                 <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Showing {paginatedProducts.length} of {filteredProducts.length} entries</span>
                 <div className="flex gap-2 mt-4 sm:mt-0">
                   <button className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors border border-gray-50 shadow-sm" disabled><ChevronRight className="rotate-180" size={16} /></button>
-                  <button className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black bg-orange-500 text-white shadow-lg shadow-orange-500/20">1</button>
+                  <button className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black bg-accent text-white shadow-lg shadow-accent/20">1</button>
                   <button className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black text-gray-400 hover:bg-gray-50 transition-colors border border-gray-50 shadow-sm">2</button>
                   <button className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black text-gray-400 hover:bg-gray-50 transition-colors border border-gray-50 shadow-sm">3</button>
                   <button className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors border border-gray-50 shadow-sm"><ChevronRight size={16} /></button>
@@ -707,84 +849,423 @@ export default function AdminDashboard({
             </div>
           </div>
         );
-
+      case 'Order List':
       case 'Orders':
         return (
-          <div className="space-y-8">
-            <div className="flex items-center justify-between">
-              <h1 className="text-3xl font-bold text-primary">Order Management</h1>
-              <div className="flex gap-3">
-                <button className="flex items-center gap-2 px-6 py-3 rounded-2xl border border-gray-100 font-bold text-gray-500 hover:bg-gray-50">
-                  <Download size={18} /> Export CSV
-                </button>
+          <div className="space-y-8 pb-10">
+            {/* Header & Breadcrumbs */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <h1 className="text-3xl font-black text-primary">Order List</h1>
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-gray-400">
+                <span className="hover:text-primary cursor-pointer">Dashboard</span>
+                <ChevronRight size={10} />
+                <span className="hover:text-primary cursor-pointer">Order</span>
+                <ChevronRight size={10} />
+                <span className="text-primary font-black">Order List</span>
               </div>
             </div>
 
-            <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
+            {/* Main Content Card */}
+            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
+              {/* Filter Bar */}
+              <div className="p-8 flex flex-wrap items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-gray-400">Showing</span>
+                    <select className="bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 text-xs font-bold text-primary focus:ring-0 appearance-none min-w-[70px]">
+                      <option>10</option>
+                      <option>20</option>
+                      <option>50</option>
+                    </select>
+                    <span className="text-xs font-bold text-gray-400">entries</span>
+                  </div>
+                  
+                  <div className="relative group min-w-[280px]">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-accent transition-colors" size={18} />
+                    <input 
+                      type="text" 
+                      placeholder="Search here..." 
+                      className="w-full bg-gray-50 border border-gray-50 rounded-2xl py-3 pl-12 pr-6 text-sm focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <select className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-xs font-bold text-primary focus:ring-0 min-w-[150px] appearance-none">
+                    <option>All Categories</option>
+                    <option>Fashion</option>
+                    <option>Electronics</option>
+                    <option>Home</option>
+                  </select>
+                  
+                  <select className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-xs font-bold text-primary focus:ring-0 min-w-[140px] appearance-none">
+                    <option>All Status</option>
+                    <option>Complete</option>
+                    <option>New</option>
+                    <option>Pending</option>
+                  </select>
+
+                  <select className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-xs font-bold text-primary focus:ring-0 min-w-[150px] appearance-none">
+                    <option>Sort by (Default)</option>
+                    <option>Price: Low to High</option>
+                    <option>Price: High to Low</option>
+                    <option>Newest First</option>
+                  </select>
+
+                  <button className="flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:opacity-90 shadow-lg shadow-accent/20 transition-all active:scale-95">
+                    <Download size={14} className="stroke-[3]" /> Export all order
+                  </button>
+                </div>
+              </div>
+
+              {/* Table */}
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full text-left">
                   <thead>
-                    <tr className="bg-gray-50/50">
-                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase tracking-widest">Order ID</th>
-                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase tracking-widest">Customer</th>
-                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase tracking-widest">Date</th>
-                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase tracking-widest">Payment</th>
-                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase tracking-widest">Total</th>
-                      <th className="text-left py-4 px-8 text-xs font-bold text-gray-400 uppercase tracking-widest">Status</th>
-                      <th className="text-right py-4 px-8 text-xs font-bold text-gray-400 uppercase tracking-widest">Actions</th>
+                    <tr className="bg-gray-50/30">
+                      <th className="py-6 px-8 text-[11px] font-black text-primary uppercase tracking-widest">Product</th>
+                      <th className="py-6 px-6 text-[11px] font-black text-primary uppercase tracking-widest text-center">Order ID</th>
+                      <th className="py-6 px-6 text-[11px] font-black text-primary uppercase tracking-widest text-center">Price</th>
+                      <th className="py-6 px-6 text-[11px] font-black text-primary uppercase tracking-widest text-center">Quantity</th>
+                      <th className="py-6 px-6 text-[11px] font-black text-primary uppercase tracking-widest text-center">Payment</th>
+                      <th className="py-6 px-8 text-[11px] font-black text-primary uppercase tracking-widest text-right">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {orders.map((order) => (
-                      <tr key={order.id} className="hover:bg-gray-50/50 transition-colors group">
-                        <td className="py-5 px-8 text-sm font-bold text-primary">{order.orderId}</td>
-                        <td className="py-5 px-8 text-sm text-gray-600 font-medium">{order.customerName}</td>
-                        <td className="py-5 px-8 text-sm text-gray-400">
-                          {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString() : 'Recent'}
-                        </td>
-                        <td className="py-5 px-8 text-sm text-gray-600">{order.paymentMethod}</td>
-                        <td className="py-5 px-8 text-sm font-bold text-primary">${order.total.toFixed(2)}</td>
-                        <td className="py-5 px-8">
-                          <select 
-                            value={order.status}
-                            onChange={(e) => updateOrderStatus(order.id, e.target.value as any)}
-                            className={cn(
-                              "text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border-none focus:ring-0 cursor-pointer",
-                              order.status === 'Pending' ? "bg-yellow-50 text-yellow-600" :
-                              order.status === 'Processing' ? "bg-orange-50 text-orange-600" :
-                              order.status === 'Shipped' ? "bg-blue-50 text-blue-600" : 
-                              order.status === 'Delivered' ? "bg-green-50 text-green-600" :
-                              "bg-red-50 text-red-600"
-                            )}
-                          >
-                            <option value="Pending">Pending</option>
-                            <option value="Processing">Processing</option>
-                            <option value="Shipped">Shipped</option>
-                            <option value="Delivered">Delivered</option>
-                            <option value="Cancelled">Cancelled</option>
-                          </select>
-                        </td>
-                        <td className="py-5 px-8 text-right">
-                          <div className="flex justify-end gap-2">
-                            <button className="p-2 text-gray-400 hover:text-accent transition-colors"><Eye size={18} /></button>
-                            <button 
-                              onClick={() => deleteOrderFromDb(order.id)}
-                              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                            >
-                              <Trash2 size={18} />
-                            </button>
+                    {[
+                      { name: 'Neptune Longsleeve', id: '#7712309', price: '$1,452.500', qty: '1,638', payment: '20', status: 'Complete', img: 'https://picsum.photos/seed/fashion1/100/100' },
+                      { name: 'Corduroy slim-fit', id: '#7712309', price: '$1,452.500', qty: '1,638', payment: '20', status: 'New', img: 'https://picsum.photos/seed/fashion2/100/100' },
+                      { name: 'Turtleneck knitted T-shirt', id: '#7712309', price: '$1,452.500', qty: '1,638', payment: '20', status: 'Complete', img: 'https://picsum.photos/seed/fashion3/100/100' },
+                      { name: 'Wool oversized T-shirt', id: '#7712309', price: '$1,452.500', qty: '1,638', payment: '20', status: 'Pending', img: 'https://picsum.photos/seed/fashion4/100/100' },
+                      { name: 'Oversized Motif T-shirt', id: '#7712309', price: '$1,452.500', qty: '1,638', payment: '20', status: 'Complete', img: 'https://picsum.photos/seed/fashion5/100/100' },
+                      { name: 'Neptune Longsleeve', id: '#7712309', price: '$1,452.500', qty: '1,638', payment: '20', status: 'Complete', img: 'https://picsum.photos/seed/fashion6/100/100' },
+                      { name: 'Corduroy slim-fit', id: '#7712309', price: '$1,452.500', qty: '1,638', payment: '20', status: 'New', img: 'https://picsum.photos/seed/fashion7/100/100' },
+                      { name: 'Turtleneck knitted T-shirt', id: '#7712309', price: '$1,452.500', qty: '1,638', payment: '20', status: 'Complete', img: 'https://picsum.photos/seed/fashion8/100/100' },
+                    ].map((item, idx) => (
+                      <tr key={idx} className="hover:bg-gray-50/50 transition-colors group">
+                        <td className="py-6 px-8">
+                          <div className="flex items-center gap-4">
+                            <img 
+                              src={item.img} 
+                              alt={item.name} 
+                              className="w-12 h-12 rounded-xl object-cover shadow-sm bg-gray-100" 
+                              referrerPolicy="no-referrer"
+                            />
+                            <span className="text-sm font-bold text-primary group-hover:text-accent transition-colors">{item.name}</span>
                           </div>
+                        </td>
+                        <td className="py-6 px-6 text-sm font-bold text-gray-500 text-center">{item.id}</td>
+                        <td className="py-6 px-6 text-sm font-black text-primary text-center tracking-tight">{item.price}</td>
+                        <td className="py-6 px-6 text-sm font-bold text-gray-500 text-center">{item.qty}</td>
+                        <td className="py-6 px-6 text-sm font-bold text-gray-500 text-center">{item.payment}</td>
+                        <td className="py-6 px-8 text-right">
+                          <span className={cn(
+                            "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tight",
+                            item.status === 'Complete' ? "bg-green-100 text-green-600" :
+                            item.status === 'New' ? "bg-blue-100 text-blue-600" :
+                            item.status === 'Pending' ? "bg-accent/10 text-accent" :
+                            "bg-gray-100 text-gray-400"
+                          )}>
+                            {item.status}
+                          </span>
                         </td>
                       </tr>
                     ))}
-                    {orders.length === 0 && (
-                      <tr>
-                        <td colSpan={7} className="py-20 text-center text-gray-400">No orders found.</td>
-                      </tr>
-                    )}
                   </tbody>
                 </table>
               </div>
+
+              {/* Pagination */}
+              <div className="p-8 border-t border-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <span className="text-xs font-bold text-gray-400">Showing 10 entries</span>
+                <div className="flex items-center gap-2">
+                  <button className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 transition-all">
+                    <ChevronRight className="rotate-180" size={18} />
+                  </button>
+                  <button className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-black text-gray-400 hover:bg-gray-100 transition-all">1</button>
+                  <button className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-black bg-accent text-white shadow-lg shadow-accent/20 transition-all scale-110">2</button>
+                  <button className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-black text-gray-400 hover:bg-gray-100 transition-all">3</button>
+                  <button className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 transition-all">
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );;
+
+      case 'Order Detail':
+        return (
+          <div className="space-y-8 pb-20">
+            {/* Header & Breadcrumbs */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <h1 className="text-3xl font-black text-primary">Order #123783</h1>
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-gray-400">
+                <span className="hover:text-primary cursor-pointer transition-colors">Dashboard</span>
+                <ChevronRight size={10} />
+                <span className="hover:text-primary cursor-pointer transition-colors">Order</span>
+                <ChevronRight size={10} />
+                <span className="text-primary font-black">Order detail</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
+              {/* Left Column: Items & Totals */}
+              <div className="xl:col-span-2 space-y-8">
+                {/* Items List */}
+                <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden p-8">
+                  <div className="flex items-center justify-between mb-8">
+                    <h3 className="text-sm font-black text-primary uppercase tracking-widest">All item</h3>
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-500 cursor-pointer hover:text-accent transition-colors">
+                      Sort <ChevronRight size={14} className="rotate-90" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {[
+                      { name: 'Kristin Watson', price: '$50.47', qty: 1, img: 'https://picsum.photos/seed/kristin/100/100' },
+                      { name: 'V-neck linen T-...', price: '$50.47', qty: 1, img: 'https://picsum.photos/seed/vneck/100/100' },
+                      { name: 'Ribbed modal T-...', price: '$50.47', qty: 1, img: 'https://picsum.photos/seed/ribbed/100/100' },
+                    ].map((item, idx) => (
+                      <div key={idx} className="bg-gray-50/50 rounded-3xl p-6 flex items-center gap-6 group hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100">
+                        <img 
+                          src={item.img} 
+                          alt="" 
+                          className="w-16 h-16 rounded-2xl object-cover shadow-sm"
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="grid grid-cols-3 flex-1 items-center">
+                          <div className="space-y-1">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Product name</p>
+                            <p className="text-sm font-black text-primary group-hover:text-accent transition-colors">{item.name}</p>
+                          </div>
+                          <div className="space-y-1 text-center">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Quantity</p>
+                            <p className="text-sm font-black text-primary">{item.qty}</p>
+                          </div>
+                          <div className="space-y-1 text-right pr-4">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Price</p>
+                            <p className="text-sm font-black text-primary">{item.price}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Cart Totals */}
+                <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden p-8">
+                  <div className="bg-gray-50/50 rounded-2xl p-4 flex justify-between px-8 mb-6">
+                    <span className="text-xs font-black text-primary uppercase tracking-widest">Cart Totals</span>
+                    <span className="text-xs font-black text-primary uppercase tracking-widest">Price</span>
+                  </div>
+                  
+                  <div className="px-8 space-y-6">
+                    <div className="flex justify-between items-center py-4 border-b border-gray-50">
+                      <span className="text-sm font-bold text-gray-500">Subtotal:</span>
+                      <span className="text-sm font-black text-primary">$70.13</span>
+                    </div>
+                    <div className="flex justify-between items-center py-4 border-b border-gray-50">
+                      <span className="text-sm font-bold text-gray-500">Shipping:</span>
+                      <span className="text-sm font-black text-primary">$10.00</span>
+                    </div>
+                    <div className="flex justify-between items-center py-4 border-b border-gray-50">
+                      <span className="text-sm font-bold text-gray-500">Tax (GST):</span>
+                      <span className="text-sm font-black text-primary">$5.00</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-4">
+                      <span className="text-sm font-black text-primary">Total price:</span>
+                      <span className="text-sm font-black text-accent">$90.58</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Cards */}
+              <div className="space-y-6">
+                {/* Summary Card */}
+                <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
+                  <h3 className="text-sm font-black text-primary uppercase tracking-widest mb-6">Summary</h3>
+                  <div className="space-y-4">
+                    <div className="flex justify-between text-sm">
+                      <span className="font-bold text-gray-500">Order ID</span>
+                      <span className="font-bold text-primary">#192847</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="font-bold text-gray-500">Date</span>
+                      <span className="font-bold text-primary">20 Nov 2023</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="font-bold text-gray-500">Total</span>
+                      <span className="font-black text-accent">$948.5</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Shipping Address */}
+                <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
+                  <h3 className="text-sm font-black text-primary uppercase tracking-widest mb-6">Shipping Address</h3>
+                  <p className="text-sm font-bold text-gray-500 leading-relaxed">
+                    3517 W. Gray St. Utica, Pennsylvania 57867
+                  </p>
+                </div>
+
+                {/* Payment Method */}
+                <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
+                  <h3 className="text-sm font-black text-primary uppercase tracking-widest mb-6">Payment Method</h3>
+                  <p className="text-sm font-bold text-gray-500 leading-relaxed">
+                    Pay on Delivery (Cash/Card). Cash on delivery (COD) available. Card/Net banking acceptance subject to device availability.
+                  </p>
+                </div>
+
+                {/* Delivery Card */}
+                <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
+                  <h3 className="text-sm font-black text-primary uppercase tracking-widest mb-6">Expected Date Of Delivery</h3>
+                  <p className="text-sm font-black text-accent mb-6">20 Nov 2023</p>
+                  <button 
+                    onClick={() => setActiveTab('Order Tracking')}
+                    className="w-full py-4 rounded-2xl border-2 border-accent text-accent font-bold text-sm flex items-center justify-center gap-3 hover:bg-accent/5 transition-all group"
+                  >
+                    <Truck size={18} className="group-hover:translate-x-1 transition-transform" /> Track order
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="text-center py-6 mt-10 border-t border-gray-50">
+              <p className="text-xs font-bold text-gray-400">
+                Copyright © 2026 <span className="text-accent">Dataflow</span> Design by Themesflat All rights reserved.
+              </p>
+            </div>
+          </div>
+        );
+
+      case 'Order Tracking':
+        return (
+          <div className="space-y-8 pb-20">
+            {/* Header & Breadcrumbs */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <h1 className="text-3xl font-black text-primary">Order Tracking</h1>
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-gray-400">
+                <span className="hover:text-primary cursor-pointer transition-colors">Dashboard</span>
+                <ChevronRight size={10} />
+                <span className="hover:text-primary cursor-pointer transition-colors">Order</span>
+                <ChevronRight size={10} />
+                <span className="text-primary font-black">Order Tracking</span>
+              </div>
+            </div>
+
+            {/* Product & Basic Order Info Card */}
+            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col md:flex-row">
+              <div className="md:w-1/3 lg:w-1/4 aspect-square md:aspect-auto">
+                <img 
+                  src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=600&h=600&fit=crop" 
+                  alt="Product" 
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="flex-1 p-10 flex flex-col justify-center">
+                <h2 className="text-2xl font-black text-primary mb-6">Essential Oversized Zip Hoodie</h2>
+                
+                <div className="grid grid-cols-2 gap-y-4 max-w-sm mb-10">
+                  <div className="text-sm font-bold text-gray-400">Order ID</div>
+                  <div className="text-sm font-black text-primary">#192847</div>
+                  
+                  <div className="text-sm font-bold text-gray-400">Brand:</div>
+                  <div className="text-sm font-black text-primary">20 Nov 2023</div>
+                  
+                  <div className="text-sm font-bold text-gray-400">Order Placed:</div>
+                  <div className="text-sm font-black text-primary">20 Nov 2023</div>
+                  
+                  <div className="text-sm font-bold text-gray-400">Quantity:</div>
+                  <div className="text-sm font-black text-primary">1</div>
+                </div>
+
+                <div className="flex flex-wrap gap-4">
+                  <button className="px-10 py-3 rounded-2xl border border-accent text-accent font-bold text-sm hover:bg-accent/5 transition-all">
+                    View shop
+                  </button>
+                  <button className="px-10 py-3 rounded-2xl bg-accent text-white font-bold text-sm hover:opacity-90 shadow-lg shadow-accent/20 transition-all">
+                    View product
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Detail & Progress Section */}
+            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-10">
+              <h3 className="text-lg font-black text-primary mb-2">Detail</h3>
+              <p className="text-gray-400 text-sm font-medium mb-12">Your items is on the way. Tracking information will be available within 24 hours.</p>
+
+              <div className="relative mb-16 px-4">
+                {/* Connecting Lines */}
+                <div className="absolute top-5 left-8 right-8 h-1 bg-gray-100" />
+                <div className="absolute top-5 left-8 w-[70%] h-1 bg-accent" />
+
+                <div className="relative flex justify-between">
+                  {[
+                    { label: 'Receiving orders', time: '05:43 AM', active: true },
+                    { label: 'Order processing', time: '01:21 PM', active: true },
+                    { label: 'Being delivered', time: 'Processing', active: true },
+                    { label: 'Delivered', time: 'Pending', active: false }
+                  ].map((step, idx) => (
+                    <div key={idx} className="flex flex-col items-center flex-1">
+                      <div className={cn(
+                        "w-10 h-10 rounded-full flex items-center justify-center relative z-10 shadow-sm transition-all duration-500",
+                        step.active ? "bg-accent text-white scale-110 shadow-accent/20" : "bg-gray-100 text-gray-400"
+                      )}>
+                        {step.active ? <CheckCircle2 size={24} className="stroke-[3]" /> : <CheckCircle2 size={24} />}
+                      </div>
+                      <div className="mt-6 text-center">
+                        <p className="text-sm font-black text-primary mb-1">{step.label}</p>
+                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-tight">{step.time}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Tracking Updates Table */}
+            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="bg-gray-50/30">
+                      <th className="py-5 px-8 text-xs font-black text-primary uppercase tracking-widest">Date</th>
+                      <th className="py-5 px-8 text-xs font-black text-primary uppercase tracking-widest">Time</th>
+                      <th className="py-5 px-8 text-xs font-black text-primary uppercase tracking-widest">Description</th>
+                      <th className="py-5 px-8 text-xs font-black text-primary uppercase tracking-widest text-right">Location</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {[
+                      { date: '20 Nov 2023', time: '2:30 PM', desc: 'The sender is preparing the goods', loc: '2715 Ash Dr.' },
+                      { date: '20 Nov 2023', time: '01:00 PM', desc: 'The order has arrived at the post office', loc: '3517 W. Gray' },
+                      { date: '21 Nov 2023', time: '03:58 AM', desc: 'The carrier is picking up the goods', loc: '1901 Thornric' },
+                      { date: '22 Nov 2023', time: '06:26 PM', desc: 'The order has been shipped', loc: '4140 Parker' },
+                      { date: '22 Nov 2023', time: '03:45 PM', desc: 'Your order will be delivered to you in 30 minutes', loc: '8502 Presto' },
+                      { date: '23 Nov 2023', time: '12:21 AM', desc: 'The order has been delivered successfully', loc: '3891 Ranchv' },
+                    ].map((row, idx) => (
+                      <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="py-5 px-8 text-sm font-bold text-gray-500">{row.date}</td>
+                        <td className="py-5 px-8 text-sm font-bold text-gray-500">{row.time}</td>
+                        <td className="py-5 px-8 text-sm font-black text-primary">{row.desc}</td>
+                        <td className="py-5 px-8 text-sm font-bold text-gray-500 text-right">{row.loc}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="text-center py-6">
+              <p className="text-xs font-bold text-gray-400">
+                Copyright © 2026 <span className="text-accent">Dataflow</span> Design by Themesflat All rights reserved.
+              </p>
             </div>
           </div>
         );
@@ -1021,7 +1502,7 @@ export default function AdminDashboard({
                   </div>
                   <div className="bg-white p-4 rounded-2xl border border-gray-100">
                     <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Low Stock Alert</p>
-                    <p className="text-xl font-black text-orange-500">12</p>
+                    <p className="text-xl font-black text-accent">12</p>
                   </div>
                   <div className="bg-white p-4 rounded-2xl border border-gray-100">
                     <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Total Valuation</p>
@@ -1054,7 +1535,7 @@ export default function AdminDashboard({
                         <td className="py-4 px-8">
                           <span className={cn(
                             "text-[10px] font-bold px-3 py-1 rounded-full uppercase",
-                            product.quantity < 5 ? "bg-orange-50 text-orange-600" : "bg-green-50 text-green-600"
+                            product.quantity < 5 ? "bg-accent/10 text-accent" : "bg-green-50 text-green-600"
                           )}>
                             {product.quantity < 5 ? 'Low Stock' : 'Good Stock'}
                           </span>
@@ -1317,6 +1798,219 @@ export default function AdminDashboard({
             </div>
           </div>
         );
+      
+      case 'Settings':
+        return (
+          <div className="space-y-8 pb-20">
+            {/* Header & Breadcrumbs */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <h1 className="text-3xl font-black text-primary">Setting</h1>
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-gray-400">
+                <span className="hover:text-primary cursor-pointer transition-colors" onClick={() => setActiveTab('Dashboard')}>Dashboard</span>
+                <ChevronRight size={10} />
+                <span className="text-primary font-black">Setting</span>
+              </div>
+            </div>
+
+            {/* General Information Card */}
+            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden p-10">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
+                <div className="lg:col-span-1">
+                  <h3 className="text-xl font-black text-primary mb-2">General Information</h3>
+                  <p className="text-sm font-medium text-gray-400">Setting general information</p>
+                </div>
+                <div className="lg:col-span-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                      <label className="text-sm font-black text-gray-900 ml-1">First Name</label>
+                      <input 
+                        type="text" 
+                        value={settings.firstName} 
+                        onChange={(e) => setSettings({...settings, firstName: e.target.value})}
+                        className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-black text-gray-900 ml-1">Last Name</label>
+                      <input 
+                        type="text" 
+                        value={settings.lastName} 
+                        onChange={(e) => setSettings({...settings, lastName: e.target.value})}
+                        className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none"
+                      />
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="text-sm font-black text-gray-900 ml-1">Address</label>
+                      <input 
+                        type="text" 
+                        value={settings.address} 
+                        onChange={(e) => setSettings({...settings, address: e.target.value})}
+                        className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-black text-gray-900 ml-1">Contact</label>
+                      <input 
+                        type="text" 
+                        value={settings.contact} 
+                        onChange={(e) => setSettings({...settings, contact: e.target.value})}
+                        className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-black text-gray-900 ml-1">Email</label>
+                      <input 
+                        type="email" 
+                        value={settings.email} 
+                        onChange={(e) => setSettings({...settings, email: e.target.value})}
+                        className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-black text-gray-900 ml-1">Role</label>
+                      <input 
+                        type="text" 
+                        value={settings.role} 
+                        onChange={(e) => setSettings({...settings, role: e.target.value})}
+                        className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Login Card */}
+            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden p-10">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
+                <div className="lg:col-span-1">
+                  <h3 className="text-xl font-black text-primary mb-2">Login</h3>
+                  <p className="text-sm font-medium text-gray-400">Setting Login information</p>
+                </div>
+                <div className="lg:col-span-3 space-y-10">
+                  {/* Google Login Toggle */}
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <label className="text-sm font-black text-gray-900">Enable Google Login?</label>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => setSettings({...settings, enableGoogleLogin: true})}
+                          className={cn(
+                            "flex items-center gap-2 px-6 py-2 rounded-full text-xs font-bold transition-all",
+                            settings.enableGoogleLogin ? "bg-accent/10 text-accent border border-accent/20" : "bg-gray-50 text-gray-400"
+                          )}
+                        >
+                          {settings.enableGoogleLogin && <CheckCircle2 size={14} className="stroke-[3]" />}
+                          Yes
+                        </button>
+                        <button 
+                          onClick={() => setSettings({...settings, enableGoogleLogin: false})}
+                          className={cn(
+                            "flex items-center gap-2 px-6 py-2 rounded-full text-xs font-bold transition-all",
+                            !settings.enableGoogleLogin ? "bg-accent text-white shadow-lg shadow-accent/20" : "bg-gray-50 text-gray-400"
+                          )}
+                        >
+                          {!settings.enableGoogleLogin && <CheckCircle2 size={14} className="stroke-[3]" />}
+                          No
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-2">
+                        <label className="text-sm font-black text-gray-900 ml-1">Google Login ID</label>
+                        <input 
+                          type="text" 
+                          placeholder="Enter Google Login ID"
+                          value={settings.googleLoginId} 
+                          onChange={(e) => setSettings({...settings, googleLoginId: e.target.value})}
+                          className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-black text-gray-900 ml-1">Google Secret Key</label>
+                        <input 
+                          type="password" 
+                          placeholder="Enter Google Secret Key"
+                          value={settings.googleSecretKey} 
+                          onChange={(e) => setSettings({...settings, googleSecretKey: e.target.value})}
+                          className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr className="border-gray-50" />
+
+                  {/* Facebook Login Toggle */}
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <label className="text-sm font-black text-gray-900">Enable Facebook Login?</label>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => setSettings({...settings, enableFacebookLogin: true})}
+                          className={cn(
+                            "flex items-center gap-2 px-6 py-2 rounded-full text-xs font-bold transition-all",
+                            settings.enableFacebookLogin ? "bg-accent/10 text-accent border border-accent/20" : "bg-gray-50 text-gray-400"
+                          )}
+                        >
+                          {settings.enableFacebookLogin && <CheckCircle2 size={14} className="stroke-[3]" />}
+                          Yes
+                        </button>
+                        <button 
+                          onClick={() => setSettings({...settings, enableFacebookLogin: false})}
+                          className={cn(
+                            "flex items-center gap-2 px-6 py-2 rounded-full text-xs font-bold transition-all",
+                            !settings.enableFacebookLogin ? "bg-accent text-white shadow-lg shadow-accent/20" : "bg-gray-50 text-gray-400"
+                          )}
+                        >
+                          {!settings.enableFacebookLogin && <CheckCircle2 size={14} className="stroke-[3]" />}
+                          No
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-2">
+                        <label className="text-sm font-black text-gray-900 ml-1">Facebook ID</label>
+                        <input 
+                          type="text" 
+                          placeholder="Enter Facebook ID"
+                          value={settings.facebookId} 
+                          onChange={(e) => setSettings({...settings, facebookId: e.target.value})}
+                          className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-black text-gray-900 ml-1">Facebook Secret Key</label>
+                        <input 
+                          type="password" 
+                          placeholder="Enter Facebook Secret Key"
+                          value={settings.facebookSecretKey} 
+                          onChange={(e) => setSettings({...settings, facebookSecretKey: e.target.value})}
+                          className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Update Button */}
+            <div className="flex">
+              <button className="bg-accent text-white px-16 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-accent/30 hover:opacity-90 active:scale-95 transition-all">
+                Update
+              </button>
+            </div>
+
+            <div className="text-center pt-10 pb-4">
+              <p className="text-[11px] font-bold text-gray-400">
+                Copyright © 2026 <span className="text-accent">Dataflow</span> Design By Themesflat All rights reserved.
+              </p>
+            </div>
+          </div>
+        );
 
       default:
         return (
@@ -1352,7 +2046,12 @@ export default function AdminDashboard({
             { name: 'Dashboard', icon: LayoutDashboard },
             { name: 'Products', icon: Package },
             { name: 'Categories', icon: Tag },
-            { name: 'Orders', icon: ShoppingCart },
+            { 
+              name: 'Orders', 
+              icon: ShoppingCart, 
+              hasSub: true,
+              subItems: ['Order List', 'Order Detail', 'Order Tracking']
+            },
             { name: 'Customers', icon: Users },
             { name: 'Inventory', icon: Package },
             { name: 'Discounts', icon: Tag },
@@ -1361,19 +2060,65 @@ export default function AdminDashboard({
             { name: 'Reports', icon: BarChart3 },
             { name: 'Settings', icon: Settings },
           ].map((item) => (
-            <button
-              key={item.name}
-              onClick={() => setActiveTab(item.name)}
-              className={cn(
-                "w-full flex items-center gap-3 px-5 py-3.5 rounded-2xl font-bold text-sm transition-all",
-                activeTab === item.name 
-                  ? "bg-primary text-white shadow-xl shadow-primary/20" 
-                  : "text-gray-500 hover:bg-gray-50 hover:text-primary"
+            <div key={item.name} className="space-y-1">
+              <button
+                onClick={() => {
+                  if (item.hasSub) {
+                    setIsOrdersExpanded(!isOrdersExpanded);
+                  } else {
+                    setActiveTab(item.name);
+                  }
+                }}
+                className={cn(
+                  "w-full flex items-center justify-between px-5 py-3.5 rounded-2xl font-bold text-sm transition-all",
+                  activeTab === item.name || (item.hasSub && item.subItems?.includes(activeTab))
+                    ? "bg-primary shadow-xl shadow-primary/20" 
+                    : "text-gray-500"
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <item.icon size={18} className={cn(
+                    activeTab === item.name || (item.hasSub && item.subItems?.includes(activeTab)) ? "text-white" : ""
+                  )} />
+                  <span className={cn(
+                    activeTab === item.name || (item.hasSub && item.subItems?.includes(activeTab)) ? "text-white" : ""
+                  )}>{item.name}</span>
+                </div>
+                {item.hasSub && (
+                  <ChevronRight 
+                    size={14} 
+                    className={cn(
+                      "transition-transform", 
+                      isOrdersExpanded ? "rotate-90" : "",
+                      activeTab === item.name || (item.hasSub && item.subItems?.includes(activeTab)) ? "text-white" : ""
+                    )} 
+                  />
+                )}
+              </button>
+
+              {item.hasSub && isOrdersExpanded && (
+                <div className="pl-14 space-y-4 mt-6">
+                  {item.subItems?.map(sub => (
+                    <button
+                      key={sub}
+                      onClick={() => setActiveTab(sub)}
+                      className={cn(
+                        "w-full flex items-center gap-4 py-1 text-sm font-bold transition-all",
+                        activeTab === sub 
+                          ? "text-accent" 
+                          : "text-primary"
+                      )}
+                    >
+                      <div className={cn(
+                        "w-2.5 h-2.5 rounded-full border-[2.5px] transition-all",
+                        activeTab === sub ? "border-accent" : "border-primary"
+                      )} />
+                      {sub}
+                    </button>
+                  ))}
+                </div>
               )}
-            >
-              <item.icon size={18} />
-              {item.name}
-            </button>
+            </div>
           ))}
         </nav>
 
@@ -1443,6 +2188,289 @@ export default function AdminDashboard({
         <div className="p-8 max-w-[1600px] mx-auto">
           {renderContent()}
         </div>
+
+        <AnimatePresence>
+          {isAddProductModalOpen && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsAddProductModalOpen(false)}
+                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              />
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 30 }}
+                className="relative w-full h-[100dvh] md:h-[95vh] md:w-[95vw] max-w-[1200px] bg-[#f8f9fb] md:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
+              >
+                {/* Header with Breadcrumbs */}
+                <div className="bg-white px-10 py-6 border-b border-gray-100 flex items-center justify-between sticky top-0 z-20">
+                  <h2 className="text-2xl font-black text-gray-900">Add Product</h2>
+                  <div className="flex items-center gap-2 text-[11px] font-bold text-gray-400 uppercase tracking-tight">
+                    <span>Dashboard</span>
+                    <ChevronRight size={12} />
+                    <span>Product</span>
+                    <ChevronRight size={12} />
+                    <span className="text-gray-900">Add Product</span>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-10 space-y-10">
+                  {/* Image Upload Section */}
+                  <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm space-y-8">
+                    <h3 className="text-sm font-black text-gray-900">Upload images</h3>
+                    <div 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="aspect-[4/1] w-full border-2 border-dashed border-accent/20 bg-accent/5 rounded-3xl flex flex-col items-center justify-center group cursor-pointer hover:bg-accent/10 transition-all"
+                    >
+                      <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        className="hidden" 
+                        multiple 
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                      />
+                      <div className="mb-4 text-accent">
+                        <CloudUpload size={48} />
+                      </div>
+                      <p className="text-sm font-bold text-gray-500">
+                        Drop your images here or select <span className="text-accent underline">click to browse</span>
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+                      {newProduct.images.map((img, i) => (
+                        <div key={i} className="aspect-[3/4] rounded-2xl overflow-hidden border border-gray-100 shadow-sm relative group">
+                          <img src={img} alt="" className="w-full h-full object-cover" />
+                          <button 
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setNewProduct({...newProduct, images: newProduct.images.filter((_, idx) => idx !== i)});
+                            }}
+                            className="absolute top-2 right-2 p-1 bg-white/90 rounded-lg text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <p className="text-xs text-gray-400 font-medium leading-relaxed max-w-2xl">
+                      You need to add at least 4 images. Pay attention to the quality of the pictures you add, comply with the background color standards. Pictures must be in certain dimensions. Notice that the product shows all the details.
+                    </p>
+                  </div>
+
+                  {/* Form Content */}
+                  <div className="bg-white p-10 rounded-[2rem] border border-gray-100 shadow-sm space-y-10">
+                    <div className="space-y-8">
+                      {/* Product Title */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-black text-gray-900">Product title <span className="text-accent">*</span></label>
+                        <input 
+                          type="text"
+                          placeholder="Enter title"
+                          className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
+                          value={newProduct.name}
+                          onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+                        />
+                        <p className="text-[10px] text-gray-400 font-medium ml-1">Do not exceed 20 characters when entering the product name.</p>
+                      </div>
+
+                      {/* Category */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-black text-gray-900">Category <span className="text-accent">*</span></label>
+                        <div className="relative">
+                          <div className="w-full bg-[#f4f7f9] rounded-xl py-4 px-6 flex flex-wrap gap-2 pr-12 min-h-[56px]">
+                            {['Women', 'Dress'].map(cat => (
+                              <span key={cat} className="inline-flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-accent/10 text-xs font-bold text-accent capitalize">
+                                <X size={12} className="cursor-pointer" /> {cat}
+                              </span>
+                            ))}
+                          </div>
+                          <ChevronRight size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 rotate-90" />
+                        </div>
+                      </div>
+
+                      {/* Price, Sale, Schedule */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="space-y-2">
+                          <label className="text-sm font-black text-gray-900">Price <span className="text-accent">*</span></label>
+                          <div className="relative">
+                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                            <input 
+                              type="number"
+                              placeholder="Price"
+                              className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 pl-10 pr-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
+                              value={newProduct.price}
+                              onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-black text-gray-900">Sale Price</label>
+                          <div className="relative">
+                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                            <input 
+                              type="number"
+                              placeholder="Sale Price"
+                              className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 pl-12 pr-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
+                              value={newProduct.salePrice}
+                              onChange={(e) => setNewProduct({...newProduct, salePrice: e.target.value})}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-black text-gray-900">Schedule</label>
+                          <div className="relative">
+                            <input 
+                              type="date"
+                              className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
+                              value={newProduct.schedule}
+                              onChange={(e) => setNewProduct({...newProduct, schedule: e.target.value})}
+                            />
+                            <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Brand, Color, Size */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="space-y-2">
+                          <label className="text-sm font-black text-gray-900">Brand <span className="text-accent">*</span></label>
+                          <div className="relative">
+                            <input 
+                              type="text"
+                              placeholder="Choose brand"
+                              className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
+                              value={newProduct.brand}
+                              onChange={(e) => setNewProduct({...newProduct, brand: e.target.value})}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-black text-gray-900">Color: <span className="text-gray-400 ml-1 font-bold">Orange</span></label>
+                          <div className="flex items-center gap-3 pt-2">
+                            {[
+                              { hex: '#e11d48', name: 'Deep Rose' },
+                              { hex: '#3b82f6', name: 'Blue' },
+                              { hex: '#fbbf24', name: 'Yellow' },
+                              { hex: '#000000', name: 'Black' }
+                            ].map(c => (
+                              <button 
+                                key={c.hex}
+                                type="button"
+                                className={cn(
+                                  "w-8 h-8 rounded-full transition-all border-4 shadow-sm",
+                                  newProduct.colors.some(cp => cp.hex === c.hex) ? "border-white shadow-xl scale-110" : "border-transparent"
+                                )}
+                                style={{ backgroundColor: c.hex }}
+                                onClick={() => setNewProduct({...newProduct, colors: [c]})}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-black text-gray-900">Size: <span className="text-gray-400 ml-1 font-bold">M</span></label>
+                          <div className="flex items-center gap-2 pt-2">
+                            {['S', 'M', 'L', 'XL'].map(s => (
+                              <button 
+                                key={s}
+                                type="button"
+                                className={cn(
+                                  "w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold transition-all",
+                                  newProduct.sizes.includes(s) 
+                                    ? "bg-accent text-white shadow-lg shadow-accent/20" 
+                                    : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+                                )}
+                                onClick={() => setNewProduct({...newProduct, sizes: [s]})}
+                              >
+                                {s}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* SKU, Stock, Tags */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="space-y-2">
+                          <label className="text-sm font-black text-gray-900">SKU</label>
+                          <input 
+                            type="text"
+                            placeholder="Enter SKU"
+                            className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
+                            value={newProduct.sku}
+                            onChange={(e) => setNewProduct({...newProduct, sku: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-black text-gray-900">Stock <span className="text-accent">*</span></label>
+                          <input 
+                            type="number"
+                            placeholder="Enter Stock"
+                            className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
+                            value={newProduct.stock}
+                            onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-black text-gray-900">Tags</label>
+                          <input 
+                            type="text"
+                            placeholder="Enter a tag"
+                            className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
+                            value={newProduct.tags}
+                            onChange={(e) => setNewProduct({...newProduct, tags: e.target.value})}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-black text-gray-900">Description <span className="text-accent">*</span></label>
+                        <textarea 
+                          rows={8}
+                          placeholder="Short description about product"
+                          className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 resize-none"
+                          value={newProduct.description}
+                          onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
+                        />
+                        <p className="text-[10px] text-gray-400 font-medium ml-1">Do not exceed 100 characters when entering the product name.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Modal Footer (Page Footer) */}
+                  <div className="flex flex-col sm:flex-row gap-4 pt-4 pb-12">
+                    <button 
+                      onClick={handleAddProduct}
+                      disabled={isSubmitting}
+                      className="flex-1 py-5 bg-accent text-white rounded-[1.25rem] font-bold text-sm shadow-xl shadow-accent/20 hover:opacity-90 transition-all disabled:opacity-50"
+                    >
+                      {isSubmitting ? 'Adding...' : 'Add product'}
+                    </button>
+                    <button 
+                      onClick={() => setIsAddProductModalOpen(false)}
+                      className="flex-1 py-5 bg-transparent text-accent border border-accent/20 rounded-[1.25rem] font-bold text-sm hover:bg-accent/5 transition-all"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+
+                  <div className="text-center py-6">
+                    <p className="text-[11px] font-bold text-gray-400">
+                      Copyright © 2026 <span className="text-accent">Dataflow</span> Design By Themesflat All rights reserved.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );

@@ -265,7 +265,7 @@ export function useAuth() {
   }, []);
 
   const adminEmails = ['umairmayo607@gmail.com', 'carenexon143@gmail.com', 'admin@test.com'];
-  const isAdmin = !!(user && adminEmails.includes(user.email || ''));
+  const isAdmin = user ? adminEmails.includes(user.email || '') : false;
 
   return { user, loading, isAdmin };
 }
