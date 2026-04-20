@@ -106,7 +106,7 @@ export default function Header({ cart = [] }: HeaderProps) {
         {/* Logo */}
         <div className="flex-shrink-0">
           <Link to="/">
-            <Logo variant="dark" className="scale-110 active:scale-95 transition-transform" />
+            <Logo variant="dark" className="active:scale-95 transition-transform" />
           </Link>
         </div>
 

@@ -5,6 +5,7 @@ import ProductCard from '../components/ProductCard';
 import { Filter, Search, ChevronDown, LayoutGrid, List as ListIcon } from 'lucide-react';
 import { Product } from '../types';
 import { cn } from '../lib/utils';
+import { PRODUCTS } from '../constants';
 
 interface ShopProps {
   addToCart: (product: any) => void;
@@ -22,6 +23,8 @@ const Shop: React.FC<ShopProps> = ({ addToCart }) => {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState('Latest');
   const [categories, setCategories] = useState<string[]>(['All']);
+  const [maxPrice, setMaxPrice] = useState(1000);
+  const [viewType, setViewType] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     setSearchQuery(initialSearch);
@@ -33,7 +36,13 @@ const Shop: React.FC<ShopProps> = ({ addToCart }) => {
   useEffect(() => {
     const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const prods = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+      let prods = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+      
+      // If Firestore is empty, use PRODUCTS from constants as context does
+      if (prods.length === 0) {
+        prods = PRODUCTS as Product[];
+      }
+
       setProducts(prods);
       
       const uniqueCategories = ['All', ...new Set(prods.map(p => p.category))];
@@ -44,10 +53,16 @@ const Shop: React.FC<ShopProps> = ({ addToCart }) => {
     return () => unsubscribe();
   }, []);
 
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText('WELCOME20');
+    alert('Code WELCOME20 copied to clipboard!');
+  };
+
   const filteredProducts = products.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          p.category.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
+    const matchesPrice = p.salePrice <= maxPrice;
     
     let matchesFilter = true;
     if (initialFilter === 'new') {
@@ -59,13 +74,13 @@ const Shop: React.FC<ShopProps> = ({ addToCart }) => {
       matchesFilter = p.salePrice < p.regularPrice;
     }
 
-    return matchesSearch && matchesCategory && matchesFilter;
+    return matchesSearch && matchesCategory && matchesFilter && matchesPrice;
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortBy === 'Price: Low to High') return a.salePrice - b.salePrice;
     if (sortBy === 'Price: High to Low') return b.salePrice - a.salePrice;
-    return 0; // Default: Latest
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // Default: Latest
   });
 
   return (
@@ -93,10 +108,17 @@ const Shop: React.FC<ShopProps> = ({ addToCart }) => {
           <div>
             <h3 className="text-sm font-black text-primary uppercase tracking-[0.2em] mb-4">Price Range</h3>
             <div className="space-y-4">
-              <input type="range" className="w-full accent-accent h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer" />
+              <input 
+                type="range" 
+                min="0"
+                max="1000"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(parseInt(e.target.value))}
+                className="w-full accent-accent h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer" 
+              />
               <div className="flex justify-between text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                 <span>$0</span>
-                <span>$10,000</span>
+                <span>${maxPrice.toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -108,7 +130,10 @@ const Shop: React.FC<ShopProps> = ({ addToCart }) => {
               Special Offer
             </h4>
             <p className="text-xs text-gray-500 font-medium leading-relaxed mb-6">Get 20% off on your first order with code: <span className="text-gold font-black">WELCOME20</span></p>
-            <button className="w-full py-4 bg-accent text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-neutral-900 transition-all shadow-lg active:scale-95">
+            <button 
+              onClick={handleCopyCode}
+              className="w-full py-4 bg-accent text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-neutral-900 transition-all shadow-lg active:scale-95"
+            >
               Copy Code
             </button>
           </div>
@@ -130,8 +155,18 @@ const Shop: React.FC<ShopProps> = ({ addToCart }) => {
             
             <div className="flex items-center gap-4 w-full sm:w-auto">
               <div className="flex items-center bg-linen rounded-2xl p-1.5">
-                <button className={cn("p-2.5 rounded-xl transition-all", true ? "bg-white text-primary shadow-sm" : "text-gray-400 hover:text-primary")}><LayoutGrid size={18} /></button>
-                <button className="p-2.5 text-gray-400 hover:text-primary transition-all rounded-xl"><ListIcon size={18} /></button>
+                <button 
+                  onClick={() => setViewType('grid')}
+                  className={cn("p-2.5 rounded-xl transition-all", viewType === 'grid' ? "bg-white text-primary shadow-sm" : "text-gray-400 hover:text-primary")}
+                >
+                  <LayoutGrid size={18} />
+                </button>
+                <button 
+                  onClick={() => setViewType('list')}
+                  className={cn("p-2.5 rounded-xl transition-all", viewType === 'list' ? "bg-white text-primary shadow-sm" : "text-gray-400 hover:text-primary")}
+                >
+                  <ListIcon size={18} />
+                </button>
               </div>
               
               <select 
@@ -157,9 +192,17 @@ const Shop: React.FC<ShopProps> = ({ addToCart }) => {
               ))}
             </div>
           ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className={cn(
+              "grid gap-8 transition-all duration-500",
+              viewType === 'grid' ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
+            )}>
               {sortedProducts.map(product => (
-                <ProductCard key={product.id} product={product} addToCart={addToCart} />
+                <ProductCard 
+                  key={product.id} 
+                  product={product} 
+                  addToCart={addToCart} 
+                  viewMode={viewType}
+                />
               ))}
             </div>
           ) : (

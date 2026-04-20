@@ -19,7 +19,7 @@ export const PRODUCTS: any[] = [
     quantity: 50,
     stockStatus: 'In Stock',
     status: 'Active',
-    createdAt: new Date(),
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5),
     updatedAt: new Date()
   },
   {
@@ -32,7 +32,7 @@ export const PRODUCTS: any[] = [
     quantity: 10,
     stockStatus: 'Low Stock',
     status: 'Active',
-    createdAt: new Date(),
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
     updatedAt: new Date()
   },
   {
@@ -45,7 +45,7 @@ export const PRODUCTS: any[] = [
     quantity: 5,
     stockStatus: 'Low Stock',
     status: 'Featured',
-    createdAt: new Date(),
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1),
     updatedAt: new Date()
   },
   {
@@ -58,7 +58,85 @@ export const PRODUCTS: any[] = [
     quantity: 100,
     stockStatus: 'In Stock',
     status: 'Active',
-    createdAt: new Date(),
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10),
     updatedAt: new Date()
   },
+  {
+    id: 'p5',
+    name: 'Silk Dupatta Collection',
+    regularPrice: 45.00,
+    salePrice: 35.00,
+    mainImage: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=400&auto=format&fit=crop',
+    category: 'BOTTOMS & DUPATTAS',
+    quantity: 25,
+    stockStatus: 'In Stock',
+    status: 'Active',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
+    updatedAt: new Date()
+  },
+  {
+    id: 'p6',
+    name: 'Embroidered Lawn Suit',
+    regularPrice: 160.00,
+    salePrice: 140.00,
+    mainImage: 'https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=400&auto=format&fit=crop',
+    category: 'FABRICS (Unstitched)',
+    quantity: 15,
+    stockStatus: 'In Stock',
+    status: 'Active',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4),
+    updatedAt: new Date()
+  },
+  {
+    id: 'p7',
+    name: 'Modern Kurtis Set',
+    regularPrice: 85.00,
+    salePrice: 75.00,
+    mainImage: 'https://www.polkadots.pk/cdn/shop/files/Peach_3e6d7b4b-b270-443d-ac1d-f47acbfc0e10.jpg?v=1769846025&width=400',
+    category: 'READY-TO-WEAR (Pret)',
+    quantity: 30,
+    stockStatus: 'In Stock',
+    status: 'Active',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7),
+    updatedAt: new Date()
+  },
+  {
+    id: 'p8',
+    name: 'Boutique Evening Gown',
+    regularPrice: 250.00,
+    salePrice: 199.00,
+    mainImage: 'https://img.freepik.com/free-photo/gorgeous-woman-luxury-dress-red-background_158538-8314.jpg?w=400',
+    category: 'BOUTIQUE',
+    quantity: 8,
+    stockStatus: 'Low Stock',
+    status: 'Active',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 12),
+    updatedAt: new Date()
+  },
+  {
+    id: 'p9',
+    name: 'Stitched Cotton Trousers',
+    regularPrice: 35.00,
+    salePrice: 29.00,
+    mainImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6s7qW_Xy9F1gOyx-6q2JvXWkK3v6e0z5yRg&s',
+    category: 'BOTTOMS & DUPATTAS',
+    quantity: 40,
+    stockStatus: 'In Stock',
+    status: 'Active',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 15),
+    updatedAt: new Date()
+  },
+  {
+    id: 'p10',
+    name: 'Western Jumpsuit',
+    regularPrice: 95.00,
+    salePrice: 85.00,
+    mainImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7w_vE_Xq9F5y_O6zX7E_X5jXq7E_X5jXq7E&s',
+    category: 'WESTERN',
+    quantity: 20,
+    stockStatus: 'In Stock',
+    status: 'Active',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 20),
+    updatedAt: new Date()
+  }
 ];

@@ -22,6 +22,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import ProductDetail from './pages/ProductDetail';
 import Blog from './pages/Blog';
+import BlogDetail from './pages/BlogDetail';
 import Contact from './pages/Contact';
 
 function HomePage({ addToCart, cart }: { addToCart: (product: any) => void, cart: any[] }) {
@@ -150,6 +151,15 @@ export default function App() {
           <Header cart={cart} />
           <main className="flex-grow">
             <Blog />
+          </main>
+          <Footer />
+        </div>
+      } />
+      <Route path="/blog/:id" element={
+        <div className="min-h-screen flex flex-col bg-white">
+          <Header cart={cart} />
+          <main className="flex-grow">
+            <BlogDetail />
           </main>
           <Footer />
         </div>

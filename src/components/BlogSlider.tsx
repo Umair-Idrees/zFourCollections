@@ -1,74 +1,42 @@
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import { motion } from 'motion/react';
 import useMeasure from 'react-use-measure';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useBlogs, Blog } from '../context/BlogContext';
 
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 
-const blogs = [
-  {
-    id: 1,
-    title: "Luxury Crimson Edit",
-    image: "https://zfourcollections.com/wp-content/uploads/2026/04/1-1-2048x1150.png",
-    description: "Discover our latest crimson collection with intricate hand-embroidered details."
-  },
-  {
-    id: 2,
-    title: "Summer Lawn Series",
-    image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&q=80&w=1200",
-    description: "Breezy summer lawn suits perfect for the tropical garden vibe."
-  },
-  {
-    id: 3,
-    title: "The Silk Tradition",
-    image: "https://media.istockphoto.com/id/488216826/photo/girl-chooses-dresses.jpg?s=612x612&w=0&k=20&c=0ytRJDf7cd_CJFvtGpktcynKAy49-OWFuGky60TeTKI=",
-    description: "Pure silk unstitched fabrics curated for the modern ethnic wardrobe."
-  },
-  {
-    id: 4,
-    title: "Ready-To-Wear Pret",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCVt3E3CTumkrPphlWnBReXmJJjPfg-EZHIg&s",
-    description: "Effortless style in our new ready-to-wear pret collection."
-  },
-  {
-    id: 5,
-    title: "Boutique Craftsmanship",
-    image: "https://static.vecteezy.com/system/resources/thumbnails/022/989/858/small/clothes-hang-on-hangers-illustration-ai-generative-free-photo.jpg",
-    description: "Behind the scenes of our master craftsmen at work."
-  },
-  {
-    id: 6,
-    title: "Western Fusion",
-    image: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&q=80&w=1200",
-    description: "Modern co-ord sets blending western silhouettes with eastern textures."
-  },
-  {
-    id: 7,
-    title: "Accessories Portfolio",
-    image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=1200",
-    description: "The perfect finishing touches for your luxury boutique look."
-  }
-];
-
 const BlogSlider: React.FC = () => {
   const [ref, { width }] = useMeasure();
+  const { blogs, loading } = useBlogs();
+  const navigate = useNavigate();
 
   return (
     <section className="py-20 bg-gray-50/50 overflow-hidden relative" ref={ref}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="text-center mb-16">
-          <span className="text-accent font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Our Journal</span>
-          <h2 className="text-3xl md:text-4xl font-black text-primary leading-tight uppercase tracking-tighter inline-block">
-            LATEST FROM THE <span className="text-accent relative inline-block">
-              BLOG
-              <div className="absolute -bottom-2 left-0 w-full h-1.5 bg-accent" />
-            </span>
-          </h2>
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4">
+          <div className="text-left">
+            <span className="text-accent font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Our Journal</span>
+            <h2 className="text-3xl md:text-5xl font-black text-primary leading-tight uppercase tracking-tighter inline-block">
+              LATEST FROM THE <span className="text-accent relative inline-block">
+                BLOG
+                <div className="absolute -bottom-2 left-0 w-full h-1.5 bg-accent" />
+              </span>
+            </h2>
+          </div>
+          
+          <Link to="/blog" className="group flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:text-accent transition-all">
+            View All Stories
+            <div className="w-8 h-8 rounded-full bg-linen flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all">
+              <ChevronRight size={14} />
+            </div>
+          </Link>
         </div>
 
         <div className="relative group/arrows">
@@ -94,7 +62,7 @@ const BlogSlider: React.FC = () => {
             modules={[Autoplay, Pagination, Navigation]}
             spaceBetween={30}
             slidesPerView={1}
-            loop={true}
+            loop={blogs.length > 3}
             autoplay={{
               delay: 4000,
               disableOnInteraction: false,
@@ -121,13 +89,14 @@ const BlogSlider: React.FC = () => {
             className="blog-swiper pb-16"
           >
             {blogs.map((blog) => (
-              <SwiperSlide key={blog.id}>
+              <SwiperSlide key={blog._id}>
                 <motion.div 
                   className="group relative aspect-[3/4] sm:aspect-[16/10] overflow-hidden rounded-[2.5rem] bg-gray-200 cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-700"
                   whileHover={{ y: -10 }}
+                  onClick={() => navigate(`/blog/${blog._id}`)}
                 >
                   <img 
-                    src={blog.image} 
+                    src={blog.imageURL} 
                     alt={blog.title}
                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                     referrerPolicy="no-referrer"
@@ -138,9 +107,9 @@ const BlogSlider: React.FC = () => {
                     <div className="translate-y-8 group-hover:translate-y-0 transition-transform duration-700">
                       <h3 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">{blog.title}</h3>
                       <p className="text-white/70 text-xs sm:text-sm font-medium line-clamp-2 mb-6 sm:mb-8 leading-relaxed">{blog.description}</p>
-                      <span className="inline-flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs font-black text-white uppercase tracking-widest border-b-2 border-accent pb-1 group/btn transition-all">
+                      <Link to={`/blog/${blog._id}`} className="inline-flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs font-black text-white uppercase tracking-widest border-b-2 border-accent pb-1 group/btn transition-all" onClick={(e) => e.stopPropagation()}>
                         Read Exclusive Article
-                      </span>
+                      </Link>
                     </div>
                   </div>
                 </motion.div>

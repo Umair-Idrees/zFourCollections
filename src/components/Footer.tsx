@@ -16,7 +16,7 @@ export default function Footer() {
           {/* Brand Info */}
           <div>
             <div className="mb-6">
-              <Logo variant="dark" className="scale-125 origin-left" />
+              <Logo variant="dark" className="origin-left" />
             </div>
             <p className="text-gray-500 mb-8 leading-relaxed">
               CareNexon Luxury Boutique offers a curated collection of premium fabrics, festive formals, and modern pret. Discover elegance and craftsmanship in every piece.

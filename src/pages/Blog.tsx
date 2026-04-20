@@ -1,37 +1,19 @@
-import React from 'react';
-import { Calendar, User, ArrowRight, MessageCircle, Heart, Send, CheckCircle2 } from 'lucide-react';
-
-const BLOG_POSTS = [
-  {
-    id: 1,
-    title: "The Art of Elegance: 2024 Luxury Lawn Trends",
-    excerpt: "Discover the season's most anticipated unstitched collections. From intricate floral embroideries to vibrant summer palettes, explore the trends defining boutique fashion this year.",
-    image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800",
-    author: "Zfour Couture",
-    date: "May 15, 2024",
-    category: "Fabrics"
-  },
-  {
-    id: 2,
-    title: "Pret Perfect: Effortless Style for Every Occasion",
-    excerpt: "Why modern women are choosing ready-to-wear boutique suits. Explore our curated selection of 2-piece co-ord sets and festive kurtas designed for comfort and class.",
-    image: "https://images.unsplash.com/photo-1614676471928-2ed0ad1061a4?q=80&w=800",
-    author: "Style Desk",
-    date: "May 10, 2024",
-    category: "Ready-to-Wear"
-  },
-  {
-    id: 3,
-    title: "A Deep Dive into Luxury: Chiffons & Silks",
-    excerpt: "Learn how to identify premium quality fabrics. Our expert guide helps you choose the perfect material for your festive formals and luxury boutique dresses.",
-    image: "https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=800",
-    author: "Fabric Specialist",
-    date: "May 05, 2024",
-    category: "Couture"
-  }
-];
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Calendar, User, ArrowRight, MessageCircle, Heart, Send, CheckCircle2, Loader2 } from 'lucide-react';
+import { useBlogs } from '../context/BlogContext';
 
 const Blog: React.FC = () => {
+  const { blogs, loading, error } = useBlogs();
+  const [visibleCount, setVisibleCount] = useState(6);
+  const navigate = useNavigate();
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + 6);
+  };
+
+  const displayedBlogs = blogs.slice(0, visibleCount);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -66,45 +48,77 @@ const Blog: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {BLOG_POSTS.map((post) => (
-            <article key={post.id} className="bg-white rounded-[2.5rem] overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl transition-all group">
-              <div className="aspect-[16/10] overflow-hidden relative">
-                <img 
-                  src={post.image} 
-                  alt={post.title} 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute top-4 left-4 bg-accent text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest">
-                  {post.category}
-                </div>
-              </div>
-              <div className="p-8">
-                <div className="flex items-center gap-4 text-xs text-gray-400 mb-4">
-                  <div className="flex items-center gap-1.5">
-                    <Calendar size={14} />
-                    <span>{post.date}</span>
+        {loading && blogs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="animate-spin text-accent mb-4" size={48} />
+            <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Curating latest stories...</p>
+          </div>
+        ) : blogs.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {displayedBlogs.map((post) => (
+                <article 
+                  key={post._id} 
+                  className="bg-white rounded-[2.5rem] overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl transition-all group cursor-pointer"
+                  onClick={() => navigate(`/blog/${post._id}`)}
+                >
+                  <div className="aspect-[16/10] overflow-hidden relative">
+                    <img 
+                      src={post.imageURL} 
+                      alt={post.title} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute top-4 left-4 bg-accent text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest leading-none">
+                      {post.category}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <User size={14} />
-                    <span>{post.author}</span>
+                  <div className="p-8">
+                    <div className="flex items-center gap-4 text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-4">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar size={12} className="text-accent" />
+                        <span>{new Date(post.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <User size={12} className="text-accent" />
+                        <span>Zfour Admin</span>
+                      </div>
+                    </div>
+                    <h2 className="text-xl font-bold text-primary mb-4 group-hover:text-accent transition-colors line-clamp-2 leading-tight">
+                      {post.title}
+                    </h2>
+                    <p className="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-3 font-medium">
+                      {post.description}
+                    </p>
+                    <Link to={`/blog/${post._id}`} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary border-b-2 border-primary group/btn transition-all hover:text-accent hover:border-accent pb-1 w-fit" onClick={(e) => e.stopPropagation()}>
+                      Read Full Article 
+                      <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
+                    </Link>
                   </div>
-                </div>
-                <h2 className="text-xl font-bold text-primary mb-4 group-hover:text-accent transition-colors line-clamp-2">
-                  {post.title}
-                </h2>
-                <p className="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-3">
-                  {post.excerpt}
-                </p>
-                <button className="flex items-center gap-2 text-sm font-bold text-primary group/btn">
-                  Read More 
-                  <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+                </article>
+              ))}
+            </div>
+
+            {visibleCount < blogs.length && (
+              <div className="mt-16 text-center">
+                <button 
+                  onClick={handleLoadMore}
+                  className="px-12 py-4 bg-white border-2 border-primary text-primary hover:bg-primary hover:text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-primary/5 active:scale-95"
+                >
+                  Load More Stories
                 </button>
               </div>
-            </article>
-          ))}
-        </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-20 bg-white rounded-[3rem] border border-gray-100 shadow-sm px-10">
+            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <MessageCircle size={40} className="text-gray-300" />
+            </div>
+            <h3 className="text-2xl font-bold text-primary mb-2">Our journal is being updated</h3>
+            <p className="text-gray-500 max-w-sm mx-auto">New fashion stories, trend alerts and boutique collections will be available here soon.</p>
+          </div>
+        )}
 
         {/* Newsletter Section */}
         <div className="mt-20 bg-neutral-950 rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden group shadow-2xl">

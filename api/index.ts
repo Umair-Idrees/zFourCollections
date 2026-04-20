@@ -6,6 +6,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import Blog from '../src/models/Blog';
 
 dotenv.config();
 
@@ -147,6 +148,32 @@ app.post('/api/auth/logout', (req, res) => {
     if (err) return res.status(500).json({ error: 'Logout failed' });
     res.json({ success: true });
   });
+});
+
+// Blog API Routes
+app.get('/api/blogs', async (req, res) => {
+  try {
+    const blogs = await Blog.find().sort({ createdAt: -1 });
+    res.json(blogs);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/blogs', async (req, res) => {
+  try {
+    const { title, imageURL, description, category } = req.body;
+    const newBlog = new Blog({
+      title,
+      imageURL,
+      description,
+      category
+    });
+    await newBlog.save();
+    res.status(201).json(newBlog);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 export default app;

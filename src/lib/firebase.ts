@@ -193,10 +193,20 @@ import { useState, useEffect } from 'react';
 
 export const fetchBackendUser = async () => {
   try {
-    const res = await fetch('/api/auth/user');
-    if (res.ok) return await res.json();
+    const res = await fetch('/api/auth/user', {
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data;
+    }
   } catch (err) {
-    console.error('Failed to fetch backend user:', err);
+    // Silent in production-like preview environment unless it's a real issue
+    // This often happens during dev server cold starts or restarts
+    console.warn('Backend user fetch was interrupted or server is starting up.');
   }
   return null;
 };

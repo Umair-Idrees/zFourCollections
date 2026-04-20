@@ -34,7 +34,8 @@ import {
   X,
   Upload,
   CloudUpload,
-  Calendar
+  Calendar,
+  FileText
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -59,6 +60,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useProducts } from '../context/ProductContext';
 import { useOrders } from '../context/OrderContext';
+import { useBlogs } from '../context/BlogContext';
 import { auth, loginWithGoogle, logout, storage, ref, uploadBytes, getDownloadURL, useAuth, loginAsDemoAdmin } from '../lib/firebase';
 import { User as FirebaseUser } from 'firebase/auth';
 
@@ -185,6 +187,13 @@ export default function AdminDashboard({
   const [productSortFilter, setProductSortFilter] = useState('Sort by (Default)');
   const [productEntriesPerPage, setProductEntriesPerPage] = useState(10);
   const [isOrdersExpanded, setIsOrdersExpanded] = useState(false);
+  const [isBlogsExpanded, setIsBlogsExpanded] = useState(false);
+  const [newBlog, setNewBlog] = useState({
+    title: '',
+    imageURL: '',
+    description: '',
+    category: 'Styling Tips'
+  });
   const [settings, setSettings] = useState({
     firstName: 'Kristin',
     lastName: 'Watson',
@@ -204,6 +213,7 @@ export default function AdminDashboard({
 
   const { products, addProduct, deleteProduct } = useProducts();
   const { orders, updateOrderStatus, deleteOrder: deleteOrderFromDb } = useOrders();
+  const { blogs, addBlog } = useBlogs();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const totalRevenue = orders.reduce((acc, order) => acc + order.total, 0);
@@ -384,6 +394,32 @@ export default function AdminDashboard({
     } catch (error) {
       console.error('Error adding product:', error);
       setFormError(error instanceof Error ? error.message : 'Failed to add product. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleBlogSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newBlog.title || !newBlog.imageURL || !newBlog.description) {
+      alert('Please fill in all blog fields');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await addBlog(newBlog);
+      setNewBlog({
+        title: '',
+        imageURL: '',
+        description: '',
+        category: 'Styling Tips'
+      });
+      setActiveTab('View All Blogs');
+      alert('Blog added successfully!');
+    } catch (err: any) {
+      console.error('Error adding blog:', err);
+      alert('Error adding blog: ' + err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -2012,6 +2048,161 @@ export default function AdminDashboard({
           </div>
         );
 
+      case 'View All Blogs':
+        return (
+          <div className="space-y-8 pb-20">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <h1 className="text-3xl font-black text-primary uppercase tracking-tighter">View All Blogs</h1>
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-gray-400">
+                <span className="hover:text-primary cursor-pointer transition-colors" onClick={() => setActiveTab('Dashboard')}>Dashboard</span>
+                <ChevronRight size={10} />
+                <span className="hover:text-primary cursor-pointer transition-colors" onClick={() => setActiveTab('Blogs')}>Blogs</span>
+                <ChevronRight size={10} />
+                <span className="text-primary font-black">All Blogs</span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden p-10">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-xl font-black text-primary">Blog List</h3>
+                <button 
+                  onClick={() => setActiveTab('Add New Blog')}
+                  className="bg-accent text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all flex items-center gap-2"
+                >
+                  <Plus size={16} /> Add New Blog
+                </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-gray-50">
+                      <th className="pb-5 font-black text-[10px] uppercase tracking-widest text-gray-400 pl-4">Cover</th>
+                      <th className="pb-5 font-black text-[10px] uppercase tracking-widest text-gray-400">Title</th>
+                      <th className="pb-5 font-black text-[10px] uppercase tracking-widest text-gray-400">Category</th>
+                      <th className="pb-5 font-black text-[10px] uppercase tracking-widest text-gray-400">Date</th>
+                      <th className="pb-5 font-black text-[10px] uppercase tracking-widest text-gray-400 pr-4">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {blogs.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="py-20 text-center text-gray-400 font-medium">No blogs found. Add your first blog!</td>
+                      </tr>
+                    ) : (
+                      blogs.map((blog) => (
+                        <tr key={blog._id} className="group hover:bg-gray-50 transition-colors">
+                          <td className="py-5 pl-4">
+                            <img src={blog.imageURL} alt="" className="w-16 h-10 object-cover rounded-lg shadow-sm" referrerPolicy="no-referrer" />
+                          </td>
+                          <td className="py-5">
+                            <p className="text-sm font-bold text-primary">{blog.title}</p>
+                          </td>
+                          <td className="py-5">
+                            <span className="bg-accent/5 text-accent px-3 py-1 rounded-full text-[10px] font-black uppercase">{blog.category}</span>
+                          </td>
+                          <td className="py-5 text-sm text-gray-500 font-medium">
+                            {new Date(blog.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="py-5 pr-4">
+                            <div className="flex items-center gap-2">
+                              <button className="p-2 text-primary hover:text-accent transition-colors"><Eye size={16} /></button>
+                              <button className="p-2 text-primary hover:text-sale transition-colors"><Trash2 size={16} /></button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'Add New Blog':
+        return (
+          <div className="space-y-8 pb-20">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <h1 className="text-3xl font-black text-primary uppercase tracking-tighter">Add New Blog</h1>
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-gray-400">
+                <span className="hover:text-primary cursor-pointer transition-colors" onClick={() => setActiveTab('Dashboard')}>Dashboard</span>
+                <ChevronRight size={10} />
+                <span className="hover:text-primary cursor-pointer transition-colors" onClick={() => setActiveTab('Blogs')}>Blogs</span>
+                <ChevronRight size={10} />
+                <span className="text-primary font-black">Add New</span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden p-10">
+              <form onSubmit={handleBlogSubmit} className="space-y-8 max-w-4xl">
+                <div className="space-y-2">
+                  <label className="text-sm font-black text-gray-900 ml-1">Blog Title *</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., Latest Summer Lawn Trends 2026"
+                    className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none"
+                    value={newBlog.title}
+                    onChange={(e) => setNewBlog({...newBlog, title: e.target.value})}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-black text-gray-900 ml-1">Image URL *</label>
+                  <input 
+                    type="url" 
+                    placeholder="Paste fashion image URL"
+                    className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none"
+                    value={newBlog.imageURL}
+                    onChange={(e) => setNewBlog({...newBlog, imageURL: e.target.value})}
+                    required
+                  />
+                  <p className="text-[10px] text-gray-400 font-medium ml-1">Use high-quality portrait or landscape fashion images.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                    <label className="text-sm font-black text-gray-900 ml-1">Category Tag</label>
+                    <select 
+                      className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none appearance-none cursor-pointer"
+                      value={newBlog.category}
+                      onChange={(e) => setNewBlog({...newBlog, category: e.target.value})}
+                    >
+                      <option value="Styling Tips">Styling Tips</option>
+                      <option value="New Arrivals">New Arrivals</option>
+                      <option value="Fabric Care">Fabric Care</option>
+                      <option value="Trends">Trends</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-black text-gray-900 ml-1">Description *</label>
+                  <textarea 
+                    rows={8}
+                    placeholder="Write your blog content here..."
+                    className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none resize-none"
+                    value={newBlog.description}
+                    onChange={(e) => setNewBlog({...newBlog, description: e.target.value})}
+                    required
+                  />
+                </div>
+
+                <div className="pt-4">
+                  <button 
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-primary text-white px-12 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-primary/20 hover:bg-gray-800 transition-all disabled:opacity-50"
+                  >
+                    {isSubmitting ? 'Publishing...' : 'Publish Blog'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        );
+
       default:
         return (
           <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-[3rem] border border-gray-100 shadow-sm p-12">
@@ -2047,6 +2238,12 @@ export default function AdminDashboard({
             { name: 'Products', icon: Package },
             { name: 'Categories', icon: Tag },
             { 
+              name: 'Blogs', 
+              icon: FileText, 
+              hasSub: true,
+              subItems: ['View All Blogs', 'Add New Blog']
+            },
+            { 
               name: 'Orders', 
               icon: ShoppingCart, 
               hasSub: true,
@@ -2064,7 +2261,8 @@ export default function AdminDashboard({
               <button
                 onClick={() => {
                   if (item.hasSub) {
-                    setIsOrdersExpanded(!isOrdersExpanded);
+                    if (item.name === 'Orders') setIsOrdersExpanded(!isOrdersExpanded);
+                    if (item.name === 'Blogs') setIsBlogsExpanded(!isBlogsExpanded);
                   } else {
                     setActiveTab(item.name);
                   }
@@ -2089,34 +2287,36 @@ export default function AdminDashboard({
                     size={14} 
                     className={cn(
                       "transition-transform", 
-                      isOrdersExpanded ? "rotate-90" : "",
+                      (item.name === 'Orders' && isOrdersExpanded) || (item.name === 'Blogs' && isBlogsExpanded) ? "rotate-90" : "",
                       activeTab === item.name || (item.hasSub && item.subItems?.includes(activeTab)) ? "text-white" : ""
                     )} 
                   />
                 )}
               </button>
 
-              {item.hasSub && isOrdersExpanded && (
-                <div className="pl-14 space-y-4 mt-6">
-                  {item.subItems?.map(sub => (
-                    <button
-                      key={sub}
-                      onClick={() => setActiveTab(sub)}
-                      className={cn(
-                        "w-full flex items-center gap-4 py-1 text-sm font-bold transition-all",
-                        activeTab === sub 
-                          ? "text-accent" 
-                          : "text-primary"
-                      )}
-                    >
-                      <div className={cn(
-                        "w-2.5 h-2.5 rounded-full border-[2.5px] transition-all",
-                        activeTab === sub ? "border-accent" : "border-primary"
-                      )} />
-                      {sub}
-                    </button>
-                  ))}
-                </div>
+              {item.hasSub && (
+                ((item.name === 'Orders' && isOrdersExpanded) || (item.name === 'Blogs' && isBlogsExpanded)) ? (
+                  <div className="pl-14 space-y-4 mt-6">
+                    {item.subItems?.map(sub => (
+                      <button
+                        key={sub}
+                        onClick={() => setActiveTab(sub)}
+                        className={cn(
+                          "w-full flex items-center gap-4 py-1 text-sm font-bold transition-all",
+                          activeTab === sub 
+                            ? "text-accent" 
+                            : "text-primary"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-2.5 h-2.5 rounded-full border-[2.5px] transition-all",
+                          activeTab === sub ? "border-accent" : "border-primary"
+                        )} />
+                        {sub}
+                      </button>
+                    ))}
+                  </div>
+                ) : null
               )}
             </div>
           ))}
