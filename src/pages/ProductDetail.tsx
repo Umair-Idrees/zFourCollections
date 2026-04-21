@@ -6,6 +6,7 @@ import { useProducts } from '../context/ProductContext';
 import { ShoppingCart, Heart, Share2, Star, Truck, ShieldCheck, Clock, Plus, Minus, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import ProductSection from '../components/ProductSection';
+import { formatPrice } from '../lib/utils';
 
 interface ProductDetailProps {
   addToCart: (product: any, quantity: number) => void;
@@ -17,6 +18,16 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ addToCart }) => {
   const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'info' | 'reviews' | 'shipping'>('info');
+  const [zoomPos, setZoomPos] = useState({ x: 0, y: 0 });
+  const [isZooming, setIsZooming] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomPos({ x, y });
+  };
 
   useEffect(() => {
     if (id && contextProducts.length > 0) {
@@ -64,29 +75,38 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ addToCart }) => {
     : 0;
 
   return (
-    <div className="pb-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="pb-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Breadcrumbs */}
-        <nav className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-12">
+        <nav className="flex items-center gap-2 text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6">
           <Link to="/" className="hover:text-primary transition-colors">Home</Link>
-          <ChevronRight size={12} />
+          <ChevronRight size={10} />
           <Link to="/shop" className="hover:text-primary transition-colors">Shop</Link>
-          <ChevronRight size={12} />
-          <span className="text-primary truncate max-w-[200px]">{product.name}</span>
+          <ChevronRight size={10} />
+          <span className="text-primary truncate max-w-[150px]">{product.name}</span>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/* Product Images */}
-          <div className="space-y-6">
-            <div className="aspect-[3/4] bg-linen rounded-[2.5rem] overflow-hidden border border-stone-100 shadow-sm relative group">
+          <div className="space-y-4">
+            <div 
+              className="aspect-[3/4] bg-linen rounded-[2rem] overflow-hidden border border-stone-50 shadow-sm relative group cursor-zoom-in"
+              onMouseEnter={() => setIsZooming(true)}
+              onMouseLeave={() => setIsZooming(false)}
+              onMouseMove={handleMouseMove}
+            >
               <img 
                 src={selectedImage || 'https://picsum.photos/seed/product/800/800'} 
                 alt={product.name} 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-200"
+                style={{
+                  transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+                  transform: isZooming ? 'scale(2.2)' : 'scale(1)'
+                }}
                 referrerPolicy="no-referrer"
               />
               {discount > 0 && (
-                <span className="absolute top-8 left-8 bg-sale text-white text-[10px] font-black px-5 py-2 rounded-full uppercase tracking-widest shadow-xl">
+                <span className="absolute top-6 left-6 bg-sale text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-xl pointer-events-none">
                   -{discount}% OFF
                 </span>
               )}
@@ -94,13 +114,13 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ addToCart }) => {
             
             {/* Gallery */}
             {(product.galleryImages?.length > 0 || product.mainImage) && (
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-5 gap-3">
                 {[product.mainImage, ...(product.galleryImages || [])].filter(Boolean).map((img, i) => (
                   <button 
                     key={i} 
                     onClick={() => setSelectedImage(img)}
-                    className={`aspect-square rounded-2xl overflow-hidden border-2 transition-all ${
-                      selectedImage === img ? 'border-primary shadow-xl scale-95' : 'border-transparent hover:border-linen'
+                    className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                      selectedImage === img ? 'border-primary shadow-md' : 'border-transparent hover:border-linen'
                     }`}
                   >
                     <img src={img} alt={`Gallery ${i}`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
@@ -111,135 +131,220 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ addToCart }) => {
           </div>
 
           {/* Product Info */}
-          <div className="space-y-8">
+          <div className="space-y-5">
             <div>
-              <div className="flex items-center gap-2 mb-6">
-                <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] bg-linen px-4 py-1.5 rounded-full border border-stone-100">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em] bg-linen px-3 py-1 rounded-full">
                   {product.category}
                 </span>
-                {product.brand && (
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] bg-stone-50 px-4 py-1.5 rounded-full border border-gray-100">
-                    {product.brand}
-                  </span>
-                )}
               </div>
-              <h1 className="text-4xl md:text-5xl font-black text-primary mb-6 leading-tight tracking-tight uppercase">{product.name}</h1>
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-1.5">
+              <h1 className="text-2xl md:text-4xl font-black text-primary mb-3 leading-tight tracking-tight uppercase">{product.name}</h1>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`w-4 h-4 ${i < 4 ? 'text-gold fill-gold' : 'text-gray-200'}`} />
+                    <Star key={i} size={12} className={`w-3 h-3 ${i < 4 ? 'text-gold fill-gold' : 'text-gray-200'}`} />
                   ))}
-                  <span className="text-xs font-black text-gray-400 ml-2 tracking-tighter">4.0 / 5.0</span>
+                  <span className="text-[10px] font-black text-gray-400 ml-1">4.0 / 5.0</span>
                 </div>
-                <div className="w-px h-4 bg-gray-100"></div>
-                <span className="text-[10px] font-black text-green-600 uppercase tracking-widest flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                  {product.stockStatus || 'In Stock'}
+                <div className="w-px h-3 bg-gray-100"></div>
+                <span className="text-[9px] font-black text-green-600 uppercase tracking-widest flex items-center gap-1">
+                  <div className="w-1 h-1 bg-green-500 rounded-full"></div>
+                  {product.quantity > 0 ? `In Stock (${product.quantity})` : 'Out of Stock'}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 py-6 border-y border-linen">
-              <span className="text-5xl font-black text-primary tracking-tighter">${product.salePrice}</span>
+            <div className="flex items-center gap-4 py-3 border-y border-linen">
+              <span className="text-3xl font-black text-primary tracking-tighter">{formatPrice(product.salePrice)}</span>
               {product.regularPrice > product.salePrice && (
-                <span className="text-2xl text-gray-300 line-through font-bold decoration-sale/30">${product.regularPrice}</span>
+                <span className="text-lg text-gray-300 line-through font-bold decoration-sale/30">{formatPrice(product.regularPrice)}</span>
               )}
-              <div className="ml-auto bg-green-50 text-green-600 px-3 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase">
+              <div className="ml-auto bg-green-50 text-green-600 px-2 py-1 rounded-lg text-[9px] font-black tracking-widest uppercase">
                 Special Price
               </div>
             </div>
 
-            <p className="text-gray-500 leading-relaxed text-lg font-medium">
-              {product.shortDescription || 'An exquisite masterpiece from our couture collection, crafted for those who appreciate the finer details of high-fashion.'}
+            <p className="text-gray-500 leading-relaxed text-[13px] font-medium whitespace-pre-wrap">
+              {product.fullDescription || product.shortDescription || 'An exquisite masterpiece from our couture collection.'}
             </p>
 
             {/* Options */}
-            <div className="space-y-8 pt-6">
-              {product.colors?.length > 0 && (
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Couture Palette</label>
-                  <div className="flex gap-4">
-                    {product.colors.map(color => (
-                      <button key={color} className="w-10 h-10 rounded-full border-2 border-white shadow-md ring-1 ring-gray-100 hover:scale-110 transition-transform p-0.5" style={{ backgroundColor: color.toLowerCase() }} title={color}></button>
-                    ))}
+            <div className="space-y-5 pt-1">
+              <div className="grid grid-cols-2 gap-4">
+                {product.colors?.length > 0 && (
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Couture Palette</label>
+                    <div className="flex gap-2">
+                      {product.colors.map(color => (
+                        <button key={color} className="w-6 h-6 rounded-full border border-white shadow-sm ring-1 ring-gray-100 p-0.5" style={{ backgroundColor: color.toLowerCase() }} title={color}></button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {product.sizes?.length > 0 && (
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Select Fit</label>
-                  <div className="flex flex-wrap gap-3">
-                    {product.sizes.map(size => (
-                      <button key={size} className="px-7 py-3 rounded-2xl border border-gray-100 text-[10px] font-black text-primary uppercase tracking-widest hover:border-primary hover:bg-primary hover:text-white transition-all active:scale-95">{size}</button>
-                    ))}
+                {product.sizes?.length > 0 && (
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Select Fit</label>
+                    <div className="flex flex-wrap gap-2">
+                      {product.sizes.map(size => (
+                        <button key={size} className="px-4 py-1.5 rounded-lg border border-gray-100 text-[9px] font-black text-primary uppercase tracking-widest hover:border-primary transition-colors">{size}</button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                <div className="flex items-center bg-linen rounded-2xl p-1.5 w-fit border border-stone-100">
+              <div className="flex flex-col sm:flex-row gap-3 pt-3">
+                <div className="flex items-center bg-linen rounded-xl p-0.5 w-fit border border-stone-50">
                   <button 
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-3.5 hover:bg-white rounded-xl transition-all shadow-sm hover:text-primary text-gray-400"
+                    className="p-2.5 hover:bg-white rounded-lg transition-all text-gray-400"
                   >
-                    <Minus size={20} />
+                    <Minus size={16} />
                   </button>
-                  <span className="w-14 text-center font-black text-primary text-lg">{quantity}</span>
+                  <span className="w-10 text-center font-black text-primary text-sm">{quantity}</span>
                   <button 
                     onClick={() => setQuantity(quantity + 1)}
-                    className="p-3.5 hover:bg-white rounded-xl transition-all shadow-sm hover:text-primary text-gray-400"
+                    className="p-2.5 hover:bg-white rounded-lg transition-all text-gray-400"
                   >
-                    <Plus size={20} />
+                    <Plus size={16} />
                   </button>
                 </div>
                 
                 <button 
                   onClick={() => addToCart(product, quantity)}
-                  className="flex-1 bg-accent text-white px-10 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] hover:bg-neutral-900 transition-all shadow-2xl shadow-accent/20 flex items-center justify-center gap-4 active:scale-95 translate-y-0 hover:-translate-y-1"
+                  className="flex-1 bg-accent text-white px-6 py-3.5 rounded-2xl font-black uppercase tracking-[0.1em] text-[10px] hover:bg-neutral-900 transition-all shadow-xl shadow-accent/10 flex items-center justify-center gap-3 active:scale-95"
                 >
-                  <ShoppingCart size={18} />
+                  <ShoppingCart size={16} />
                   Add to Cart
                 </button>
                 
-                <button className="p-5 bg-white border border-gray-100 rounded-[2rem] text-gray-400 hover:text-sale hover:border-sale/20 transition-all shadow-sm group">
-                  <Heart size={24} className="group-hover:fill-sale transition-all" />
+                <button className="p-3.5 bg-white border border-gray-100 rounded-2xl text-gray-400 hover:text-sale transition-all group">
+                  <Heart size={20} className="group-hover:fill-sale transition-all" />
                 </button>
               </div>
             </div>
 
             {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-4 pt-10">
-              <div className="flex flex-col items-center text-center p-6 bg-linen rounded-[2rem] border border-stone-100 group">
-                <Truck size={24} className="text-primary mb-3 group-hover:scale-110 transition-transform" />
-                <span className="text-[9px] font-black text-primary uppercase tracking-widest">Global Delivery</span>
+            <div className="grid grid-cols-3 gap-2 pt-4">
+              <div className="flex flex-col items-center text-center p-3 bg-linen rounded-2xl">
+                <Truck size={16} className="text-primary mb-1" />
+                <span className="text-[7px] font-black text-primary uppercase tracking-widest">Global Delivery</span>
               </div>
-              <div className="flex flex-col items-center text-center p-6 bg-linen rounded-[2rem] border border-stone-100 group">
-                <ShieldCheck size={24} className="text-primary mb-3 group-hover:scale-110 transition-transform" />
-                <span className="text-[9px] font-black text-primary uppercase tracking-widest">Secure Check</span>
+              <div className="flex flex-col items-center text-center p-3 bg-linen rounded-2xl">
+                <ShieldCheck size={16} className="text-primary mb-1" />
+                <span className="text-[7px] font-black text-primary uppercase tracking-widest">Secure Check</span>
               </div>
-              <div className="flex flex-col items-center text-center p-6 bg-linen rounded-[2rem] border border-stone-100 group">
-                <Star size={24} className="text-gold mb-3 group-hover:scale-110 transition-transform" />
-                <span className="text-[9px] font-black text-primary uppercase tracking-widest">Top Quality</span>
+              <div className="flex flex-col items-center text-center p-3 bg-linen rounded-2xl">
+                <Star size={16} className="text-gold mb-1" />
+                <span className="text-[7px] font-black text-primary uppercase tracking-widest">Top Quality</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Full Description */}
-        <div className="mt-24">
-          <div className="flex gap-12 border-b border-linen mb-12 overflow-x-auto no-scrollbar">
-            <button className="pb-6 border-b-2 border-primary text-[10px] font-black text-primary uppercase tracking-[0.3em] whitespace-nowrap">Description</button>
-            <button className="pb-6 border-b-2 border-transparent text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] hover:text-primary transition-colors whitespace-nowrap">Specifications</button>
-            <button className="pb-6 border-b-2 border-transparent text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] hover:text-primary transition-colors whitespace-nowrap">Reviews (120)</button>
+        {/* Dynamic Inner Tabs */}
+        <div className="mt-12 bg-white rounded-[2rem] border border-gray-50 p-6 md:p-8 shadow-sm">
+          <div className="flex gap-8 border-b border-linen mb-8 overflow-x-auto no-scrollbar">
+            <button 
+              onClick={() => setActiveTab('info')}
+              className={`pb-4 border-b-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap ${
+                activeTab === 'info' ? 'border-primary text-primary' : 'border-transparent text-gray-400 hover:text-primary'
+              }`}
+            >
+              Additional Information
+            </button>
+            <button 
+              onClick={() => setActiveTab('reviews')}
+              className={`pb-4 border-b-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap ${
+                activeTab === 'reviews' ? 'border-primary text-primary' : 'border-transparent text-gray-400 hover:text-primary'
+              }`}
+            >
+              Reviews (22)
+            </button>
+            <button 
+              onClick={() => setActiveTab('shipping')}
+              className={`pb-4 border-b-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap ${
+                activeTab === 'shipping' ? 'border-primary text-primary' : 'border-transparent text-gray-400 hover:text-primary'
+              }`}
+            >
+              Shipping & Delivery
+            </button>
           </div>
-          <div className="max-w-4xl">
-            <p className="text-gray-500 leading-relaxed text-lg font-medium whitespace-pre-wrap">
-              {product.fullDescription || 'No detailed description available for this product.'}
-            </p>
+
+          <div className="max-w-3xl">
+            {activeTab === 'info' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12">
+                <div className="flex justify-between border-b border-gray-50 pb-2">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">SKU</span>
+                  <span className="text-xs font-bold text-primary">{product.sku}</span>
+                </div>
+                <div className="flex justify-between border-b border-gray-50 pb-2">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Material</span>
+                  <span className="text-xs font-bold text-primary">{product.material || 'Premium Silk/Lawn'}</span>
+                </div>
+                <div className="flex justify-between border-b border-gray-50 pb-2">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Model</span>
+                  <span className="text-xs font-bold text-primary">{product.model || 'Spring 2024'}</span>
+                </div>
+                <div className="flex justify-between border-b border-gray-50 pb-2">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Weight</span>
+                  <span className="text-xs font-bold text-primary">{product.weight || '0.5 kg'}</span>
+                </div>
+                <div className="flex justify-between border-b border-gray-50 pb-2">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Dimensions</span>
+                  <span className="text-xs font-bold text-primary">{product.dimensions || '30 × 40 × 10 cm'}</span>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'reviews' && (
+              <div className="space-y-6">
+                {[
+                  { name: 'Sarah Ahmed', rating: 5, date: 'Mar 12, 2024', text: 'Beautiful fabric and perfect fitting. Highly recommended!' },
+                  { name: 'Zoya Khan', rating: 4, date: 'Feb 28, 2024', text: 'Love the color, though delivery was a bit late.' }
+                ].map((review, i) => (
+                  <div key={i} className="bg-gray-50 rounded-2xl p-4 flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-primary">{review.name}</span>
+                      <span className="text-[10px] font-bold text-gray-400">{review.date}</span>
+                    </div>
+                    <div className="flex gap-0.5">
+                      {[...Array(5)].map((_, j) => (
+                        <Star key={j} size={10} className={j < review.rating ? "text-gold fill-gold" : "text-gray-200"} />
+                      ))}
+                    </div>
+                    <p className="text-[11px] text-gray-500 font-medium">{review.text}</p>
+                  </div>
+                ))}
+                <button className="text-[10px] font-black text-accent uppercase tracking-widest hover:underline decoration-2 underline-offset-4">Read All Reviews</button>
+              </div>
+            )}
+
+            {activeTab === 'shipping' && (
+              <div className="space-y-4">
+                <p className="text-xs text-gray-500 font-medium leading-relaxed">
+                  We offer fast and reliable delivery options tailored to your location. Standard delivery typically takes 3-5 business days within Pakistan.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                    <Truck className="text-accent mb-2" size={18} />
+                    <h4 className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Standard Delivery</h4>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase">Rs. 250 (3-5 Days)</p>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                    <Clock className="text-accent mb-2" size={18} />
+                    <h4 className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Express Shipping</h4>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase">Rs. 500 (1-2 Days)</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+
 
       <ProductSection title="Related Products" category={product.category} limit={4} addToCart={addToCart} />
     </div>

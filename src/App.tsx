@@ -24,6 +24,7 @@ import ProductDetail from './pages/ProductDetail';
 import Blog from './pages/Blog';
 import BlogDetail from './pages/BlogDetail';
 import Contact from './pages/Contact';
+import ChatWidget from './components/ChatWidget';
 
 function HomePage({ addToCart, cart }: { addToCart: (product: any) => void, cart: any[] }) {
   const [selectedCategory, setSelectedCategory] = React.useState<string | undefined>(undefined);
@@ -106,73 +107,76 @@ export default function App() {
   };
 
   return (
-    <Routes>
-      <Route path="/" element={<HomePage addToCart={addToCart} cart={cart} />} />
-      <Route path="/shop" element={
-        <div className="min-h-screen flex flex-col bg-white">
-          <Header cart={cart} />
-          <main className="flex-grow">
-            <Shop addToCart={addToCart} />
-          </main>
-          <Footer />
-        </div>
-      } />
-      <Route path="/cart" element={
-        <div className="min-h-screen flex flex-col bg-white">
-          <Header cart={cart} />
-          <main className="flex-grow">
-            <Cart cart={cart} setCart={setCart} />
-          </main>
-          <Footer />
-        </div>
-      } />
-      <Route path="/checkout" element={
-        <div className="min-h-screen flex flex-col bg-white">
-          <Header cart={cart} />
-          <main className="flex-grow">
-            <Checkout cart={cart} />
-          </main>
-          <Footer />
-        </div>
-      } />
-      <Route path="/product/:id" element={
-        <div className="min-h-screen flex flex-col bg-white">
-          <Header cart={cart} />
-          <main className="flex-grow">
-            <ProductDetail addToCart={addToCart} />
-          </main>
-          <Footer />
-        </div>
-      } />
-      <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/dashboard" element={<UserDashboard cart={cart} />} />
-      <Route path="/blog" element={
-        <div className="min-h-screen flex flex-col bg-white">
-          <Header cart={cart} />
-          <main className="flex-grow">
-            <Blog />
-          </main>
-          <Footer />
-        </div>
-      } />
-      <Route path="/blog/:id" element={
-        <div className="min-h-screen flex flex-col bg-white">
-          <Header cart={cart} />
-          <main className="flex-grow">
-            <BlogDetail />
-          </main>
-          <Footer />
-        </div>
-      } />
-      <Route path="/contact" element={
-        <div className="min-h-screen flex flex-col bg-white">
-          <Header cart={cart} />
-          <main className="flex-grow">
-            <Contact />
-          </main>
-          <Footer />
-        </div>
-      } />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<HomePage addToCart={addToCart} cart={cart} />} />
+        <Route path="/shop" element={
+          <div className="min-h-screen flex flex-col bg-white">
+            <Header cart={cart} />
+            <main className="flex-grow">
+              <Shop addToCart={addToCart} />
+            </main>
+            <Footer />
+          </div>
+        } />
+        <Route path="/cart" element={
+          <div className="min-h-screen flex flex-col bg-white">
+            <Header cart={cart} />
+            <main className="flex-grow">
+              <Cart cart={cart} setCart={setCart} />
+            </main>
+            <Footer />
+          </div>
+        } />
+        <Route path="/checkout" element={
+          <div className="min-h-screen flex flex-col bg-white">
+            <Header cart={cart} />
+            <main className="flex-grow">
+              <Checkout cart={cart} />
+            </main>
+            <Footer />
+          </div>
+        } />
+        <Route path="/product/:id" element={
+          <div className="min-h-screen flex flex-col bg-white">
+            <Header cart={cart} />
+            <main className="flex-grow">
+              <ProductDetail addToCart={addToCart} />
+            </main>
+            <Footer />
+          </div>
+        } />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/dashboard" element={<UserDashboard cart={cart} />} />
+        <Route path="/blog" element={
+          <div className="min-h-screen flex flex-col bg-white">
+            <Header cart={cart} />
+            <main className="flex-grow">
+              <Blog />
+            </main>
+            <Footer />
+          </div>
+        } />
+        <Route path="/blog/:id" element={
+          <div className="min-h-screen flex flex-col bg-white">
+            <Header cart={cart} />
+            <main className="flex-grow">
+              <BlogDetail />
+            </main>
+            <Footer />
+          </div>
+        } />
+        <Route path="/contact" element={
+          <div className="min-h-screen flex flex-col bg-white">
+            <Header cart={cart} />
+            <main className="flex-grow">
+              <Contact />
+            </main>
+            <Footer />
+          </div>
+        } />
+      </Routes>
+      <ChatWidget />
+    </>
   );
 }

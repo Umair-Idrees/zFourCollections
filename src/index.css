@@ -11,8 +11,19 @@
   --color-sale: #d32f2f;
   --color-rose-quartz: #FDE2E4;
   --color-deep-rose: #E29578;
-  --color-gold: #e11d48;
+  --color-gold: #D4AF37;
+  --color-gold-light: #F9E2AF;
+  --color-gold-dark: #A67C00;
   --color-linen: #f8f7f4;
+  --color-accent-light: #fb7185;
+}
+
+@utility metallic-gold {
+  background: linear-gradient(135deg, #A67C00 0%, #D4AF37 50%, #F9E2AF 100%);
+}
+
+@utility rose-gradient {
+  background: linear-gradient(135deg, #e11d48 0%, #fb7185 100%);
 }
 
 @layer base {

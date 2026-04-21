@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, ChevronLeft, ShieldCheck, Truck, Clock } from 'lucide-react';
 import { motion } from 'motion/react';
+import { formatPrice } from '../lib/utils';
 
 interface CartProps {
   cart: any[];
@@ -69,7 +70,7 @@ const Cart: React.FC<CartProps> = ({ cart, setCart }) => {
                 <div className="text-[10px] text-accent font-black uppercase tracking-widest">{item.category}</div>
                 <h3 className="text-lg font-black text-primary line-clamp-1">{item.name}</h3>
                 <p className="text-xs text-gray-400 font-bold uppercase tracking-widest tracking-tighter">SKU: {item.sku || 'N/A'}</p>
-                <div className="text-xl font-black text-primary mt-2">${item.salePrice}</div>
+                <div className="text-xl font-black text-primary mt-2">{formatPrice(item.salePrice)}</div>
               </div>
 
               <div className="flex items-center gap-6">
@@ -108,21 +109,21 @@ const Cart: React.FC<CartProps> = ({ cart, setCart }) => {
             <div className="space-y-4">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500 font-medium">Subtotal</span>
-                <span className="text-gray-900 font-bold">${subtotal.toFixed(2)}</span>
+                <span className="text-gray-900 font-bold">{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500 font-medium">Shipping</span>
-                <span className="text-gray-900 font-bold">{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
+                <span className="text-gray-900 font-bold">{shipping === 0 ? 'Free' : formatPrice(shipping)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500 font-medium">Estimated Tax</span>
-                <span className="text-gray-900 font-bold">$0.00</span>
+                <span className="text-gray-900 font-bold">{formatPrice(0)}</span>
               </div>
             </div>
 
             <div className="pt-6 border-t border-gray-100 flex justify-between items-center">
               <span className="text-lg font-black text-primary uppercase tracking-tight">Total</span>
-              <span className="text-2xl font-black text-primary">${total.toFixed(2)}</span>
+              <span className="text-2xl font-black text-primary">{formatPrice(total)}</span>
             </div>
 
             <Link 

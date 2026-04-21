@@ -27,7 +27,7 @@ import {
   X,
   Globe
 } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn, formatPrice } from '../lib/utils';
 import { auth, logout, loginWithGoogle, useAuth, loginAsDemoUser } from '../lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { Link, useNavigate } from 'react-router-dom';
@@ -58,9 +58,9 @@ const RECENTLY_VIEWED_PLACEHOLDERS = [
 ];
 
 const ORDERS = [
-  { id: '#10234', date: 'May 16, 2024', status: 'Shipped', total: '$115.00', product: 'Floral Boutique Maxi', image: 'https://img.freepik.com/free-photo/portrait-young-stylish-girl-model-casual-summer-clothes-brown-hat-with-natural-makeup-glasses-isolated_158538-8562.jpg' },
-  { id: '#10229', date: 'May 12, 2024', status: 'Delivered', total: '$48.00', product: 'Chic Denim & Floral Mix', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDtlimnu5VN4jKnHDDtykPPcriyIiVXzYWhA&s' },
-  { id: '#10215', date: 'May 05, 2024', status: 'Delivered', total: '$89.00', product: 'Country Tiered Set', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiWPNAO3EvRsK9CJX4Feug6WaefYlGoPOvow&s' },
+  { id: '#10234', date: 'May 16, 2024', status: 'Shipped', total: formatPrice(115.00), product: 'Floral Boutique Maxi', image: 'https://img.freepik.com/free-photo/portrait-young-stylish-girl-model-casual-summer-clothes-brown-hat-with-natural-makeup-glasses-isolated_158538-8562.jpg' },
+  { id: '#10229', date: 'May 12, 2024', status: 'Delivered', total: formatPrice(48.00), product: 'Chic Denim & Floral Mix', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDtlimnu5VN4jKnHDDtykPPcriyIiVXzYWhA&s' },
+  { id: '#10215', date: 'May 05, 2024', status: 'Delivered', total: formatPrice(89.00), product: 'Country Tiered Set', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiWPNAO3EvRsK9CJX4Feug6WaefYlGoPOvow&s' },
 ];
 
 const ADDRESSES = [
@@ -289,7 +289,7 @@ export default function UserDashboard({ cart = [] }: { cart?: any[] }) {
                               <div className="space-y-2">
                                 <h4 className="font-bold text-primary group-hover:text-accent transition-colors truncate">{product.name}</h4>
                                 <div className="flex items-center justify-between">
-                                  <p className="font-black text-primary text-lg">${product.salePrice || (product as any).price}</p>
+                                  <p className="font-black text-primary text-lg">{formatPrice(product.salePrice || (product as any).price)}</p>
                                   <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded-lg">
                                     <Star size={12} className="fill-yellow-400 text-yellow-400" />
                                     <span className="text-[10px] font-black text-gray-500 tracking-tighter">{ (product as any).rating || 4.8 }</span>
@@ -385,7 +385,7 @@ export default function UserDashboard({ cart = [] }: { cart?: any[] }) {
                                   </p>
                                 </div>
                                 <div className="text-left md:text-right">
-                                  <p className="text-xl font-bold text-primary mb-1">${order.total.toFixed(2)}</p>
+                                  <p className="text-xl font-bold text-primary mb-1">{formatPrice(order.total)}</p>
                                   <span className={cn(
                                     "text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider",
                                     order.status === 'Pending' ? "bg-orange-50 text-orange-600" : 
@@ -443,7 +443,7 @@ export default function UserDashboard({ cart = [] }: { cart?: any[] }) {
                           <div className="p-6">
                             <h4 className="font-bold text-primary mb-2 truncate group-hover:text-accent transition-colors">{product.name}</h4>
                             <div className="flex items-center justify-between mb-6">
-                              <p className="text-xl font-bold text-primary">${product.price}</p>
+                              <p className="text-xl font-bold text-primary">{formatPrice(product.price)}</p>
                               <div className="flex items-center gap-1">
                                 <Star size={14} className="fill-yellow-400 text-yellow-400" />
                                 <span className="text-sm font-bold text-gray-400">{product.rating}</span>
@@ -488,7 +488,7 @@ export default function UserDashboard({ cart = [] }: { cart?: any[] }) {
                                 </button>
                               </div>
                             </div>
-                            <div className="col-span-2 text-center font-bold text-primary">${item.price}</div>
+                            <div className="col-span-2 text-center font-bold text-primary">{formatPrice(item.price)}</div>
                             <div className="col-span-2 flex justify-center">
                               <div className="flex items-center border border-gray-100 rounded-xl overflow-hidden">
                                 <button className="px-3 py-1 hover:bg-gray-50 text-gray-400">-</button>
@@ -496,7 +496,7 @@ export default function UserDashboard({ cart = [] }: { cart?: any[] }) {
                                 <button className="px-3 py-1 hover:bg-gray-50 text-gray-400">+</button>
                               </div>
                             </div>
-                            <div className="col-span-2 text-right font-bold text-primary">${(item.price * item.qty).toFixed(2)}</div>
+                            <div className="col-span-2 text-right font-bold text-primary">{formatPrice(item.price * item.qty)}</div>
                           </div>
                         ))}
                       </div>
@@ -506,7 +506,7 @@ export default function UserDashboard({ cart = [] }: { cart?: any[] }) {
                           <button className="bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-gray-800 transition-all">Apply</button>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-gray-400 font-medium mb-1">Subtotal: <span className="text-primary font-bold">$488.99</span></p>
+                          <p className="text-sm text-gray-400 font-medium mb-1">Subtotal: <span className="text-primary font-bold">{formatPrice(488.99)}</span></p>
                           <button className="bg-accent text-white px-10 py-4 rounded-2xl font-bold hover:bg-accent/90 transition-all shadow-lg shadow-accent/20 mt-2">
                             Checkout Now
                           </button>
@@ -820,7 +820,7 @@ export default function UserDashboard({ cart = [] }: { cart?: any[] }) {
                       </div>
                       <div className="pt-3 border-t border-gray-200 flex justify-between items-center">
                         <span className="font-bold text-primary">Total Amount</span>
-                        <span className="text-xl font-bold text-accent">${selectedOrder.total.toFixed(2)}</span>
+                        <span className="text-xl font-bold text-accent">{formatPrice(selectedOrder.total)}</span>
                       </div>
                     </div>
                   </div>
@@ -836,10 +836,10 @@ export default function UserDashboard({ cart = [] }: { cart?: any[] }) {
                         </div>
                         <div className="flex-grow min-w-0">
                           <h4 className="font-bold text-primary text-sm truncate">{item.name}</h4>
-                          <p className="text-xs text-gray-400 font-medium">Qty: {item.quantity} • ${item.price.toFixed(2)} each</p>
+                          <p className="text-xs text-gray-400 font-medium">Qty: {item.quantity} • {formatPrice(item.price)} each</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-primary">${(item.price * item.quantity).toFixed(2)}</p>
+                          <p className="font-bold text-primary">{formatPrice(item.price * item.quantity)}</p>
                         </div>
                       </div>
                     ))}

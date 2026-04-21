@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight, Star, ShoppingBag, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { formatPrice } from '../lib/utils';
 
 const collections = [
   {
@@ -46,13 +47,13 @@ const highlights = [
     title: "Velvet Festive",
     detail: "Intricate gold embroidery on deep maroon velvet.",
     image: "https://media.istockphoto.com/id/804153464/photo/a-great-variety-of-dresses-in-wardrobe.jpg?s=612x612&w=0&k=20&c=sXbkrRj7QNu0MQQEgiW5QZnXyeYXOv08Jr4NLqbDC9M=",
-    price: "$129.00"
+    price: 129.00
   },
   {
     title: "Printed Lawn",
     detail: "Digital prints for everyday comfort.",
     image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUI4Fpt_oUvX-l-H_q-YZ9_hNh8uBL4VFGng&s",
-    price: "$59.00"
+    price: 59.00
   }
 ];
 
@@ -143,7 +144,7 @@ export default function GirlsCollection() {
                   {item.detail}
                 </p>
                 <div className="flex items-center justify-between w-full mt-auto">
-                  <span className="text-2xl font-black">${item.price.replace('$', '')}</span>
+                  <span className="text-2xl font-black">{formatPrice(item.price)}</span>
                   <button className="bg-accent text-white group-hover:bg-white group-hover:text-accent px-8 py-4 rounded-full font-black text-[10px] uppercase tracking-widest flex items-center gap-3 transition-all shadow-2xl shadow-accent/20 active:scale-95 border border-transparent hover:border-accent">
                     <ShoppingBag size={16} /> ADD TO BAG
                   </button>

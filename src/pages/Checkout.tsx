@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { db, collection, addDoc, serverTimestamp, handleFirestoreError, OperationType, auth } from '../lib/firebase';
 import { ShieldCheck, Truck, CreditCard, ChevronLeft, ArrowRight, CheckCircle2, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { formatPrice } from '../lib/utils';
 
 interface CheckoutProps {
   cart: any[];
@@ -264,7 +265,7 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
                   <div className="flex-1 min-w-0">
                     <h4 className="text-xs font-black text-primary uppercase tracking-tight line-clamp-1">{item.name}</h4>
                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Qty: {item.quantity}</p>
-                    <p className="text-sm font-black text-primary mt-1">${(item.salePrice * item.quantity).toFixed(2)}</p>
+                    <p className="text-sm font-black text-primary mt-1">{formatPrice(item.salePrice * item.quantity)}</p>
                   </div>
                 </div>
               ))}
@@ -273,15 +274,15 @@ const Checkout: React.FC<CheckoutProps> = ({ cart }) => {
             <div className="space-y-4 pt-6 border-t border-gray-100">
               <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
                 <span className="text-gray-400">Subtotal</span>
-                <span className="text-primary">${subtotal.toFixed(2)}</span>
+                <span className="text-primary">{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
                 <span className="text-gray-400">Shipping</span>
-                <span className="text-primary">{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
+                <span className="text-primary">{shipping === 0 ? 'Free' : formatPrice(shipping)}</span>
               </div>
               <div className="pt-4 flex justify-between items-center border-t border-linen">
                 <span className="text-sm font-black text-primary uppercase tracking-widest">Total cost</span>
-                <span className="text-2xl font-black text-primary">${total.toFixed(2)}</span>
+                <span className="text-2xl font-black text-primary">{formatPrice(total)}</span>
               </div>
             </div>
 

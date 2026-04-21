@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useProducts } from '../context/ProductContext';
+import { formatPrice } from '../lib/utils';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -33,28 +34,28 @@ const FashionProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
   return (
     <>
       <div 
-        className="group bg-white rounded-xl overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-xl hover:border-transparent relative"
+        className="group bg-white rounded-[2.5rem] p-4 border border-gray-50 transition-all duration-500 hover:shadow-2xl relative flex flex-col h-full"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Product Image & Badges */}
-        <div className="relative aspect-[3/4] overflow-hidden bg-gray-50">
+        {/* Product Image Sub-container - Full width/height as requested */}
+        <div className="relative aspect-square overflow-hidden rounded-[2rem] bg-gray-50 border border-gray-100/50 flex items-center justify-center">
           <img
             src={product.image}
             alt={product.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
             referrerPolicy="no-referrer"
           />
           
           {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
+          <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
             {product.salePrice && (
-              <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wider">
+              <span className="bg-accent text-white text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
                 -{Math.round(((product.price - product.salePrice) / product.price) * 100)}%
               </span>
             )}
             {product.stockBadge && (
-              <span className="bg-black text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm uppercase tracking-wider">
+              <span className="bg-primary text-white text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg border border-white/20">
                 {product.stockBadge}
               </span>
             )}
@@ -62,96 +63,79 @@ const FashionProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
 
           {/* Quick Actions Overlay */}
           <div className={cn(
-            "absolute inset-0 bg-black/5 flex items-center justify-center gap-3 transition-all duration-300 z-20",
-            isHovered ? "opacity-100" : "opacity-0 pointer-events-none"
+            "absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 transition-all duration-300 z-20",
+            isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
           )}>
-            <button className="p-3 bg-white rounded-full text-black hover:bg-black hover:text-white transition-all duration-300 shadow-lg transform translate-y-4 group-hover:translate-y-0">
-              <Heart size={18} />
+            <button className="p-3 bg-white rounded-full text-primary hover:bg-accent hover:text-white transition-all shadow-xl shadow-black/10">
+              <Heart size={16} />
             </button>
             <button 
               onClick={() => setIsQuickViewOpen(true)}
-              className="p-3 bg-white rounded-full text-black hover:bg-black hover:text-white transition-all duration-300 shadow-lg transform translate-y-4 group-hover:translate-y-0 delay-75"
+              className="p-3 bg-white rounded-full text-primary hover:bg-accent hover:text-white transition-all shadow-xl shadow-black/10"
             >
-              <Eye size={18} />
-            </button>
-            <button className="p-3 bg-white rounded-full text-black hover:bg-black hover:text-white transition-all duration-300 shadow-lg transform translate-y-4 group-hover:translate-y-0 delay-150">
-              <ShoppingCart size={18} />
+              <Eye size={16} />
             </button>
           </div>
         </div>
 
-      {/* Product Info */}
-      <div className="p-4">
-        <div className="flex items-center gap-1 mb-2">
-          <div className="flex text-yellow-400">
-            {[...Array(5)].map((_, i) => (
-              <Star 
-                key={i} 
-                size={12} 
-                fill={i < Math.floor(product.rating) ? "currentColor" : "none"} 
-                className={i < Math.floor(product.rating) ? "" : "text-gray-300"}
-              />
-            ))}
+        {/* Product Info - Matching image_a4 structure */}
+        <div className="pt-6 px-2 flex flex-col flex-1">
+          <Link to={`/product/${product.id}`}>
+            <h3 className="text-lg font-black text-primary line-clamp-1 hover:text-accent transition-colors mb-2 uppercase tracking-tighter leading-tight">
+              {product.title}
+            </h3>
+          </Link>
+
+          {/* Attributes */}
+          <div className="flex items-center gap-2 text-[11px] font-bold text-gray-400 mb-3 uppercase tracking-wider">
+            <span>Girls</span>
+            <span className="w-1 h-1 rounded-full bg-gray-200" />
+            <span>New Season</span>
+            <span className="w-1 h-1 rounded-full bg-gray-200" />
+            <span>{product.stockBadge || 'Limited'}</span>
           </div>
-          <span className="text-[10px] text-gray-400 font-medium">({product.reviews})</span>
-        </div>
 
-        <h3 className="text-sm font-bold text-gray-900 mb-1 line-clamp-1 group-hover:text-blue-600 transition-colors">
-          {product.title}
-        </h3>
-
-        <div className="flex items-center gap-2 mb-4">
-          {product.salePrice ? (
-            <>
-              <span className="text-lg font-bold text-red-600">${product.salePrice.toFixed(2)}</span>
-              <span className="text-sm text-gray-400 line-through">${product.price.toFixed(2)}</span>
-            </>
-          ) : (
-            <span className="text-lg font-bold text-gray-900">${product.price.toFixed(2)}</span>
-          )}
-        </div>
-
-        {/* Sizes */}
-        <div className="mb-4">
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Select Size</p>
-          <div className="flex flex-wrap gap-2">
-            {product.sizes.map((size) => (
-              <button
-                key={size}
-                onClick={() => setSelectedSize(size)}
-                className={cn(
-                  "w-8 h-8 rounded-md text-[10px] font-bold border transition-all duration-300",
-                  selectedSize === size 
-                    ? "bg-black text-white border-black" 
-                    : "bg-white text-gray-600 border-gray-200 hover:border-black"
-                )}
-              >
-                {size}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Colors */}
-        <div>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Color: <span className="text-gray-900">{selectedColor}</span></p>
-          <div className="flex gap-2">
-            {product.colors.map((color) => (
-              <button
-                key={color.name}
-                onClick={() => setSelectedColor(color.name)}
-                className={cn(
-                  "w-6 h-6 rounded-full border-2 transition-all duration-300 p-0.5",
-                  selectedColor === color.name ? "border-black" : "border-transparent"
-                )}
-              >
-                <div 
-                  className="w-full h-full rounded-full border border-gray-100" 
-                  style={{ backgroundColor: color.hex }}
+          {/* Rating */}
+          <div className="flex items-center gap-1.5 mb-4">
+            <div className="flex text-yellow-400 gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <Star 
+                  key={i} 
+                  size={14} 
+                  fill={i < Math.floor(product.rating) ? "currentColor" : "none"} 
+                  className={i < Math.floor(product.rating) ? "" : "text-gray-200"}
                 />
-              </button>
-            ))}
+              ))}
+            </div>
+            <span className="text-xs font-black text-gray-900 ml-1">{product.rating.toFixed(1)}</span>
+            <span className="text-xs font-medium text-gray-400">({product.reviews} reviews)</span>
           </div>
+
+          {/* Availability */}
+          <div className="mb-4">
+            <span className="text-[11px] font-bold text-green-500 uppercase tracking-widest">
+              In-Stock (Available)
+            </span>
+          </div>
+
+          {/* Price & Cart Area */}
+          <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-50">
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                {product.salePrice ? (
+                  <>
+                    <span className="text-2xl font-black text-primary">{formatPrice(product.salePrice)}</span>
+                    <span className="text-sm text-gray-400 line-through font-bold">{formatPrice(product.price)}</span>
+                  </>
+                ) : (
+                  <span className="text-2xl font-black text-primary">{formatPrice(product.price)}</span>
+                )}
+              </div>
+            </div>
+            
+            <button className="w-12 h-12 rounded-full rose-gradient text-white shadow-lg shadow-accent/20 flex items-center justify-center hover:scale-110 active:scale-95 transition-all group/cart">
+              <ShoppingCart size={20} className="group-hover/cart:animate-bounce" />
+            </button>
           </div>
         </div>
       </div>
@@ -216,11 +200,11 @@ const FashionProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
                 <div className="flex items-center gap-3 mb-6">
                   {product.salePrice ? (
                     <>
-                      <span className="text-2xl font-bold text-red-600">${product.salePrice.toFixed(2)}</span>
-                      <span className="text-lg text-gray-400 line-through">${product.price.toFixed(2)}</span>
+                      <span className="text-2xl font-bold text-red-600">{formatPrice(product.salePrice)}</span>
+                      <span className="text-lg text-gray-400 line-through">{formatPrice(product.price)}</span>
                     </>
                   ) : (
-                    <span className="text-2xl font-bold text-gray-900">${product.price.toFixed(2)}</span>
+                    <span className="text-2xl font-bold text-gray-900">{formatPrice(product.price)}</span>
                   )}
                 </div>
 

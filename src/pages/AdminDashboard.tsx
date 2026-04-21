@@ -55,7 +55,7 @@ import {
   ComposedChart,
   Legend
 } from 'recharts';
-import { cn } from '../lib/utils';
+import { cn, formatPrice } from '../lib/utils';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useProducts } from '../context/ProductContext';
@@ -94,10 +94,10 @@ const PROMOTIONAL_DATA = [
 ];
 
 const TOP_SALES_DATA = [
-  { id: 1, name: 'Neptune Longsleeve', price: '$138', sales: 952, image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=100&h=100&fit=crop' },
-  { id: 2, name: 'Ribbed Tank Top', price: '$108', sales: 952, image: 'https://images.unsplash.com/photo-1554412930-c96790ca4a9b?w=100&h=100&fit=crop' },
-  { id: 3, name: 'Ribbed Modal Maxi', price: '$125', sales: 902, image: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=100&h=100&fit=crop' },
-  { id: 4, name: 'Oversized Motion Duo', price: '$98', sales: 882, image: 'https://images.unsplash.com/photo-1544441893-675973e31985?w=100&h=100&fit=crop' },
+  { id: 1, name: 'Neptune Longsleeve', price: 138, sales: 952, image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=100&h=100&fit=crop' },
+  { id: 2, name: 'Ribbed Tank Top', price: 108, sales: 952, image: 'https://images.unsplash.com/photo-1554412930-c96790ca4a9b?w=100&h=100&fit=crop' },
+  { id: 3, name: 'Ribbed Modal Maxi', price: 125, sales: 902, image: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=100&h=100&fit=crop' },
+  { id: 4, name: 'Oversized Motion Duo', price: 98, sales: 882, image: 'https://images.unsplash.com/photo-1544441893-675973e31985?w=100&h=100&fit=crop' },
 ];
 
 const LOCATION_DATA = [
@@ -117,7 +117,7 @@ const CATEGORY_DATA = [
 ];
 
 const STATS = [
-  { label: 'Total Revenue', value: '$65,320', change: '+12.5%', isPositive: true, icon: BarChart3, color: 'text-blue-600', bg: 'bg-blue-50' },
+  { label: 'Total Revenue', value: 'Rs. 65,320', change: '+12.5%', isPositive: true, icon: BarChart3, color: 'text-blue-600', bg: 'bg-blue-50' },
   { label: 'Total Orders', value: '1,250', change: '+8.2%', isPositive: true, icon: ShoppingCart, color: 'text-purple-600', bg: 'bg-purple-50' },
   { label: 'Total Customers', value: '1,540', change: '+5.4%', isPositive: true, icon: Users, color: 'text-green-600', bg: 'bg-green-50' },
   { label: 'Total Products', value: '450', change: '+12', isPositive: true, icon: Package, color: 'text-accent', bg: 'bg-accent/10' },
@@ -131,16 +131,16 @@ const SECONDARY_STATS = [
 ];
 
 const ORDERS = [
-  { id: '#10234', customer: 'Sarah Johnson', date: 'May 16, 2024', status: 'Shipped', total: '$299.99', payment: 'Visa', delivery: 'Express' },
-  { id: '#10229', customer: 'Michael Chen', date: 'May 12, 2024', status: 'Delivered', total: '$189.00', payment: 'Mastercard', delivery: 'Standard' },
-  { id: '#10215', customer: 'Emma Wilson', date: 'May 05, 2024', status: 'Pending', total: '$1,299.99', payment: 'PayPal', delivery: 'Express' },
-  { id: '#10208', customer: 'David Miller', date: 'Apr 28, 2024', status: 'Cancelled', total: '$45.00', payment: 'COD', delivery: 'Standard' },
+  { id: '#10234', customer: 'Sarah Johnson', date: 'May 16, 2024', status: 'Shipped', total: 'Rs. 299.99', payment: 'Visa', delivery: 'Express' },
+  { id: '#10229', customer: 'Michael Chen', date: 'May 12, 2024', status: 'Delivered', total: 'Rs. 189.00', payment: 'Mastercard', delivery: 'Standard' },
+  { id: '#10215', customer: 'Emma Wilson', date: 'May 05, 2024', status: 'Pending', total: 'Rs. 1,299.99', payment: 'PayPal', delivery: 'Express' },
+  { id: '#10208', customer: 'David Miller', date: 'Apr 28, 2024', status: 'Cancelled', total: 'Rs. 45.00', payment: 'COD', delivery: 'Standard' },
 ];
 
 const CUSTOMERS = [
-  { id: 'c1', name: 'Sarah Johnson', email: 'sarah@example.com', phone: '+1 234 567 890', orders: 12, spend: '$2,450', status: 'Active', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&fit=crop' },
-  { id: 'c2', name: 'Michael Chen', email: 'mchen@example.com', phone: '+1 234 567 891', orders: 8, spend: '$1,890', status: 'Active', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&fit=crop' },
-  { id: 'c3', name: 'Emma Wilson', email: 'emma@example.com', phone: '+1 234 567 892', orders: 5, spend: '$3,200', status: 'Inactive', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&fit=crop' },
+  { id: 'c1', name: 'Sarah Johnson', email: 'sarah@example.com', phone: '+1 234 567 890', orders: 12, spend: 'Rs. 2,450', status: 'Active', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&fit=crop' },
+  { id: 'c2', name: 'Michael Chen', email: 'mchen@example.com', phone: '+1 234 567 891', orders: 8, spend: 'Rs. 1,890', status: 'Active', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&fit=crop' },
+  { id: 'c3', name: 'Emma Wilson', email: 'emma@example.com', phone: '+1 234 567 892', orders: 5, spend: 'Rs. 3,200', status: 'Inactive', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&fit=crop' },
 ];
 
 const MOCK_CATEGORIES = [
@@ -153,7 +153,7 @@ const MOCK_CATEGORIES = [
 
 const MOCK_DISCOUNTS = [
   { id: 'd1', code: 'WELCOME20', type: 'Percentage', value: '20%', usage: '84/100', expiry: 'Dec 31, 2024', status: 'Active' },
-  { id: 'd2', code: 'SUMMER50', type: 'Fixed', value: '$50', usage: '120/500', expiry: 'Aug 15, 2024', status: 'Active' },
+  { id: 'd2', code: 'SUMMER50', type: 'Fixed', value: 'Rs. 50', usage: '120/500', expiry: 'Aug 15, 2024', status: 'Active' },
   { id: 'd3', code: 'EIDGIFT', type: 'Percentage', value: '15%', usage: '200/200', expiry: 'May 10, 2024', status: 'Expired' },
 ];
 
@@ -164,9 +164,9 @@ const MOCK_REVIEWS = [
 ];
 
 const MOCK_TRANSACTIONS = [
-  { id: 'tx1', order: '#10234', method: 'Visa ending in 4242', amount: '$299.99', date: 'May 16, 2024', status: 'Success' },
-  { id: 'tx2', order: '#10229', method: 'Mastercard ending in 8888', amount: '$189.00', date: 'May 12, 2024', status: 'Success' },
-  { id: 'tx3', order: '#10215', method: 'PayPal', amount: '$1,299.99', date: 'May 05, 2024', status: 'Pending' },
+  { id: 'tx1', order: '#10234', method: 'Visa ending in 4242', amount: 'Rs. 299.99', date: 'May 16, 2024', status: 'Success' },
+  { id: 'tx2', order: '#10229', method: 'Mastercard ending in 8888', amount: 'Rs. 189.00', date: 'May 12, 2024', status: 'Success' },
+  { id: 'tx3', order: '#10215', method: 'PayPal', amount: 'Rs. 1,299.99', date: 'May 05, 2024', status: 'Pending' },
 ];
 
 export default function AdminDashboard({ 
@@ -180,9 +180,11 @@ export default function AdminDashboard({
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(openAddProduct);
   const [isEditProductModalOpen, setIsEditProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [isEditBlogModalOpen, setIsEditBlogModalOpen] = useState(false);
+  const [editingBlog, setEditingBlog] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedProductFiles, setSelectedProductFiles] = useState<File[]>([]);
   const [selectedBlogFile, setSelectedBlogFile] = useState<File | null>(null);
   const [productSearchQuery, setProductSearchQuery] = useState('');
   const [productCategoryFilter, setProductCategoryFilter] = useState('All Categories');
@@ -216,7 +218,7 @@ export default function AdminDashboard({
 
   const { products, addProduct, deleteProduct, updateProduct } = useProducts();
   const { orders, updateOrderStatus, deleteOrder: deleteOrderFromDb } = useOrders();
-  const { blogs, addBlog } = useBlogs();
+  const { blogs, addBlog, updateBlog, deleteBlog } = useBlogs();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const totalRevenue = orders.reduce((acc, order) => acc + order.total, 0);
@@ -302,17 +304,21 @@ export default function AdminDashboard({
   }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewProduct(prev => ({
-          ...prev,
-          images: [reader.result as string]
-        }));
-      };
-      reader.readAsDataURL(file);
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const newFiles = Array.from(files);
+      setSelectedProductFiles(prev => [...prev, ...newFiles]);
+      
+      newFiles.forEach((file: File) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setNewProduct(prev => ({
+            ...prev,
+            images: [...prev.images, reader.result as string]
+          }));
+        };
+        reader.readAsDataURL(file);
+      });
     }
   };
 
@@ -322,24 +328,39 @@ export default function AdminDashboard({
     setFormError(null);
     
     try {
-      let imageUrl = 'https://picsum.photos/seed/placeholder/600/600';
+      let mainImageUrl = 'https://picsum.photos/seed/placeholder/600/600';
+      const galleryUrls: string[] = [];
 
-      if (selectedFile) {
-        console.log("Uploading product image to Cloudinary...");
-        const formData = new FormData();
-        formData.append('image', selectedFile);
+      // Upload all selected files
+      if (selectedProductFiles.length > 0) {
+        console.log(`Uploading ${selectedProductFiles.length} product images to Cloudinary...`);
+        
+        for (let i = 0; i < selectedProductFiles.length; i++) {
+          const formData = new FormData();
+          formData.append('image', selectedProductFiles[i]);
 
-        const uploadRes = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
-        });
+          const uploadRes = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          });
 
-        if (!uploadRes.ok) throw new Error('Failed to upload image to Cloudinary');
-        const uploadData = await uploadRes.json();
-        imageUrl = uploadData.url;
-        console.log("Image uploaded successfully:", imageUrl);
-      } else if (newProduct.images[0] && newProduct.images[0].startsWith('http')) {
-        imageUrl = newProduct.images[0];
+          if (!uploadRes.ok) throw new Error(`Failed to upload image ${i + 1} to Cloudinary`);
+          const uploadData = await uploadRes.json();
+          
+          if (i === 0) {
+            mainImageUrl = uploadData.url;
+          } else {
+            galleryUrls.push(uploadData.url);
+          }
+        }
+        console.log("Images uploaded successfully");
+      } else if (newProduct.images.length > 0) {
+        // Fallback to existing URLs if any
+        const httpImages = newProduct.images.filter(img => img.startsWith('http'));
+        if (httpImages.length > 0) {
+          mainImageUrl = httpImages[0];
+          galleryUrls.push(...httpImages.slice(1));
+        }
       }
 
       const price = parseFloat(newProduct.price) || 0;
@@ -352,17 +373,21 @@ export default function AdminDashboard({
         regularPrice: price,
         salePrice: salePrice,
         quantity: stock,
-        mainImage: imageUrl,
+        mainImage: mainImageUrl,
+        galleryImages: galleryUrls,
         fullDescription: newProduct.description,
-        sku: `ZF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+        sku: newProduct.sku || `ZF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
         isTrending: false,
-        status: 'Active'
+        status: 'Active',
+        tags: newProduct.tags ? newProduct.tags.split(',').map(t => t.trim()) : [],
+        sizes: newProduct.sizes,
+        colors: newProduct.colors.map(c => c.hex)
       } as any);
 
       console.log("Product added successfully!");
       alert("Product added successfully!");
       setIsAddProductModalOpen(false);
-      setSelectedFile(null);
+      setSelectedProductFiles([]);
       // Reset form
       setNewProduct({
         name: '',
@@ -371,9 +396,9 @@ export default function AdminDashboard({
         salePrice: '',
         stock: '',
         description: '',
-        images: [''],
-        sizes: [],
-        colors: [],
+        images: [],
+        sizes: ['M'],
+        colors: [{ name: 'Deep Rose', hex: '#e11d48' }],
         sku: '',
         brand: '',
         schedule: '',
@@ -398,14 +423,15 @@ export default function AdminDashboard({
       salePrice: product.salePrice.toString(),
       stock: product.quantity.toString(),
       description: product.fullDescription || '',
-      images: [product.mainImage],
+      images: [product.mainImage, ...(product.galleryImages || [])],
       sku: product.sku || '',
       brand: product.brand || '',
       schedule: '',
-      tags: '',
+      tags: product.tags?.join(', ') || '',
       sizes: product.sizes || ['M'],
-      colors: product.colors || [{ name: 'Deep Rose', hex: '#e11d48' }]
+      colors: product.colors?.map((c: string) => ({ name: '', hex: c })) || [{ name: 'Deep Rose', hex: '#e11d48' }]
     });
+    setSelectedProductFiles([]);
     setIsEditProductModalOpen(true);
   };
 
@@ -416,18 +442,35 @@ export default function AdminDashboard({
     setFormError(null);
     
     try {
-      let imageUrl = editingProduct.mainImage;
+      let mainImageUrl = editingProduct.mainImage;
+      const galleryUrls = [...(editingProduct.galleryImages || [])];
 
-      if (selectedFile) {
-        const formData = new FormData();
-        formData.append('image', selectedFile);
-        const uploadRes = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
-        });
-        if (!uploadRes.ok) throw new Error('Failed to upload image');
-        const uploadData = await uploadRes.json();
-        imageUrl = uploadData.url;
+      // Handle new uploads
+      if (selectedProductFiles.length > 0) {
+        // Find which images are new (not in editingProduct.images)
+        // For simplicity, we'll append new uploads to the gallery if they are added
+        // Or if we replace everything? User usually expects to append or replace.
+        // Let's current logic: append new uploads.
+        
+        for (let i = 0; i < selectedProductFiles.length; i++) {
+          const formData = new FormData();
+          formData.append('image', selectedProductFiles[i]);
+          const uploadRes = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          });
+          if (!uploadRes.ok) throw new Error(`Failed to upload image ${i+1}`);
+          const uploadData = await uploadRes.json();
+          galleryUrls.push(uploadData.url);
+        }
+      }
+
+      // If we filtered newProduct.images, we should reflect that in mainImage and galleryImages
+      // Let's sync with newProduct.images (which contains current URLs + new file previews)
+      const currentUrls = newProduct.images.filter(img => img.startsWith('http'));
+      if (currentUrls.length > 0) {
+        mainImageUrl = currentUrls[0];
+        // The rest are gallery
       }
 
       const price = parseFloat(newProduct.price) || 0;
@@ -440,14 +483,18 @@ export default function AdminDashboard({
         regularPrice: price,
         salePrice: salePrice,
         quantity: stock,
-        mainImage: imageUrl,
+        mainImage: mainImageUrl,
+        galleryImages: newProduct.images.filter(img => img.startsWith('http')).slice(1),
         fullDescription: newProduct.description,
+        tags: newProduct.tags ? newProduct.tags.split(',').map(t => t.trim()) : [],
+        sizes: newProduct.sizes,
+        colors: newProduct.colors.map(c => c.hex)
       });
 
       alert("Product updated successfully!");
       setIsEditProductModalOpen(false);
       setEditingProduct(null);
-      setSelectedFile(null);
+      setSelectedProductFiles([]);
     } catch (error) {
       console.error('Error updating product:', error);
       const msg = error instanceof Error ? error.message : 'Failed to update product.';
@@ -503,6 +550,72 @@ export default function AdminDashboard({
       alert('Error: ' + err.message);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleEditBlogClick = (blog: any) => {
+    setEditingBlog(blog);
+    setNewBlog({
+      title: blog.title,
+      imageURL: blog.imageURL,
+      description: blog.description,
+      category: blog.category
+    });
+    setIsEditBlogModalOpen(true);
+  };
+
+  const handleUpdateBlog = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingBlog) return;
+    setIsSubmitting(true);
+    
+    try {
+      let imageUrl = editingBlog.imageURL;
+
+      if (selectedBlogFile) {
+        const formData = new FormData();
+        formData.append('image', selectedBlogFile);
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        if (!uploadRes.ok) throw new Error('Failed to upload image');
+        const uploadData = await uploadRes.json();
+        imageUrl = uploadData.url;
+      }
+
+      await updateBlog(editingBlog._id, {
+        ...newBlog,
+        imageURL: imageUrl
+      });
+
+      alert("Blog updated successfully!");
+      setIsEditBlogModalOpen(false);
+      setEditingBlog(null);
+      setSelectedBlogFile(null);
+      setNewBlog({
+        title: '',
+        imageURL: '',
+        description: '',
+        category: 'Styling Tips'
+      });
+    } catch (error) {
+      console.error('Error updating blog:', error);
+      const msg = error instanceof Error ? error.message : 'Failed to update blog.';
+      alert(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteBlog = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this blog?')) {
+      try {
+        await deleteBlog(id);
+        alert('Blog deleted successfully!');
+      } catch (err: any) {
+        alert('Error deleting blog: ' + err.message);
+      }
     }
   };
 
@@ -660,10 +773,10 @@ export default function AdminDashboard({
                   {TOP_SALES_DATA.map((item) => (
                     <div key={item.id} className="flex items-center justify-between group">
                       <div className="flex items-center gap-4">
-                        <img src={item.image} alt={item.name} className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform" />
+                        <img src={item.image} alt={item.name} className="w-12 h-12 rounded-xl object-cover shadow-sm transition-all" />
                         <div>
                           <p className="text-sm font-black text-primary truncate max-w-[120px]">{item.name}</p>
-                          <p className="text-[11px] font-bold text-gray-400">{item.price}</p>
+                          <p className="text-[11px] font-bold text-gray-400">{formatPrice(item.price)}</p>
                         </div>
                       </div>
                       <div className="text-right">
@@ -696,11 +809,11 @@ export default function AdminDashboard({
                     </thead>
                     <tbody className="divide-y divide-gray-50">
                       {[
-                        { name: 'Neptune Longsleeve', customer: 'Leslie Alexander', id: '1452', qty: 'X1', price: '$120', image: TOP_SALES_DATA[0].image },
-                        { name: 'Corduroy slim-fit', customer: 'Leslie Alexander', id: '1452', qty: 'X1', price: '$120', image: TOP_SALES_DATA[1].image },
-                        { name: 'Turtleneck knitted', customer: 'Leslie Alexander', id: '1452', qty: 'X1', price: '$120', image: TOP_SALES_DATA[2].image },
-                        { name: 'Wool oversized', customer: 'Leslie Alexander', id: '1452', qty: 'X1', price: '$120', image: TOP_SALES_DATA[3].image },
-                        { name: 'Oversized poplin', customer: 'Leslie Alexander', id: '1452', qty: 'X1', price: '$120', image: TOP_SALES_DATA[1].image },
+                        { name: 'Neptune Longsleeve', customer: 'Leslie Alexander', id: '1452', qty: 'X1', price: 120, image: TOP_SALES_DATA[0].image },
+                        { name: 'Corduroy slim-fit', customer: 'Leslie Alexander', id: '1452', qty: 'X1', price: 120, image: TOP_SALES_DATA[1].image },
+                        { name: 'Turtleneck knitted', customer: 'Leslie Alexander', id: '1452', qty: 'X1', price: 120, image: TOP_SALES_DATA[2].image },
+                        { name: 'Wool oversized', customer: 'Leslie Alexander', id: '1452', qty: 'X1', price: 120, image: TOP_SALES_DATA[3].image },
+                        { name: 'Oversized poplin', customer: 'Leslie Alexander', id: '1452', qty: 'X1', price: 120, image: TOP_SALES_DATA[1].image },
                       ].map((item, idx) => (
                         <tr key={idx} className="hover:bg-gray-50/50 transition-colors group">
                           <td className="py-4 px-8">
@@ -712,7 +825,7 @@ export default function AdminDashboard({
                           <td className="py-4 px-8 text-sm font-medium text-gray-500">{item.customer}</td>
                           <td className="py-4 px-8 text-sm font-medium text-gray-500">{item.id}</td>
                           <td className="py-4 px-8 text-sm font-medium text-gray-500">{item.qty}</td>
-                          <td className="py-4 px-8 text-sm font-black text-primary text-right">{item.price}</td>
+                          <td className="py-4 px-8 text-sm font-black text-primary text-right">{formatPrice(item.price)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -909,9 +1022,9 @@ export default function AdminDashboard({
                             </div>
                           </td>
                           <td className="py-6 px-6 text-sm font-bold text-gray-500">#{product.id.substring(0, 8).toUpperCase()}</td>
-                          <td className="py-6 px-6 text-sm font-black text-primary">${product.salePrice.toLocaleString()}</td>
+                          <td className="py-6 px-6 text-sm font-black text-primary">{formatPrice(product.salePrice)}</td>
                           <td className="py-6 px-6 text-sm font-bold text-gray-500">{product.quantity.toLocaleString()}</td>
-                          <td className="py-6 px-6 text-sm font-bold text-gray-500">${product.regularPrice.toLocaleString()}</td>
+                          <td className="py-6 px-6 text-sm font-bold text-gray-500">{formatPrice(product.regularPrice)}</td>
                           <td className="py-6 px-6">
                             <span className={cn(
                               "text-[10px] font-black px-4 py-1.5 rounded-xl uppercase tracking-widest leading-none",
@@ -963,7 +1076,7 @@ export default function AdminDashboard({
                                 setProductCategoryFilter('All Categories');
                                 setProductStatusFilter('All Status');
                               }}
-                              className="mt-4 px-8 py-3 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all"
+                              className="mt-4 px-8 py-3 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 transition-all"
                             >
                               Reset all filters
                             </button>
@@ -1052,7 +1165,7 @@ export default function AdminDashboard({
                     <option>Newest First</option>
                   </select>
 
-                  <button className="flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:opacity-90 shadow-lg shadow-accent/20 transition-all active:scale-95">
+                  <button className="flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:opacity-90 shadow-lg shadow-accent/20 transition-all">
                     <Download size={14} className="stroke-[3]" /> Export all order
                   </button>
                 </div>
@@ -1073,14 +1186,14 @@ export default function AdminDashboard({
                   </thead>
                   <tbody className="divide-y divide-gray-50">
                     {[
-                      { name: 'Neptune Longsleeve', id: '#7712309', price: '$1,452.500', qty: '1,638', payment: '20', status: 'Complete', img: 'https://picsum.photos/seed/fashion1/100/100' },
-                      { name: 'Corduroy slim-fit', id: '#7712309', price: '$1,452.500', qty: '1,638', payment: '20', status: 'New', img: 'https://picsum.photos/seed/fashion2/100/100' },
-                      { name: 'Turtleneck knitted T-shirt', id: '#7712309', price: '$1,452.500', qty: '1,638', payment: '20', status: 'Complete', img: 'https://picsum.photos/seed/fashion3/100/100' },
-                      { name: 'Wool oversized T-shirt', id: '#7712309', price: '$1,452.500', qty: '1,638', payment: '20', status: 'Pending', img: 'https://picsum.photos/seed/fashion4/100/100' },
-                      { name: 'Oversized Motif T-shirt', id: '#7712309', price: '$1,452.500', qty: '1,638', payment: '20', status: 'Complete', img: 'https://picsum.photos/seed/fashion5/100/100' },
-                      { name: 'Neptune Longsleeve', id: '#7712309', price: '$1,452.500', qty: '1,638', payment: '20', status: 'Complete', img: 'https://picsum.photos/seed/fashion6/100/100' },
-                      { name: 'Corduroy slim-fit', id: '#7712309', price: '$1,452.500', qty: '1,638', payment: '20', status: 'New', img: 'https://picsum.photos/seed/fashion7/100/100' },
-                      { name: 'Turtleneck knitted T-shirt', id: '#7712309', price: '$1,452.500', qty: '1,638', payment: '20', status: 'Complete', img: 'https://picsum.photos/seed/fashion8/100/100' },
+                      { name: 'Neptune Longsleeve', id: '#7712309', price: 'Rs. 1,452', qty: '1,638', payment: '20', status: 'Complete', img: 'https://picsum.photos/seed/fashion1/100/100' },
+                      { name: 'Corduroy slim-fit', id: '#7712309', price: 'Rs. 1,452', qty: '1,638', payment: '20', status: 'New', img: 'https://picsum.photos/seed/fashion2/100/100' },
+                      { name: 'Turtleneck knitted T-shirt', id: '#7712309', price: 'Rs. 1,452', qty: '1,638', payment: '20', status: 'Complete', img: 'https://picsum.photos/seed/fashion3/100/100' },
+                      { name: 'Wool oversized T-shirt', id: '#7712309', price: 'Rs. 1,452', qty: '1,638', payment: '20', status: 'Pending', img: 'https://picsum.photos/seed/fashion4/100/100' },
+                      { name: 'Oversized Motif T-shirt', id: '#7712309', price: 'Rs. 1,452', qty: '1,638', payment: '20', status: 'Complete', img: 'https://picsum.photos/seed/fashion5/100/100' },
+                      { name: 'Neptune Longsleeve', id: '#7712309', price: 'Rs. 1,452', qty: '1,638', payment: '20', status: 'Complete', img: 'https://picsum.photos/seed/fashion6/100/100' },
+                      { name: 'Corduroy slim-fit', id: '#7712309', price: 'Rs. 1,452', qty: '1,638', payment: '20', status: 'New', img: 'https://picsum.photos/seed/fashion7/100/100' },
+                      { name: 'Turtleneck knitted T-shirt', id: '#7712309', price: 'Rs. 1,452', qty: '1,638', payment: '20', status: 'Complete', img: 'https://picsum.photos/seed/fashion8/100/100' },
                     ].map((item, idx) => (
                       <tr key={idx} className="hover:bg-gray-50/50 transition-colors group">
                         <td className="py-6 px-8">
@@ -1163,9 +1276,9 @@ export default function AdminDashboard({
 
                   <div className="space-y-4">
                     {[
-                      { name: 'Kristin Watson', price: '$50.47', qty: 1, img: 'https://picsum.photos/seed/kristin/100/100' },
-                      { name: 'V-neck linen T-...', price: '$50.47', qty: 1, img: 'https://picsum.photos/seed/vneck/100/100' },
-                      { name: 'Ribbed modal T-...', price: '$50.47', qty: 1, img: 'https://picsum.photos/seed/ribbed/100/100' },
+                      { name: 'Kristin Watson', price: 'Rs. 50', qty: 1, img: 'https://picsum.photos/seed/kristin/100/100' },
+                      { name: 'V-neck linen T-...', price: 'Rs. 50', qty: 1, img: 'https://picsum.photos/seed/vneck/100/100' },
+                      { name: 'Ribbed modal T-...', price: 'Rs. 50', qty: 1, img: 'https://picsum.photos/seed/ribbed/100/100' },
                     ].map((item, idx) => (
                       <div key={idx} className="bg-gray-50/50 rounded-3xl p-6 flex items-center gap-6 group hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100">
                         <img 
@@ -1203,19 +1316,19 @@ export default function AdminDashboard({
                   <div className="px-8 space-y-6">
                     <div className="flex justify-between items-center py-4 border-b border-gray-50">
                       <span className="text-sm font-bold text-gray-500">Subtotal:</span>
-                      <span className="text-sm font-black text-primary">$70.13</span>
+                      <span className="text-sm font-black text-primary">Rs. 70</span>
                     </div>
                     <div className="flex justify-between items-center py-4 border-b border-gray-50">
                       <span className="text-sm font-bold text-gray-500">Shipping:</span>
-                      <span className="text-sm font-black text-primary">$10.00</span>
+                      <span className="text-sm font-black text-primary">Rs. 10</span>
                     </div>
                     <div className="flex justify-between items-center py-4 border-b border-gray-50">
                       <span className="text-sm font-bold text-gray-500">Tax (GST):</span>
-                      <span className="text-sm font-black text-primary">$5.00</span>
+                      <span className="text-sm font-black text-primary">Rs. 5</span>
                     </div>
                     <div className="flex justify-between items-center pt-4">
                       <span className="text-sm font-black text-primary">Total price:</span>
-                      <span className="text-sm font-black text-accent">$90.58</span>
+                      <span className="text-sm font-black text-accent">Rs. 90</span>
                     </div>
                   </div>
                 </div>
@@ -1237,7 +1350,7 @@ export default function AdminDashboard({
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="font-bold text-gray-500">Total</span>
-                      <span className="font-black text-accent">$948.5</span>
+                      <span className="font-black text-accent">Rs. 948</span>
                     </div>
                   </div>
                 </div>
@@ -1284,18 +1397,6 @@ export default function AdminDashboard({
       case 'Order Tracking':
         return (
           <div className="space-y-8 pb-20">
-            {/* Header & Breadcrumbs */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <h1 className="text-3xl font-black text-primary">Order Tracking</h1>
-              <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-gray-400">
-                <span className="hover:text-primary cursor-pointer transition-colors">Dashboard</span>
-                <ChevronRight size={10} />
-                <span className="hover:text-primary cursor-pointer transition-colors">Order</span>
-                <ChevronRight size={10} />
-                <span className="text-primary font-black">Order Tracking</span>
-              </div>
-            </div>
-
             {/* Product & Basic Order Info Card */}
             <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col md:flex-row">
               <div className="md:w-1/3 lg:w-1/4 aspect-square md:aspect-auto">
@@ -1443,7 +1544,7 @@ export default function AdminDashboard({
                           <p className="text-xs text-gray-400">{customer.phone}</p>
                         </td>
                         <td className="py-5 px-8 text-sm font-bold text-primary">{customer.orders}</td>
-                        <td className="py-5 px-8 text-sm font-bold text-primary">{customer.spend}</td>
+                        <td className="py-5 px-8 text-sm font-bold text-primary">{formatPrice(customer.spend)}</td>
                         <td className="py-5 px-8">
                           <span className={cn(
                             "text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider",
@@ -1576,7 +1677,7 @@ export default function AdminDashboard({
               {MOCK_CATEGORIES.map((cat) => (
                 <div key={cat.id} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
                   <div className="aspect-video rounded-2xl overflow-hidden mb-6 bg-gray-50 relative">
-                    <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <img src={cat.image} alt={cat.name} className="w-full h-full object-cover transition-all duration-700" />
                     <div className="absolute top-3 right-3">
                       <span className={cn(
                         "text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest",
@@ -1646,7 +1747,7 @@ export default function AdminDashboard({
                   </div>
                   <div className="bg-white p-4 rounded-2xl border border-gray-100">
                     <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Total Valuation</p>
-                    <p className="text-xl font-black text-green-500">$85,420</p>
+                    <p className="text-xl font-black text-green-500">{formatPrice(85420)}</p>
                   </div>
                 </div>
               </div>
@@ -1670,7 +1771,7 @@ export default function AdminDashboard({
                           <span className="text-sm font-bold text-primary">{product.name}</span>
                         </td>
                         <td className="py-4 px-8 text-xs text-gray-400 font-mono">{product.sku}</td>
-                        <td className="py-4 px-8 text-sm font-bold text-primary">${product.salePrice}</td>
+                        <td className="py-4 px-8 text-sm font-bold text-primary">{formatPrice(product.salePrice)}</td>
                         <td className="py-4 px-8 text-sm text-gray-600 font-medium">{product.quantity} Units</td>
                         <td className="py-4 px-8">
                           <span className={cn(
@@ -1825,7 +1926,7 @@ export default function AdminDashboard({
                         <td className="py-5 px-8 text-sm font-bold text-primary">{tx.id}</td>
                         <td className="py-5 px-8 text-sm text-accent font-bold hover:underline cursor-pointer">{tx.order}</td>
                         <td className="py-5 px-8 text-sm text-gray-600">{tx.method}</td>
-                        <td className="py-5 px-8 text-sm font-bold text-primary">{tx.amount}</td>
+                        <td className="py-5 px-8 text-sm font-bold text-primary">{formatPrice(tx.amount)}</td>
                         <td className="py-5 px-8 text-sm text-gray-400">{tx.date}</td>
                         <td className="py-5 px-8 text-right">
                           <span className={cn(
@@ -1918,7 +2019,7 @@ export default function AdminDashboard({
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                { label: 'Avg. Order Value', value: '$184.20', trend: '+5.2%', icon: TrendingUp },
+                { label: 'Avg. Order Value', value: 'Rs. 184.20', trend: '+5.2%', icon: TrendingUp },
                 { label: 'Conversion Rate', value: '4.8%', trend: '+1.2%', icon: BarChart3 },
                 { label: 'Customer Retention', value: '62%', trend: '-0.5%', icon: Users },
               ].map((stat) => (
@@ -1942,16 +2043,6 @@ export default function AdminDashboard({
       case 'Settings':
         return (
           <div className="space-y-8 pb-20">
-            {/* Header & Breadcrumbs */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <h1 className="text-3xl font-black text-primary">Setting</h1>
-              <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-gray-400">
-                <span className="hover:text-primary cursor-pointer transition-colors" onClick={() => setActiveTab('Dashboard')}>Dashboard</span>
-                <ChevronRight size={10} />
-                <span className="text-primary font-black">Setting</span>
-              </div>
-            </div>
-
             {/* General Information Card */}
             <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden p-10">
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
@@ -2139,7 +2230,7 @@ export default function AdminDashboard({
 
             {/* Update Button */}
             <div className="flex">
-              <button className="bg-accent text-white px-16 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-accent/30 hover:opacity-90 active:scale-95 transition-all">
+              <button className="bg-accent text-white px-16 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-accent/30 hover:opacity-90 transition-all">
                 Update
               </button>
             </div>
@@ -2155,17 +2246,6 @@ export default function AdminDashboard({
       case 'View All Blogs':
         return (
           <div className="space-y-8 pb-20">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <h1 className="text-3xl font-black text-primary uppercase tracking-tighter">View All Blogs</h1>
-              <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-gray-400">
-                <span className="hover:text-primary cursor-pointer transition-colors" onClick={() => setActiveTab('Dashboard')}>Dashboard</span>
-                <ChevronRight size={10} />
-                <span className="hover:text-primary cursor-pointer transition-colors" onClick={() => setActiveTab('Blogs')}>Blogs</span>
-                <ChevronRight size={10} />
-                <span className="text-primary font-black">All Blogs</span>
-              </div>
-            </div>
-
             <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden p-10">
               <div className="flex items-center justify-between mb-8">
                 <h3 className="text-xl font-black text-primary">Blog List</h3>
@@ -2211,7 +2291,18 @@ export default function AdminDashboard({
                           <td className="py-5 pr-4">
                             <div className="flex items-center gap-2">
                               <button className="p-2 text-primary hover:text-accent transition-colors"><Eye size={16} /></button>
-                              <button className="p-2 text-primary hover:text-sale transition-colors"><Trash2 size={16} /></button>
+                              <button 
+                                onClick={() => handleEditBlogClick(blog)}
+                                className="p-2 text-primary hover:text-blue-500 transition-colors"
+                              >
+                                <Edit2 size={16} />
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteBlog(blog._id)}
+                                className="p-2 text-primary hover:text-sale transition-colors"
+                              >
+                                <Trash2 size={16} />
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -2266,7 +2357,7 @@ export default function AdminDashboard({
                       </div>
                     ) : (
                       <>
-                        <div className="p-4 bg-white rounded-2xl shadow-sm group-hover:scale-110 transition-transform">
+                        <div className="p-4 bg-white rounded-2xl shadow-sm transition-all">
                           <CloudUpload className="text-accent" size={24} />
                         </div>
                         <div className="text-center">
@@ -2362,10 +2453,10 @@ export default function AdminDashboard({
   return (
     <div className="flex min-h-screen bg-gray-50 font-sans">
       {/* Sidebar */}
-      <aside className="w-72 bg-white border-r border-gray-100 flex flex-col fixed h-full z-50">
-        <div className="p-8 mb-4">
+      <aside className="w-80 bg-white border-r border-gray-100 flex flex-col fixed h-full z-50">
+        <div className="px-6 py-8 mb-4">
           <Link to="/" className="flex items-center gap-2">
-            <Logo variant="dark" className="scale-125 origin-left" />
+            <Logo variant="dark" />
           </Link>
         </div>
 
@@ -2474,45 +2565,35 @@ export default function AdminDashboard({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-72 min-h-screen">
+      <main className="flex-1 ml-80 min-h-screen">
         {/* Top Navbar */}
-        <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-40 px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div>
-                <h1 className="text-2xl font-black text-primary uppercase tracking-tighter">Admin Dashboard</h1>
-                <div className="flex items-center gap-2 text-[10px] font-bold text-accent uppercase tracking-[0.2em] mt-0.5">
-                  <span>Management Portal</span>
-                  <ChevronRight size={10} />
-                  <span className="text-gray-400">{activeTab}</span>
-                </div>
-              </div>
+        <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-40 px-10 py-4">
+          <div className="flex items-center gap-10">
+            {/* Search Bar - Now on the left and spanning most of the width */}
+            <div className="flex-1 relative max-w-4xl">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <input 
+                type="text" 
+                placeholder="Search orders, products..." 
+                className="bg-gray-50/50 border border-gray-100 rounded-2xl py-3 pl-12 pr-6 focus:outline-none focus:ring-2 focus:ring-accent/20 w-full text-sm font-medium"
+              />
             </div>
-
-            <div className="flex items-center gap-6">
-              <div className="relative hidden lg:block">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                <input 
-                  type="text" 
-                  placeholder="Search orders, products..." 
-                  className="bg-gray-50 border border-gray-100 rounded-xl py-2.5 pl-12 pr-6 focus:outline-none focus:ring-2 focus:ring-accent/20 w-80 transition-all text-sm"
-                />
-              </div>
-              
+            
+            <div className="flex items-center gap-6 ml-auto">
               <div className="flex items-center gap-3">
                 <button className="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-accent transition-all relative">
                   <Bell size={20} />
                   <span className="absolute top-2 right-2 w-2 h-2 bg-sale rounded-full border-2 border-white"></span>
                 </button>
-                <div className="flex items-center gap-3 pl-6 border-l border-gray-100">
+                <div className="flex items-center gap-4 pl-6 border-l border-gray-100">
                   <div className="text-right hidden sm:block">
-                    <p className="text-sm font-bold text-primary">Admin User</p>
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Super Admin</p>
+                    <p className="text-sm font-black text-primary leading-tight">Admin User</p>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Super Admin</p>
                   </div>
                   <img 
                     src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=400&fit=crop" 
                     alt="Admin" 
-                    className="w-10 h-10 rounded-xl border-2 border-white shadow-sm object-cover"
+                    className="w-11 h-11 rounded-2xl border-2 border-white shadow-sm object-cover"
                     referrerPolicy="no-referrer"
                   />
                 </div>
@@ -2522,7 +2603,17 @@ export default function AdminDashboard({
         </header>
 
         {/* Dynamic Content */}
-        <div className="p-8 max-w-[1600px] mx-auto">
+        <div className="p-10 max-w-[1600px] mx-auto space-y-10">
+          {/* Header/Title Relocation */}
+          <div>
+            <h1 className="text-3xl font-black text-primary uppercase tracking-tighter">Admin Dashboard</h1>
+            <div className="flex items-center gap-2 text-[10px] font-bold text-accent uppercase tracking-[0.2em] mt-1.5">
+              <span>Management Portal</span>
+              <ChevronRight size={10} />
+              <span className="text-gray-400">{activeTab}</span>
+            </div>
+          </div>
+
           {renderContent()}
         </div>
 
@@ -2579,14 +2670,26 @@ export default function AdminDashboard({
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
-                      {newProduct.images.map((img, i) => (
+                      {newProduct.images.length > 0 && newProduct.images.map((img, i) => (
                         <div key={i} className="aspect-[3/4] rounded-2xl overflow-hidden border border-gray-100 shadow-sm relative group">
                           <img src={img} alt="" className="w-full h-full object-cover" />
                           <button 
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setNewProduct({...newProduct, images: newProduct.images.filter((_, idx) => idx !== i)});
+                              const imageToRemove = newProduct.images[i];
+                              const isNewlyAdded = !imageToRemove.startsWith('http');
+                              
+                              if (isNewlyAdded) {
+                                // Find how many newly added images are before this one to find the correct file index
+                                const previewsBefore = newProduct.images.slice(0, i).filter(img => !img.startsWith('http')).length;
+                                setSelectedProductFiles(prev => prev.filter((_, idx) => idx !== previewsBefore));
+                              }
+                              
+                              setNewProduct({
+                                ...newProduct, 
+                                images: newProduct.images.filter((_, idx) => idx !== i)
+                              });
                             }}
                             className="absolute top-2 right-2 p-1 bg-white/90 rounded-lg text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                           >
@@ -2597,7 +2700,7 @@ export default function AdminDashboard({
                     </div>
 
                     <p className="text-xs text-gray-400 font-medium leading-relaxed max-w-2xl">
-                      You need to add at least 4 images. Pay attention to the quality of the pictures you add, comply with the background color standards. Pictures must be in certain dimensions. Notice that the product shows all the details.
+                      You can add multiple images. The first image will be the primary product photo. High quality vertical shots (3:4) work best.
                     </p>
                   </div>
 
@@ -2639,11 +2742,11 @@ export default function AdminDashboard({
                         <div className="space-y-2">
                           <label className="text-sm font-black text-gray-900">Price <span className="text-accent">*</span></label>
                           <div className="relative">
-                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-sm">Rs.</span>
                             <input 
                               type="number"
                               placeholder="Price"
-                              className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 pl-10 pr-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
+                              className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 pl-12 pr-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
                               value={newProduct.price}
                               onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
                             />
@@ -2652,7 +2755,7 @@ export default function AdminDashboard({
                         <div className="space-y-2">
                           <label className="text-sm font-black text-gray-900">Sale Price</label>
                           <div className="relative">
-                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-sm">Rs.</span>
                             <input 
                               type="number"
                               placeholder="Sale Price"
@@ -2742,7 +2845,7 @@ export default function AdminDashboard({
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-10 space-y-10">
                   {/* Image Upload Section */}
                   <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm space-y-8">
-                    <h3 className="text-sm font-black text-gray-900">Product Image</h3>
+                    <h3 className="text-sm font-black text-gray-900">Product Images</h3>
                     <div 
                       onClick={() => fileInputRef.current?.click()}
                       className="aspect-[4/1] w-full border-2 border-dashed border-accent/20 bg-accent/5 rounded-3xl flex flex-col items-center justify-center group cursor-pointer hover:bg-accent/10 transition-all"
@@ -2751,6 +2854,7 @@ export default function AdminDashboard({
                         type="file" 
                         ref={fileInputRef} 
                         className="hidden" 
+                        multiple
                         accept="image/*"
                         onChange={handleImageUpload}
                       />
@@ -2758,16 +2862,38 @@ export default function AdminDashboard({
                         <CloudUpload size={48} />
                       </div>
                       <p className="text-sm font-bold text-gray-500">
-                        Drop your image here or select <span className="text-accent underline">click to change</span>
+                        Drop your images here or select <span className="text-accent underline">click to change</span>
                       </p>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
-                      {newProduct.images.length > 0 && (
-                        <div className="aspect-[3/4] rounded-2xl overflow-hidden border border-gray-100 shadow-sm relative group">
-                          <img src={newProduct.images[0]} alt="" className="w-full h-full object-cover" />
+                      {newProduct.images.map((img, i) => (
+                        <div key={i} className="aspect-[3/4] rounded-2xl overflow-hidden border border-gray-100 shadow-sm relative group">
+                          <img src={img} alt="" className="w-full h-full object-cover" />
+                          <button 
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const imageToRemove = newProduct.images[i];
+                              const isNewlyAdded = !imageToRemove.startsWith('http');
+                              
+                              if (isNewlyAdded) {
+                                // Find how many newly added images are before this one to find the correct file index
+                                const previewsBefore = newProduct.images.slice(0, i).filter(img => !img.startsWith('http')).length;
+                                setSelectedProductFiles(prev => prev.filter((_, idx) => idx !== previewsBefore));
+                              }
+                              
+                              setNewProduct({
+                                ...newProduct, 
+                                images: newProduct.images.filter((_, idx) => idx !== i)
+                              });
+                            }}
+                            className="absolute top-2 right-2 p-1 bg-white/90 rounded-lg text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X size={14} />
+                          </button>
                         </div>
-                      )}
+                      ))}
                     </div>
                   </div>
 
@@ -2808,11 +2934,11 @@ export default function AdminDashboard({
                         <div className="space-y-2">
                           <label className="text-sm font-black text-gray-900">Price <span className="text-accent">*</span></label>
                           <div className="relative">
-                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-sm">Rs.</span>
                             <input 
                               type="number"
                               placeholder="Price"
-                              className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 pl-10 pr-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
+                              className="w-full bg-[#f4f7f9] border-none rounded-xl py-4 pl-12 pr-6 text-sm font-medium focus:ring-2 focus:ring-accent/20"
                               value={newProduct.price}
                               onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
                             />
@@ -2821,7 +2947,7 @@ export default function AdminDashboard({
                         <div className="space-y-2">
                           <label className="text-sm font-black text-gray-900">Sale Price</label>
                           <div className="relative">
-                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-sm">Rs.</span>
                             <input 
                               type="number"
                               placeholder="Sale Price"
@@ -2880,6 +3006,121 @@ export default function AdminDashboard({
               </motion.div>
             </div>
           )}
+
+          {/* Edit Blog Modal */}
+          <AnimatePresence>
+            {isEditBlogModalOpen && (
+              <div className="fixed inset-0 z-[60] flex items-center justify-center p-0 md:p-10 overflow-hidden">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setIsEditBlogModalOpen(false)}
+                  className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                  className="relative w-full h-[100dvh] md:h-auto md:max-h-[90vh] md:max-w-4xl bg-white md:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
+                >
+                  <div className="bg-white px-10 py-6 border-b border-gray-100 flex items-center justify-between sticky top-0 z-20">
+                    <h2 className="text-2xl font-black text-gray-900">Edit Blog</h2>
+                    <button 
+                      onClick={() => setIsEditBlogModalOpen(false)}
+                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    >
+                      <X size={20} className="text-gray-400" />
+                    </button>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-10">
+                    <form onSubmit={handleUpdateBlog} className="space-y-8">
+                      <div className="space-y-2">
+                        <label className="text-sm font-black text-gray-900 ml-1">Blog Title *</label>
+                        <input 
+                          type="text" 
+                          className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none"
+                          value={newBlog.title}
+                          onChange={(e) => setNewBlog({...newBlog, title: e.target.value})}
+                          required
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-2">
+                          <label className="text-sm font-black text-gray-900 ml-1">Category *</label>
+                          <select 
+                            className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none"
+                            value={newBlog.category}
+                            onChange={(e) => setNewBlog({...newBlog, category: e.target.value})}
+                          >
+                            <option value="Styling Tips">Styling Tips</option>
+                            <option value="New Arrivals">New Arrivals</option>
+                            <option value="Fashion Trends">Fashion Trends</option>
+                            <option value="Seasonal Guide">Seasonal Guide</option>
+                            <option value="Behind the Scenes">Behind the Scenes</option>
+                          </select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <label className="text-sm font-black text-gray-900 ml-1">Update Cover Image</label>
+                          <div 
+                            onClick={() => fileInputRef.current?.click()}
+                            className="w-full bg-[#f4f7f9] border-2 border-dashed border-gray-200 rounded-2xl py-3 px-6 text-sm font-bold text-gray-400 flex items-center justify-center gap-2 cursor-pointer hover:border-accent/40 transition-all"
+                          >
+                            <Upload size={16} />
+                            {selectedBlogFile ? selectedBlogFile.name : 'Change Image'}
+                            <input 
+                              type="file" 
+                              ref={fileInputRef} 
+                              className="hidden" 
+                              accept="image/*"
+                              onChange={(e) => setSelectedBlogFile(e.target.files?.[0] || null)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {newBlog.imageURL && !selectedBlogFile && (
+                        <div className="relative w-full aspect-video rounded-3xl overflow-hidden border border-gray-100 shadow-sm">
+                          <img src={newBlog.imageURL} alt="Preview" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-black text-gray-900 ml-1">Description *</label>
+                        <textarea 
+                          rows={6}
+                          className="w-full bg-[#f4f7f9] border-none rounded-2xl py-4 px-6 text-sm font-medium focus:ring-2 focus:ring-accent/20 transition-all outline-none resize-none"
+                          value={newBlog.description}
+                          onChange={(e) => setNewBlog({...newBlog, description: e.target.value})}
+                          required
+                        />
+                      </div>
+
+                      <div className="flex gap-4 pt-4">
+                        <button 
+                          type="submit"
+                          disabled={isSubmitting}
+                          className="flex-1 py-5 bg-accent text-white rounded-[1.25rem] font-bold text-sm shadow-xl shadow-accent/20 hover:opacity-90 transition-all disabled:opacity-50"
+                        >
+                          {isSubmitting ? 'Updating...' : 'Update Blog Post'}
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={() => setIsEditBlogModalOpen(false)}
+                          className="flex-1 py-5 bg-gray-50 text-gray-400 border border-gray-100 rounded-[1.25rem] font-bold text-sm hover:bg-gray-100 transition-all"
+                        >
+                          Discard
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
         </AnimatePresence>
       </main>
     </div>
